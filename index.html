@@ -86,6 +86,9 @@
   #start-screen {
     justify-content: flex-start;
     padding-top: 5vh;
+    padding-bottom: 4vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .title {
@@ -134,6 +137,7 @@
   .mode-btn.m1 { background: linear-gradient(145deg, #ff9aa8, #ff6b81); }
   .mode-btn.m2 { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
   .mode-btn.m3 { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
+  .mode-btn.m4 { background: linear-gradient(145deg, #d4b3ff, #a978f0); }
 
   .mode-desc {
     margin-top: 8px;
@@ -419,6 +423,168 @@
   .result-btn:active { transform: translateY(3px); }
   .result-btn.retry { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
   .result-btn.home { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
+
+  /* ---------- 색칠 놀이 화면 ---------- */
+  #color-screen {
+    justify-content: flex-start;
+  }
+
+  .color-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    z-index: 3;
+    flex-shrink: 0;
+  }
+
+  .color-title {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 800;
+    color: #4a5568;
+  }
+
+  .color-thumbs {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    padding: 6px 16px 12px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .color-thumb-btn {
+    flex: 0 0 auto;
+    width: 92px;
+    height: 74px;
+    border-radius: 16px;
+    border: 3px solid transparent;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+  .color-thumb-btn svg { width: 100%; height: 100%; pointer-events: none; }
+  .color-thumb-btn.active { border-color: #a978f0; background: #f3ebff; }
+
+  .color-canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    z-index: 2;
+  }
+
+  #color-canvas {
+    width: min(94vw, 560px);
+    height: 100%;
+    max-height: 44vh;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+  #color-canvas svg { width: 100%; height: 100%; }
+
+  .fill-region {
+    fill: #ffffff;
+    stroke: #33404f;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    cursor: pointer;
+    transition: fill 0.12s ease;
+  }
+  .fixed-dark { fill: #33404f; }
+  .deco { fill: none; stroke: #33404f; stroke-width: 3; stroke-linecap: round; }
+
+  .color-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) 16px;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .swatch-row {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px;
+  }
+
+  .swatch {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    cursor: pointer;
+    padding: 0;
+  }
+  .swatch.active {
+    border-color: #4a5568;
+    transform: scale(1.15);
+  }
+  .swatch.eraser {
+    background: #ffffff !important;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .reset-btn {
+    flex: 0 0 auto;
+    height: 50px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 18px;
+    background: #ffffff;
+    color: #4a5568;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+
+  .celebrate-msg {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.6);
+    background: #ffffff;
+    color: #a978f0;
+    font-size: 26px;
+    font-weight: 900;
+    padding: 16px 30px;
+    border-radius: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 30;
+    pointer-events: none;
+    text-align: center;
+  }
+  .celebrate-msg.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 </style>
 </head>
 <body>
@@ -443,6 +609,10 @@
       <div class="menu-item">
         <button class="mode-btn m3" onclick="startGame(3)">3단계: 그림 보고 단어 찾기 🖼️</button>
         <div class="mode-desc">그림에 어울리는 단어 풍선을 터뜨려요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m4" onclick="openColorScreen()">색칠 놀이 🎨</button>
+        <div class="mode-desc">자동차, 공룡, 기차를 예쁘게 색칠해요</div>
       </div>
     </div>
   </div>
@@ -474,6 +644,27 @@
       <button class="result-btn home" onclick="goHome()">다른 단계 하기</button>
     </div>
   </div>
+
+  <!-- ============ 색칠 놀이 화면 ============ -->
+  <div id="color-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">색칠 놀이 🎨</div>
+    </div>
+
+    <div class="color-thumbs" id="color-thumbs"></div>
+
+    <div class="color-canvas-wrap">
+      <div id="color-canvas"></div>
+    </div>
+
+    <div class="color-controls">
+      <div class="swatch-row" id="swatch-row"></div>
+      <button class="reset-btn" onclick="resetCurrentPicture()">다시 칠하기</button>
+    </div>
+  </div>
+
+  <div class="celebrate-msg" id="celebrate-msg">참 예쁘게 색칠했어요! 🎉<br>다른 그림도 칠해볼까요?</div>
 
 <script>
 (function () {
@@ -914,6 +1105,250 @@
       })(i);
     }
   }
+
+  // ---------- 색칠 놀이 ----------
+  var COLOR_PICTURES = [
+    {
+      id: "car1",
+      label: "세단 자동차",
+      svg: '<svg viewBox="0 0 400 220">' +
+        '<path class="fill-region" data-region="body" d="M40,150 Q40,128 62,128 L98,128 Q118,86 158,76 L232,76 Q272,86 292,128 L338,128 Q360,128 360,150 L360,168 Q360,180 348,180 L52,180 Q40,180 40,168 Z"/>' +
+        '<path class="fill-region" data-region="window" d="M118,122 L152,88 L212,88 L262,122 Z"/>' +
+        '<line class="deco" x1="187" y1="88" x2="187" y2="122"/>' +
+        '<circle class="fixed-dark" cx="112" cy="180" r="26"/>' +
+        '<circle class="fill-region" data-region="hubF" cx="112" cy="180" r="11"/>' +
+        '<circle class="fixed-dark" cx="288" cy="180" r="26"/>' +
+        '<circle class="fill-region" data-region="hubR" cx="288" cy="180" r="11"/>' +
+        '<ellipse class="fill-region" data-region="headlight" cx="353" cy="150" rx="9" ry="7"/>' +
+        '<rect class="fill-region" data-region="taillight" x="42" y="144" width="10" height="14" rx="3"/>' +
+        '</svg>'
+    },
+    {
+      id: "car2",
+      label: "스포츠카",
+      svg: '<svg viewBox="0 0 400 220">' +
+        '<path class="fill-region" data-region="body" d="M30,158 Q30,140 48,138 L86,132 Q110,96 150,88 L226,88 Q256,96 278,124 L320,132 Q352,138 366,152 Q374,158 366,168 L360,176 Q356,182 344,182 L46,182 Q34,182 30,172 Z"/>' +
+        '<path class="fill-region" data-region="window" d="M126,128 L156,98 L214,98 L252,128 Z"/>' +
+        '<line class="deco" x1="185" y1="98" x2="185" y2="128"/>' +
+        '<path class="fill-region" data-region="spoiler" d="M275,140 L300,112 L338,120 L318,146 Z"/>' +
+        '<circle class="fixed-dark" cx="108" cy="182" r="27"/>' +
+        '<circle class="fill-region" data-region="hubF" cx="108" cy="182" r="11"/>' +
+        '<circle class="fixed-dark" cx="300" cy="182" r="27"/>' +
+        '<circle class="fill-region" data-region="hubR" cx="300" cy="182" r="11"/>' +
+        '<ellipse class="fill-region" data-region="headlight" cx="362" cy="156" rx="8" ry="7"/>' +
+        '<rect class="fill-region" data-region="taillight" x="34" y="150" width="9" height="13" rx="3"/>' +
+        '</svg>'
+    },
+    {
+      id: "car3",
+      label: "지프차",
+      svg: '<svg viewBox="0 0 400 220">' +
+        '<path class="fill-region" data-region="body" d="M44,150 Q44,126 68,126 L92,126 L92,84 Q92,74 102,74 L268,74 Q278,74 278,84 L278,126 L332,126 Q356,126 356,150 L356,168 Q356,180 344,180 L56,180 Q44,180 44,168 Z"/>' +
+        '<path class="fill-region" data-region="window" d="M104,120 L104,90 L266,90 L266,120 Z"/>' +
+        '<line class="deco" x1="150" y1="90" x2="150" y2="120"/>' +
+        '<line class="deco" x1="220" y1="90" x2="220" y2="120"/>' +
+        '<circle class="fill-region" data-region="spare" cx="366" cy="152" r="17"/>' +
+        '<line class="deco" x1="100" y1="60" x2="270" y2="60"/>' +
+        '<line class="deco" x1="120" y1="60" x2="120" y2="74"/>' +
+        '<line class="deco" x1="250" y1="60" x2="250" y2="74"/>' +
+        '<circle class="fixed-dark" cx="118" cy="180" r="27"/>' +
+        '<circle class="fill-region" data-region="hubF" cx="118" cy="180" r="11"/>' +
+        '<circle class="fixed-dark" cx="288" cy="180" r="27"/>' +
+        '<circle class="fill-region" data-region="hubR" cx="288" cy="180" r="11"/>' +
+        '<ellipse class="fill-region" data-region="headlight" cx="350" cy="146" rx="8" ry="7"/>' +
+        '</svg>'
+    },
+    {
+      id: "dino",
+      label: "공룡",
+      svg: '<svg viewBox="0 0 420 240">' +
+        '<path class="fill-region" data-region="tail" d="M296,148 C322,142 348,146 368,157 C380,164 392,171 399,177 C401,180 396,184 389,183 C362,179 328,175 296,174 C288,170 288,156 296,148 Z"/>' +
+        '<path class="fill-region" data-region="body" d="M120,150 C120,115 160,100 210,100 C260,100 300,115 300,150 C300,180 270,195 210,195 C150,195 120,180 120,150 Z"/>' +
+        '<path class="fill-region" data-region="head" d="M128,155 C110,150 95,145 80,145 C60,145 45,155 45,168 C45,182 60,190 78,188 C95,186 112,178 126,168 C130,164 130,158 128,155 Z"/>' +
+        '<circle class="fixed-dark" cx="72" cy="158" r="4"/>' +
+        '<rect class="fill-region" data-region="leg1" x="150" y="172" width="42" height="55" rx="16"/>' +
+        '<rect class="fill-region" data-region="leg2" x="240" y="175" width="42" height="55" rx="16"/>' +
+        '<path class="fill-region" data-region="belly" d="M165,175 C190,190 230,190 255,175 C250,192 210,200 170,192 Z"/>' +
+        '<path class="fill-region" data-region="plate1" d="M136,140 L157,128 L149,86 Z"/>' +
+        '<path class="fill-region" data-region="plate2" d="M166,118 L190,110 L179,60 Z"/>' +
+        '<path class="fill-region" data-region="plate3" d="M199,106 L223,106 L211,48 Z"/>' +
+        '<path class="fill-region" data-region="plate4" d="M232,110 L256,118 L245,60 Z"/>' +
+        '<path class="fill-region" data-region="plate5" d="M263,128 L284,140 L273,88 Z"/>' +
+        '</svg>'
+    },
+    {
+      id: "train",
+      label: "기차",
+      svg: '<svg viewBox="0 0 480 240">' +
+        '<line class="deco" x1="222" y1="150" x2="248" y2="150"/>' +
+        '<path class="fill-region" data-region="engineBody" d="M60,130 Q60,110 80,110 L200,110 Q220,110 220,130 L220,168 Q220,178 210,178 L70,178 Q60,178 60,168 Z"/>' +
+        '<path class="fill-region" data-region="cabin" d="M150,60 L150,110 L220,110 L220,80 Q220,60 200,60 Z"/>' +
+        '<rect class="fill-region" data-region="cabinWindow" x="165" y="72" width="34" height="26" rx="4"/>' +
+        '<path class="fill-region" data-region="chimney" d="M88,76 L88,118 L114,118 L114,76 Q114,72 110,72 L92,72 Q88,72 88,76 Z"/>' +
+        '<ellipse class="fill-region" data-region="chimneyCap" cx="101" cy="72" rx="17" ry="7"/>' +
+        '<path class="fill-region" data-region="cowcatcher" d="M60,178 L30,178 Q22,178 26,168 L45,140 L60,140 Z"/>' +
+        '<circle class="fill-region" data-region="headlamp" cx="212" cy="122" r="9"/>' +
+        '<circle class="fixed-dark" cx="95" cy="182" r="20"/>' +
+        '<circle class="fill-region" data-region="wheel1" cx="95" cy="182" r="9"/>' +
+        '<circle class="fixed-dark" cx="150" cy="182" r="20"/>' +
+        '<circle class="fill-region" data-region="wheel2" cx="150" cy="182" r="9"/>' +
+        '<circle class="fixed-dark" cx="195" cy="182" r="20"/>' +
+        '<circle class="fill-region" data-region="wheel3" cx="195" cy="182" r="9"/>' +
+        '<path class="fill-region" data-region="carriageBody" d="M250,120 Q250,105 265,105 L410,105 Q425,105 425,120 L425,168 Q425,178 415,178 L260,178 Q250,178 250,168 Z"/>' +
+        '<rect class="fill-region" data-region="carriageWindow1" x="270" y="118" width="40" height="30" rx="5"/>' +
+        '<rect class="fill-region" data-region="carriageWindow2" x="330" y="118" width="40" height="30" rx="5"/>' +
+        '<circle class="fixed-dark" cx="285" cy="182" r="18"/>' +
+        '<circle class="fill-region" data-region="cwheel1" cx="285" cy="182" r="8"/>' +
+        '<circle class="fixed-dark" cx="390" cy="182" r="18"/>' +
+        '<circle class="fill-region" data-region="cwheel2" cx="390" cy="182" r="8"/>' +
+        '</svg>'
+    }
+  ];
+
+  var COLOR_PALETTE = [
+    "#ff6b81", "#ff9f43", "#ffd93d", "#8fd9c4", "#4ecba0",
+    "#54a0ff", "#5aa9e6", "#a978f0", "#fd79a8", "#e17055",
+    "#8d6e63", "#576574", "#2d3436", "#ffffff"
+  ];
+
+  var colorState = {
+    currentPictureId: null,
+    currentColor: COLOR_PALETTE[0],
+    coloredData: {},   // { pictureId: { regionKey: colorValue } }
+    completed: {}      // { pictureId: true }
+  };
+
+  window.openColorScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("color-screen");
+    if (!document.getElementById("color-thumbs").childElementCount) {
+      renderColorThumbs();
+      renderSwatches();
+    }
+    selectPicture(colorState.currentPictureId || COLOR_PICTURES[0].id);
+  };
+
+  function renderColorThumbs() {
+    var wrap = document.getElementById("color-thumbs");
+    wrap.innerHTML = "";
+    COLOR_PICTURES.forEach(function (pic) {
+      var btn = document.createElement("button");
+      btn.className = "color-thumb-btn";
+      btn.id = "thumb-" + pic.id;
+      btn.innerHTML = pic.svg;
+      btn.setAttribute("aria-label", pic.label);
+      btn.onclick = function () { selectPicture(pic.id); };
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderSwatches() {
+    var row = document.getElementById("swatch-row");
+    row.innerHTML = "";
+    COLOR_PALETTE.forEach(function (color) {
+      var sw = document.createElement("button");
+      sw.className = "swatch";
+      sw.style.background = color;
+      if (color === colorState.currentColor) { sw.classList.add("active"); }
+      sw.onclick = function () { selectColor(color, sw); };
+      row.appendChild(sw);
+    });
+    var eraser = document.createElement("button");
+    eraser.className = "swatch eraser";
+    eraser.textContent = "🧹";
+    eraser.onclick = function () { selectColor("eraser", eraser); };
+    row.appendChild(eraser);
+  }
+
+  function selectColor(color, btnEl) {
+    colorState.currentColor = color;
+    var swatches = document.querySelectorAll(".swatch");
+    swatches.forEach(function (s) { s.classList.remove("active"); });
+    btnEl.classList.add("active");
+  }
+
+  function selectPicture(pictureId) {
+    colorState.currentPictureId = pictureId;
+    var pic = COLOR_PICTURES.filter(function (p) { return p.id === pictureId; })[0];
+    var canvas = document.getElementById("color-canvas");
+    canvas.innerHTML = pic.svg;
+
+    var thumbs = document.querySelectorAll(".color-thumb-btn");
+    thumbs.forEach(function (t) { t.classList.remove("active"); });
+    var activeThumb = document.getElementById("thumb-" + pictureId);
+    if (activeThumb) { activeThumb.classList.add("active"); }
+
+    if (!colorState.coloredData[pictureId]) { colorState.coloredData[pictureId] = {}; }
+    var saved = colorState.coloredData[pictureId];
+
+    var regions = canvas.querySelectorAll(".fill-region");
+    regions.forEach(function (region) {
+      var key = region.getAttribute("data-region");
+      if (saved[key]) {
+        region.style.fill = saved[key];
+      }
+      region.addEventListener("click", function () { onRegionClick(region, key); });
+      region.addEventListener("touchstart", function (e) { e.preventDefault(); onRegionClick(region, key); }, { passive: false });
+    });
+  }
+
+  function onRegionClick(region, key) {
+    var pictureId = colorState.currentPictureId;
+    var saved = colorState.coloredData[pictureId];
+    if (colorState.currentColor === "eraser") {
+      region.style.fill = "";
+      delete saved[key];
+    } else {
+      region.style.fill = colorState.currentColor;
+      saved[key] = colorState.currentColor;
+    }
+    checkColorCompletion(pictureId);
+  }
+
+  function checkColorCompletion(pictureId) {
+    var canvas = document.getElementById("color-canvas");
+    var regions = canvas.querySelectorAll(".fill-region");
+    var saved = colorState.coloredData[pictureId];
+    var allColored = regions.length > 0;
+    regions.forEach(function (region) {
+      var key = region.getAttribute("data-region");
+      if (!saved[key]) { allColored = false; }
+    });
+
+    if (allColored && !colorState.completed[pictureId]) {
+      colorState.completed[pictureId] = true;
+      showColorCelebration();
+    } else if (!allColored) {
+      colorState.completed[pictureId] = false;
+    }
+  }
+
+  var celebrateTimer = null;
+  function showColorCelebration() {
+    var msg = document.getElementById("celebrate-msg");
+    msg.classList.add("show");
+    playDing();
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    for (var i = 0; i < 4; i++) {
+      (function (idx) {
+        setTimeout(function () {
+          spawnConfetti(w * (0.2 + Math.random() * 0.6), h * (0.2 + Math.random() * 0.3));
+        }, idx * 180);
+      })(i);
+    }
+    if (celebrateTimer) { clearTimeout(celebrateTimer); }
+    celebrateTimer = setTimeout(function () { msg.classList.remove("show"); }, 2200);
+  }
+
+  window.resetCurrentPicture = function () {
+    var pictureId = colorState.currentPictureId;
+    colorState.coloredData[pictureId] = {};
+    colorState.completed[pictureId] = false;
+    var canvas = document.getElementById("color-canvas");
+    var regions = canvas.querySelectorAll(".fill-region");
+    regions.forEach(function (region) { region.style.fill = ""; });
+  };
 })();
 </script>
 </body>
