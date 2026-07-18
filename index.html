@@ -141,6 +141,8 @@
   .mode-btn.m5 { background: linear-gradient(145deg, #ffcf8f, #ff9f43); }
   .mode-btn.m6 { background: linear-gradient(145deg, #ff9a8b, #ff6b6b); }
   .mode-btn.m7 { background: linear-gradient(145deg, #ffb3e6, #d68aff); }
+  .mode-btn.m8 { background: linear-gradient(145deg, #ffd27a, #f5a623); }
+  .mode-btn.m9 { background: linear-gradient(145deg, #7ee0d0, #35b9a4); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1069,6 +1071,217 @@
     font-size: 16px;
     padding: 60px 10px;
   }
+
+  /* ---------- 공사장 놀이 ---------- */
+  #construction-screen {
+    justify-content: flex-start;
+  }
+
+  .construction-stage {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    gap: 18px;
+    overflow-y: auto;
+  }
+
+  .construction-instruction {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(18px, 4.5vw, 22px);
+    font-weight: 800;
+    color: #4a5568;
+    text-align: center;
+    justify-content: center;
+  }
+  .construction-instruction .speak-mini {
+    font-size: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .dirt-patch {
+    width: min(70vw, 260px);
+    height: 170px;
+    background: radial-gradient(circle at 32% 28%, #c79a5f, #8a6238);
+    border-radius: 30px;
+    box-shadow: inset 0 0 0 6px rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.28);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    transition: transform 0.08s ease;
+  }
+  .dirt-patch:active { transform: scale(0.95); }
+
+  .progress-bar-wrap {
+    width: min(80vw, 320px);
+    height: 30px;
+    background: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ecba0, #8fd9c4);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+
+  .brick-pile-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    width: min(90vw, 360px);
+  }
+  .brick-btn {
+    border: none;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    font-size: 34px;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .brick-btn.taken {
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  .building-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .building-tower {
+    width: min(60vw, 220px);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    min-height: 4px;
+  }
+  .building-floor {
+    height: 32px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 15px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15);
+  }
+  .building-ground {
+    width: min(66vw, 240px);
+    height: 16px;
+    background: #6ba86b;
+    border-radius: 8px;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15);
+  }
+
+  .stack-btn {
+    height: 58px;
+    padding: 0 30px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 18px;
+    color: #ffffff;
+    background: linear-gradient(145deg, #ffd27a, #f5a623);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+
+  .construction-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 6px 16px calc(14px + env(safe-area-inset-bottom, 0px)) 16px;
+    flex-shrink: 0;
+  }
+
+  /* ---------- 팽이 놀이 ---------- */
+  #top-screen {
+    justify-content: flex-start;
+  }
+
+  .top-stage {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 12px 16px;
+  }
+
+  .top-shape-wrap {
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .top-shape {
+    width: 200px;
+    height: 200px;
+    transform-origin: 50% 50%;
+  }
+  .top-shape.spinning {
+    animation-name: topSpin;
+    animation-timing-function: cubic-bezier(.2,.8,.3,1);
+    animation-fill-mode: forwards;
+  }
+  @keyframes topSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(2880deg); }
+  }
+
+  .top-letter-display {
+    font-size: clamp(48px, 14vw, 84px);
+    font-weight: 900;
+    color: #ff6b81;
+    min-height: 1.2em;
+    text-shadow: 2px 2px 0 #ffffff;
+  }
+
+  .top-spin-btn {
+    height: 64px;
+    padding: 0 36px;
+    border: none;
+    border-radius: 24px;
+    font-weight: 900;
+    font-size: 20px;
+    color: #ffffff;
+    background: linear-gradient(145deg, #7ee0d0, #35b9a4);
+    box-shadow: 0 5px 0 rgba(0,0,0,0.15), 0 7px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+  .top-spin-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .top-color-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90vw;
+  }
 </style>
 </head>
 <body>
@@ -1109,6 +1322,14 @@
       <div class="menu-item">
         <button class="mode-btn m7" onclick="openUnicornScreen()">유니콘 만들기 🦄</button>
         <div class="mode-desc">뿔과 날개를 달고 색칠해서 나만의 유니콘을 만들어요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m8" onclick="openConstructionScreen()">공사장 놀이 🚧</button>
+        <div class="mode-desc">흙을 다지고 벽돌을 날라 건물을 쌓아 올려요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m9" onclick="openTopScreen()">팽이 놀이 🌀</button>
+        <div class="mode-desc">팽이를 돌리고 글자가 나오면 소리 내어 읽어봐요</div>
       </div>
     </div>
   </div>
@@ -1251,6 +1472,42 @@
       <div style="flex:1"></div>
       <button class="reset-btn" onclick="resetUnicorn()">다시 만들기</button>
       <button class="save-btn" onclick="saveUnicornToGallery()">저장 💾</button>
+    </div>
+  </div>
+
+  <!-- ============ 공사장 놀이 화면 ============ -->
+  <div id="construction-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">공사장 놀이 🚧</div>
+      <div class="cart-badge" id="construction-step-badge">1 / 3</div>
+    </div>
+
+    <div class="construction-stage" id="construction-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetConstruction()">처음부터 다시</button>
+    </div>
+  </div>
+
+  <!-- ============ 팽이 놀이 화면 ============ -->
+  <div id="top-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">팽이 놀이 🌀</div>
+    </div>
+
+    <div class="top-stage">
+      <div class="top-letter-display" id="top-letter-display">?</div>
+      <div class="top-shape-wrap">
+        <svg class="top-shape" id="top-shape" viewBox="0 0 200 200">
+          <polygon points="100,190 40,80 160,80" fill="#ff6b81" stroke="#33404f" stroke-width="6" stroke-linejoin="round"/>
+          <circle cx="100" cy="80" r="46" fill="#ffd93d" stroke="#33404f" stroke-width="6"/>
+          <circle cx="100" cy="80" r="14" fill="#ffffff" stroke="#33404f" stroke-width="5"/>
+        </svg>
+      </div>
+      <div class="top-color-row" id="top-color-row"></div>
+      <button class="top-spin-btn" id="top-spin-btn" onclick="spinTop()">돌려요! 🌀</button>
     </div>
   </div>
 
@@ -1501,6 +1758,11 @@
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
     if (typeof martState !== "undefined" && martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; martState.active = false; }
     if (typeof pizzaState !== "undefined" && pizzaState.timerId) { clearInterval(pizzaState.timerId); pizzaState.timerId = null; pizzaState.active = false; }
+    if (typeof topState !== "undefined") {
+      if (topState.spinTimerId) { clearTimeout(topState.spinTimerId); topState.spinTimerId = null; }
+      if (topState.letterTimerId) { clearInterval(topState.letterTimerId); topState.letterTimerId = null; }
+      topState.spinning = false;
+    }
     showScreen("start-screen");
   };
 
@@ -2985,6 +3247,221 @@
       updateGalleryBadge();
       showCelebrateMsg("갤러리에 저장했어요! 🦄✨", 1800);
     });
+  };
+
+  // ---------- 공사장 놀이 ----------
+  var CONSTRUCTION_CONFIG = {
+    dirtTarget: 8,
+    brickPileSize: 10,
+    brickTarget: 8,
+    floorTarget: 5
+  };
+
+  var FLOOR_COLORS = ["#ff9f43", "#4ecba0", "#5aa9e6", "#a978f0", "#fd79a8", "#ffd93d", "#54a0ff"];
+
+  var constructionState = {
+    step: 1,
+    dirtProgress: 0,
+    bricksCarried: 0,
+    floorsBuilt: 0
+  };
+
+  function playThud() {
+    try {
+      var ctx = getAudioCtx();
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(55, now + 0.15);
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch (e) { /* ignore */ }
+  }
+
+  window.openConstructionScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("construction-screen");
+    constructionState = { step: 1, dirtProgress: 0, bricksCarried: 0, floorsBuilt: 0 };
+    renderConstructionStep();
+  };
+
+  window.resetConstruction = function () {
+    constructionState = { step: 1, dirtProgress: 0, bricksCarried: 0, floorsBuilt: 0 };
+    renderConstructionStep();
+  };
+
+  function updateConstructionStepBadge() {
+    document.getElementById("construction-step-badge").textContent = constructionState.step + " / 3";
+  }
+
+  function renderConstructionStep() {
+    updateConstructionStepBadge();
+    var stage = document.getElementById("construction-stage");
+    stage.innerHTML = "";
+
+    if (constructionState.step === 1) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-1">🔊</span><span>흙을 눌러서 꾹꾹 다져보아요!</span></div>' +
+        '<div class="dirt-patch" id="dirt-patch">🟫</div>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="dirt-progress-fill"></div></div>';
+      document.getElementById("dirt-patch").addEventListener("click", tapDirt);
+      document.getElementById("c-speak-1").onclick = function () { speakText("흙", { cancelFirst: true }); };
+      updateDirtProgress();
+    } else if (constructionState.step === 2) {
+      var grid = '<div class="brick-pile-grid" id="brick-pile-grid">';
+      for (var i = 0; i < CONSTRUCTION_CONFIG.brickPileSize; i++) {
+        grid += '<button class="brick-btn" data-idx="' + i + '">🧱</button>';
+      }
+      grid += '</div>';
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-2">🔊</span><span>벽돌을 눌러서 옮겨보아요! (<span id="brick-count">0</span>/' + CONSTRUCTION_CONFIG.brickTarget + ')</span></div>' +
+        grid;
+      document.getElementById("c-speak-2").onclick = function () { speakText("벽돌", { cancelFirst: true }); };
+      var brickBtns = document.querySelectorAll("#brick-pile-grid .brick-btn");
+      brickBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () { collectBrick(btn); });
+      });
+    } else if (constructionState.step === 3) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-3">🔊</span><span>쌓기 버튼을 눌러서 건물을 올려보아요!</span></div>' +
+        '<div class="building-area"><div class="building-tower" id="building-tower"></div><div class="building-ground"></div></div>' +
+        '<button class="stack-btn" id="stack-btn" onclick="addFloor()">쌓기 🧱</button>';
+      document.getElementById("c-speak-3").onclick = function () { speakText("건물", { cancelFirst: true }); };
+    }
+  }
+
+  function updateDirtProgress() {
+    var pct = Math.min(100, (constructionState.dirtProgress / CONSTRUCTION_CONFIG.dirtTarget) * 100);
+    var fill = document.getElementById("dirt-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  function tapDirt() {
+    if (constructionState.step !== 1) { return; }
+    constructionState.dirtProgress++;
+    updateDirtProgress();
+    playThud();
+    var patch = document.getElementById("dirt-patch");
+    patch.style.transform = "scale(0.9)";
+    setTimeout(function () { patch.style.transform = ""; }, 100);
+    if (constructionState.dirtProgress === 1) { speakText("흙", { cancelFirst: true }); }
+    if (constructionState.dirtProgress >= CONSTRUCTION_CONFIG.dirtTarget) {
+      showBanner("흙 다지기 완료! 다음은 벽돌을 날라볼까요? 👍", 1800);
+      constructionState.step = 2;
+      setTimeout(renderConstructionStep, 700);
+    }
+  }
+
+  function collectBrick(btnEl) {
+    if (constructionState.step !== 2 || btnEl.classList.contains("taken")) { return; }
+    btnEl.classList.add("taken");
+    constructionState.bricksCarried++;
+    document.getElementById("brick-count").textContent = constructionState.bricksCarried;
+    playDing();
+    if (constructionState.bricksCarried <= 2) { speakText("벽돌", { cancelFirst: true }); }
+    if (constructionState.bricksCarried >= CONSTRUCTION_CONFIG.brickTarget) {
+      showBanner("벽돌 나르기 완료! 이제 건물을 쌓아볼까요? 👍", 1800);
+      constructionState.step = 3;
+      setTimeout(renderConstructionStep, 700);
+    }
+  }
+
+  window.addFloor = function () {
+    if (constructionState.step !== 3) { return; }
+    if (constructionState.floorsBuilt >= CONSTRUCTION_CONFIG.floorTarget) { return; }
+    constructionState.floorsBuilt++;
+    var tower = document.getElementById("building-tower");
+    var floor = document.createElement("div");
+    floor.className = "building-floor";
+    floor.style.background = FLOOR_COLORS[(constructionState.floorsBuilt - 1) % FLOOR_COLORS.length];
+    floor.textContent = constructionState.floorsBuilt + "층";
+    tower.appendChild(floor);
+    playDing();
+    speakText(constructionState.floorsBuilt + "층", { cancelFirst: true });
+    if (constructionState.floorsBuilt >= CONSTRUCTION_CONFIG.floorTarget) {
+      var stackBtn = document.getElementById("stack-btn");
+      if (stackBtn) { stackBtn.disabled = true; }
+      setTimeout(function () {
+        showCelebrateMsg("멋진 건물이 완성됐어요! 🏗️🎉", 2600);
+        speakText("멋진 건물이 완성됐어요", { cancelFirst: true });
+      }, 400);
+    }
+  };
+
+  // ---------- 팽이 놀이 ----------
+  var topState = {
+    spinning: false,
+    color: "#ff6b81",
+    spinTimerId: null,
+    letterTimerId: null
+  };
+
+  window.openTopScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("top-screen");
+    if (!document.getElementById("top-color-row").childElementCount) {
+      renderTopColorRow();
+    }
+    document.getElementById("top-letter-display").textContent = "?";
+  };
+
+  function renderTopColorRow() {
+    var row = document.getElementById("top-color-row");
+    row.innerHTML = "";
+    COLOR_PALETTE.slice(0, 8).forEach(function (color) {
+      var sw = document.createElement("button");
+      sw.className = "swatch";
+      sw.style.background = color.hex;
+      if (color.hex === topState.color) { sw.classList.add("active"); }
+      sw.onclick = function () { selectTopColor(color.hex, sw); };
+      row.appendChild(sw);
+    });
+  }
+
+  function selectTopColor(hex, btnEl) {
+    if (topState.spinning) { return; }
+    topState.color = hex;
+    document.querySelectorAll("#top-color-row .swatch").forEach(function (s) { s.classList.remove("active"); });
+    btnEl.classList.add("active");
+    var polygon = document.querySelector("#top-shape polygon");
+    if (polygon) { polygon.setAttribute("fill", hex); }
+  }
+
+  window.spinTop = function () {
+    if (topState.spinning) { return; }
+    topState.spinning = true;
+    var btn = document.getElementById("top-spin-btn");
+    btn.disabled = true;
+    var shape = document.getElementById("top-shape");
+    var display = document.getElementById("top-letter-display");
+    var duration = 3 + Math.random() * 3.5;
+    shape.style.animationDuration = duration + "s";
+    shape.classList.add("spinning");
+
+    topState.letterTimerId = setInterval(function () {
+      var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+      display.textContent = letter;
+    }, 260);
+
+    topState.spinTimerId = setTimeout(function () {
+      clearInterval(topState.letterTimerId);
+      topState.letterTimerId = null;
+      shape.classList.remove("spinning");
+      shape.style.animationDuration = "";
+      var finalLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+      display.textContent = finalLetter;
+      topState.spinning = false;
+      btn.disabled = false;
+      playDing();
+      showCelebrateMsg("짠! \"" + finalLetter + "\" 글자가 나왔어요! 🌀", 2200);
+      speakText(finalLetter, { cancelFirst: true });
+    }, duration * 1000);
   };
 })();
 </script>
