@@ -143,6 +143,7 @@
   .mode-btn.m7 { background: linear-gradient(145deg, #ffb3e6, #d68aff); }
   .mode-btn.m8 { background: linear-gradient(145deg, #ffd27a, #f5a623); }
   .mode-btn.m9 { background: linear-gradient(145deg, #7ee0d0, #35b9a4); }
+  .mode-btn.m10 { background: linear-gradient(145deg, #7a9cff, #4a6cf7); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1210,6 +1211,120 @@
     flex-shrink: 0;
   }
 
+  .machine-wrap svg { width: min(78vw, 320px); height: auto; display: block; }
+  #excavator-arm { transform-origin: 235px 130px; transition: transform 0.22s ease; }
+  #excavator-arm.scoop { transform: rotate(-16deg); }
+
+  .dig-btn, .dump-btn {
+    height: 58px;
+    padding: 0 30px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 18px;
+    color: #ffffff;
+    background: linear-gradient(145deg, #ffd27a, #f5a623);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+
+  .crane-yard {
+    position: relative;
+    width: min(92vw, 380px);
+    height: 150px;
+  }
+  .crane-rail {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: #33404f;
+    border-radius: 3px;
+  }
+  .crane-slots {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+  }
+  .crane-slot {
+    flex: 1;
+    height: 66px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-size: 28px;
+    border-bottom: 5px solid #6ba86b;
+  }
+  .crane-slot.target {
+    margin: 0 2px;
+    border: 3px dashed #b9c2cf;
+    border-bottom: 5px solid #6ba86b;
+    border-radius: 8px;
+  }
+  .crane-slot.target.filled {
+    border-color: #4ecba0;
+    background: #eafff6;
+  }
+  .crane-hook {
+    position: absolute;
+    top: 4px;
+    width: calc(100% / 7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: left 0.3s ease;
+  }
+  .crane-hook .cable {
+    width: 3px;
+    background: #33404f;
+    height: 62px;
+  }
+  .crane-hook .hook-icon { font-size: 24px; margin-top: -4px; }
+  .crane-hook .carried-brick { font-size: 22px; margin-top: -8px; }
+
+  .crane-controls {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .crane-move-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    border: none;
+    font-size: 24px;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  .crane-move-btn:disabled { opacity: 0.35; }
+  .crane-action-btn {
+    min-width: 130px;
+    height: 56px;
+    border-radius: 18px;
+    border: none;
+    font-weight: 900;
+    font-size: 16px;
+    color: #ffffff;
+    background: linear-gradient(145deg, #54a0ff, #5aa9e6);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  .crane-action-btn:disabled { opacity: 0.4; }
+
+  #dump-bed { transform-origin: 155px 175px; transition: transform 0.35s ease; }
+  #dump-bed.tipping { transform: rotate(-20deg); }
+  .dump-truck-stage-wrap { position: relative; }
+  .falling-brick {
+    position: absolute;
+    font-size: 24px;
+    animation: brickFall 0.7s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes brickFall {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(50px); opacity: 0; }
+  }
+
   /* ---------- 팽이 놀이 ---------- */
   #top-screen {
     justify-content: flex-start;
@@ -1282,6 +1397,38 @@
     justify-content: center;
     max-width: 90vw;
   }
+
+  /* ---------- 경찰과 도둑 ---------- */
+  .police-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: min(85vw, 340px);
+  }
+  .police-spot {
+    position: relative;
+    border-radius: 20px;
+    background: #eafbe7;
+    border: 4px solid #8fd9c4;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 18px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-height: 110px;
+  }
+  .police-spot .prop-emoji { font-size: 46px; }
+  .police-spot .spot-word { font-size: 19px; font-weight: 900; color: #4a5568; }
+  .police-spot.caught { border-color: #4ecba0; background: #d7fff0; }
+  .police-spot.wrong-shake { animation: wrongShake 0.4s ease; }
+  .police-spot .reveal-icon {
+    position: absolute;
+    top: -16px;
+    right: -6px;
+    font-size: 32px;
+  }
 </style>
 </head>
 <body>
@@ -1330,6 +1477,10 @@
       <div class="menu-item">
         <button class="mode-btn m9" onclick="openTopScreen()">팽이 놀이 🌀</button>
         <div class="mode-desc">팽이를 돌리고 글자가 나오면 소리 내어 읽어봐요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m10" onclick="openPoliceScreen()">경찰과 도둑 🚓</button>
+        <div class="mode-desc">들려주는 단어를 듣고 도둑이 숨은 곳을 찾아봐요</div>
       </div>
     </div>
   </div>
@@ -1508,6 +1659,21 @@
       </div>
       <div class="top-color-row" id="top-color-row"></div>
       <button class="top-spin-btn" id="top-spin-btn" onclick="spinTop()">돌려요! 🌀</button>
+    </div>
+  </div>
+
+  <!-- ============ 경찰과 도둑 화면 ============ -->
+  <div id="police-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">경찰과 도둑 🚓</div>
+      <div class="cart-badge" id="police-round-badge">1 / 5</div>
+    </div>
+
+    <div class="construction-stage" id="police-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startPoliceGame()">처음부터 다시</button>
     </div>
   </div>
 
@@ -3251,19 +3417,55 @@
 
   // ---------- 공사장 놀이 ----------
   var CONSTRUCTION_CONFIG = {
-    dirtTarget: 8,
-    brickPileSize: 10,
-    brickTarget: 8,
+    dirtTarget: 6,
+    craneSlots: 7,
+    craneBricks: 3,
+    dumpTarget: 3,
     floorTarget: 5
   };
 
   var FLOOR_COLORS = ["#ff9f43", "#4ecba0", "#5aa9e6", "#a978f0", "#fd79a8", "#ffd93d", "#54a0ff"];
 
+  var EXCAVATOR_SVG = '<svg viewBox="0 0 420 260">' +
+    '<rect x="35" y="192" width="270" height="42" rx="21" fill="#4a5568" stroke="#33404f" stroke-width="4"/>' +
+    '<circle cx="70" cy="213" r="15" fill="#1a1f26"/>' +
+    '<circle cx="120" cy="213" r="15" fill="#1a1f26"/>' +
+    '<circle cx="170" cy="213" r="15" fill="#1a1f26"/>' +
+    '<circle cx="220" cy="213" r="15" fill="#1a1f26"/>' +
+    '<circle cx="270" cy="213" r="15" fill="#1a1f26"/>' +
+    '<path d="M75,120 Q75,105 90,105 L245,105 Q260,105 260,120 L260,175 Q260,190 245,190 L90,190 Q75,190 75,175 Z" fill="#ffcc33" stroke="#33404f" stroke-width="4"/>' +
+    '<path d="M90,70 Q90,58 102,58 L150,58 Q162,58 162,70 L162,105 L90,105 Z" fill="#ffcc33" stroke="#33404f" stroke-width="4"/>' +
+    '<rect x="100" y="68" width="52" height="30" rx="6" fill="#bde3f5" stroke="#33404f" stroke-width="3"/>' +
+    '<g id="excavator-arm">' +
+    '<path d="M232,132 L215,150 L245,168 L262,150 Z" fill="#ffcc33" stroke="#33404f" stroke-width="4"/>' +
+    '<path d="M232,132 L340,60 L352,75 L300,155 L280,148 Z" fill="#ffcc33" stroke="#33404f" stroke-width="4"/>' +
+    '<path d="M300,150 L330,145 L345,165 L332,182 L305,178 L295,165 Z" fill="#e0a92e" stroke="#33404f" stroke-width="4"/>' +
+    '</g>' +
+    '</svg>';
+
+  var DUMPTRUCK_SVG = '<svg viewBox="0 0 420 260">' +
+    '<g id="dump-bed">' +
+    '<path d="M155,80 L340,80 Q356,80 356,96 L356,175 L150,175 L150,96 Q150,80 155,80 Z" fill="#ffa726" stroke="#33404f" stroke-width="4"/>' +
+    '<line x1="150" y1="120" x2="356" y2="120" stroke="#33404f" stroke-width="3"/>' +
+    '</g>' +
+    '<path d="M50,120 Q50,100 70,100 L120,100 Q140,100 148,118 L150,150 L50,150 Z" fill="#5aa9e6" stroke="#33404f" stroke-width="4"/>' +
+    '<rect x="66" y="112" width="46" height="30" rx="6" fill="#bde3f5" stroke="#33404f" stroke-width="3"/>' +
+    '<path d="M35,150 L360,150 Q372,150 372,162 L372,178 L35,178 Q28,178 28,168 L28,158 Q28,150 35,150 Z" fill="#4a5568" stroke="#33404f" stroke-width="4"/>' +
+    '<circle cx="95" cy="196" r="26" fill="#1a1f26"/>' +
+    '<circle cx="95" cy="196" r="11" fill="#cbd3dc"/>' +
+    '<circle cx="270" cy="196" r="26" fill="#1a1f26"/>' +
+    '<circle cx="270" cy="196" r="11" fill="#cbd3dc"/>' +
+    '<circle cx="325" cy="196" r="26" fill="#1a1f26"/>' +
+    '<circle cx="325" cy="196" r="11" fill="#cbd3dc"/>' +
+    '<rect x="38" y="128" width="10" height="14" rx="3" fill="#ffe082" stroke="#33404f" stroke-width="2"/>' +
+    '</svg>';
+
   var constructionState = {
     step: 1,
     dirtProgress: 0,
-    bricksCarried: 0,
-    floorsBuilt: 0
+    floorsBuilt: 0,
+    crane: null,
+    dump: null
   };
 
   function playThud() {
@@ -3284,20 +3486,42 @@
     } catch (e) { /* ignore */ }
   }
 
+  function initCraneState() {
+    var n = CONSTRUCTION_CONFIG.craneSlots;
+    var slotType = [];
+    var slotHasBrick = [];
+    for (var i = 0; i < n; i++) {
+      if (i < 3) { slotType.push("supply"); slotHasBrick.push(true); }
+      else if (i === 3) { slotType.push("transit"); slotHasBrick.push(false); }
+      else { slotType.push("target"); slotHasBrick.push(false); }
+    }
+    return { hookPos: 0, carrying: false, slotType: slotType, slotHasBrick: slotHasBrick, moved: 0 };
+  }
+
+  function resetConstructionState() {
+    constructionState = {
+      step: 1,
+      dirtProgress: 0,
+      floorsBuilt: 0,
+      crane: initCraneState(),
+      dump: { delivered: 0, tipping: false }
+    };
+  }
+
   window.openConstructionScreen = function () {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
     showScreen("construction-screen");
-    constructionState = { step: 1, dirtProgress: 0, bricksCarried: 0, floorsBuilt: 0 };
+    resetConstructionState();
     renderConstructionStep();
   };
 
   window.resetConstruction = function () {
-    constructionState = { step: 1, dirtProgress: 0, bricksCarried: 0, floorsBuilt: 0 };
+    resetConstructionState();
     renderConstructionStep();
   };
 
   function updateConstructionStepBadge() {
-    document.getElementById("construction-step-badge").textContent = constructionState.step + " / 3";
+    document.getElementById("construction-step-badge").textContent = constructionState.step + " / 4";
   }
 
   function renderConstructionStep() {
@@ -3307,32 +3531,48 @@
 
     if (constructionState.step === 1) {
       stage.innerHTML =
-        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-1">🔊</span><span>흙을 눌러서 꾹꾹 다져보아요!</span></div>' +
-        '<div class="dirt-patch" id="dirt-patch">🟫</div>' +
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-1">🔊</span><span>굴착기로 흙을 파보아요!</span></div>' +
+        '<div class="machine-wrap">' + EXCAVATOR_SVG + '</div>' +
+        '<button class="dig-btn" onclick="digExcavator()">파기 ⛏️</button>' +
         '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="dirt-progress-fill"></div></div>';
-      document.getElementById("dirt-patch").addEventListener("click", tapDirt);
-      document.getElementById("c-speak-1").onclick = function () { speakText("흙", { cancelFirst: true }); };
+      document.getElementById("c-speak-1").onclick = function () { speakText("굴착기", { cancelFirst: true }); };
       updateDirtProgress();
     } else if (constructionState.step === 2) {
-      var grid = '<div class="brick-pile-grid" id="brick-pile-grid">';
-      for (var i = 0; i < CONSTRUCTION_CONFIG.brickPileSize; i++) {
-        grid += '<button class="brick-btn" data-idx="' + i + '">🧱</button>';
+      var c = constructionState.crane;
+      var n = CONSTRUCTION_CONFIG.craneSlots;
+      var slotsHtml = "";
+      for (var i = 0; i < n; i++) {
+        var cls = "crane-slot";
+        var content = "";
+        if (c.slotType[i] === "supply") {
+          content = c.slotHasBrick[i] ? "🧱" : "";
+        } else if (c.slotType[i] === "target") {
+          cls += " target" + (c.slotHasBrick[i] ? " filled" : "");
+          content = c.slotHasBrick[i] ? "🧱" : "";
+        }
+        slotsHtml += '<div class="' + cls + '">' + content + "</div>";
       }
-      grid += '</div>';
+      var hookLeft = (c.hookPos * (100 / n)) + "%";
       stage.innerHTML =
-        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-2">🔊</span><span>벽돌을 눌러서 옮겨보아요! (<span id="brick-count">0</span>/' + CONSTRUCTION_CONFIG.brickTarget + ')</span></div>' +
-        grid;
-      document.getElementById("c-speak-2").onclick = function () { speakText("벽돌", { cancelFirst: true }); };
-      var brickBtns = document.querySelectorAll("#brick-pile-grid .brick-btn");
-      brickBtns.forEach(function (btn) {
-        btn.addEventListener("click", function () { collectBrick(btn); });
-      });
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-2">🔊</span><span>크레인으로 벽돌을 옮겨보아요! (<span id="crane-count">' + c.moved + '</span>/' + CONSTRUCTION_CONFIG.craneBricks + ')</span></div>' +
+        '<div class="crane-yard"><div class="crane-rail"></div>' +
+        '<div class="crane-hook" id="crane-hook" style="left:' + hookLeft + '"><div class="cable"></div><div class="hook-icon">🪝</div>' + (c.carrying ? '<div class="carried-brick">🧱</div>' : '') + '</div>' +
+        '<div class="crane-slots" id="crane-slots">' + slotsHtml + '</div></div>' +
+        '<div class="crane-controls"><button class="crane-move-btn" id="crane-left" onclick="moveCrane(-1)">⬅️</button><button class="crane-action-btn" id="crane-action" onclick="craneAction()">집기 🤏</button><button class="crane-move-btn" id="crane-right" onclick="moveCrane(1)">➡️</button></div>';
+      document.getElementById("c-speak-2").onclick = function () { speakText("크레인", { cancelFirst: true }); };
+      updateCraneActionButton();
     } else if (constructionState.step === 3) {
       stage.innerHTML =
-        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-3">🔊</span><span>쌓기 버튼을 눌러서 건물을 올려보아요!</span></div>' +
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-3">🔊</span><span>쏟기를 눌러 자재를 날라보아요! (<span id="dump-count">' + constructionState.dump.delivered + '</span>/' + CONSTRUCTION_CONFIG.dumpTarget + ')</span></div>' +
+        '<div class="machine-wrap dump-truck-stage-wrap" id="dump-truck-wrap">' + DUMPTRUCK_SVG + '</div>' +
+        '<button class="dump-btn" id="dump-action-btn" onclick="dumpMaterial()">쏟기 🚛</button>';
+      document.getElementById("c-speak-3").onclick = function () { speakText("덤프트럭", { cancelFirst: true }); };
+    } else if (constructionState.step === 4) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="c-speak-4">🔊</span><span>쌓기 버튼을 눌러서 건물을 올려보아요!</span></div>' +
         '<div class="building-area"><div class="building-tower" id="building-tower"></div><div class="building-ground"></div></div>' +
         '<button class="stack-btn" id="stack-btn" onclick="addFloor()">쌓기 🧱</button>';
-      document.getElementById("c-speak-3").onclick = function () { speakText("건물", { cancelFirst: true }); };
+      document.getElementById("c-speak-4").onclick = function () { speakText("건물", { cancelFirst: true }); };
     }
   }
 
@@ -3342,38 +3582,120 @@
     if (fill) { fill.style.width = pct + "%"; }
   }
 
-  function tapDirt() {
+  window.digExcavator = function () {
     if (constructionState.step !== 1) { return; }
     constructionState.dirtProgress++;
     updateDirtProgress();
     playThud();
-    var patch = document.getElementById("dirt-patch");
-    patch.style.transform = "scale(0.9)";
-    setTimeout(function () { patch.style.transform = ""; }, 100);
+    var arm = document.getElementById("excavator-arm");
+    if (arm) {
+      arm.classList.add("scoop");
+      setTimeout(function () { arm.classList.remove("scoop"); }, 220);
+    }
     if (constructionState.dirtProgress === 1) { speakText("흙", { cancelFirst: true }); }
     if (constructionState.dirtProgress >= CONSTRUCTION_CONFIG.dirtTarget) {
-      showBanner("흙 다지기 완료! 다음은 벽돌을 날라볼까요? 👍", 1800);
+      showBanner("흙 파기 완료! 이제 크레인으로 벽돌을 옮겨볼까요? 👍", 1900);
       constructionState.step = 2;
-      setTimeout(renderConstructionStep, 700);
+      setTimeout(renderConstructionStep, 750);
     }
+  };
+
+  function updateCraneActionButton() {
+    var c = constructionState.crane;
+    var btn = document.getElementById("crane-action");
+    if (!btn) { return; }
+    if (!c.carrying) {
+      var canGrab = c.slotType[c.hookPos] === "supply" && c.slotHasBrick[c.hookPos];
+      btn.textContent = "집기 🤏";
+      btn.disabled = !canGrab;
+    } else {
+      var canRelease = c.slotType[c.hookPos] === "target" && !c.slotHasBrick[c.hookPos];
+      btn.textContent = "놓기 👐";
+      btn.disabled = !canRelease;
+    }
+    var leftBtn = document.getElementById("crane-left");
+    if (leftBtn) { leftBtn.disabled = c.hookPos <= 0; }
+    var rightBtn = document.getElementById("crane-right");
+    if (rightBtn) { rightBtn.disabled = c.hookPos >= CONSTRUCTION_CONFIG.craneSlots - 1; }
   }
 
-  function collectBrick(btnEl) {
-    if (constructionState.step !== 2 || btnEl.classList.contains("taken")) { return; }
-    btnEl.classList.add("taken");
-    constructionState.bricksCarried++;
-    document.getElementById("brick-count").textContent = constructionState.bricksCarried;
-    playDing();
-    if (constructionState.bricksCarried <= 2) { speakText("벽돌", { cancelFirst: true }); }
-    if (constructionState.bricksCarried >= CONSTRUCTION_CONFIG.brickTarget) {
-      showBanner("벽돌 나르기 완료! 이제 건물을 쌓아볼까요? 👍", 1800);
-      constructionState.step = 3;
-      setTimeout(renderConstructionStep, 700);
+  window.moveCrane = function (dir) {
+    if (constructionState.step !== 2) { return; }
+    var c = constructionState.crane;
+    var newPos = c.hookPos + dir;
+    if (newPos < 0 || newPos >= CONSTRUCTION_CONFIG.craneSlots) { return; }
+    c.hookPos = newPos;
+    var hookEl = document.getElementById("crane-hook");
+    if (hookEl) { hookEl.style.left = (newPos * (100 / CONSTRUCTION_CONFIG.craneSlots)) + "%"; }
+    updateCraneActionButton();
+  };
+
+  window.craneAction = function () {
+    if (constructionState.step !== 2) { return; }
+    var c = constructionState.crane;
+    if (!c.carrying) {
+      if (c.slotType[c.hookPos] === "supply" && c.slotHasBrick[c.hookPos]) {
+        c.slotHasBrick[c.hookPos] = false;
+        c.carrying = true;
+        playDing();
+        speakText("벽돌", { cancelFirst: true });
+        renderConstructionStep();
+      }
+    } else {
+      if (c.slotType[c.hookPos] === "target" && !c.slotHasBrick[c.hookPos]) {
+        c.slotHasBrick[c.hookPos] = true;
+        c.carrying = false;
+        c.moved++;
+        playDing();
+        if (c.moved >= CONSTRUCTION_CONFIG.craneBricks) {
+          showBanner("크레인 작업 완료! 이제 덤프트럭으로 자재를 날라볼까요? 👍", 1900);
+          constructionState.step = 3;
+          setTimeout(renderConstructionStep, 750);
+        } else {
+          renderConstructionStep();
+        }
+      }
     }
-  }
+  };
+
+  window.dumpMaterial = function () {
+    if (constructionState.step !== 3 || constructionState.dump.tipping) { return; }
+    constructionState.dump.tipping = true;
+    var bed = document.getElementById("dump-bed");
+    var wrap = document.getElementById("dump-truck-wrap");
+    if (bed) { bed.classList.add("tipping"); }
+    playThud();
+    for (var i = 0; i < 3; i++) {
+      (function (idx) {
+        setTimeout(function () {
+          if (!wrap) { return; }
+          var b = document.createElement("span");
+          b.className = "falling-brick";
+          b.textContent = "🧱";
+          b.style.left = (135 + idx * 30) + "px";
+          b.style.top = "150px";
+          wrap.appendChild(b);
+          setTimeout(function () { b.remove(); }, 750);
+        }, idx * 90);
+      })(i);
+    }
+    setTimeout(function () {
+      if (bed) { bed.classList.remove("tipping"); }
+      constructionState.dump.tipping = false;
+      constructionState.dump.delivered++;
+      var countEl = document.getElementById("dump-count");
+      if (countEl) { countEl.textContent = constructionState.dump.delivered; }
+      speakText("자재", { cancelFirst: true });
+      if (constructionState.dump.delivered >= CONSTRUCTION_CONFIG.dumpTarget) {
+        showBanner("자재 나르기 완료! 이제 건물을 쌓아볼까요? 👍", 1900);
+        constructionState.step = 4;
+        setTimeout(renderConstructionStep, 750);
+      }
+    }, 550);
+  };
 
   window.addFloor = function () {
-    if (constructionState.step !== 3) { return; }
+    if (constructionState.step !== 4) { return; }
     if (constructionState.floorsBuilt >= CONSTRUCTION_CONFIG.floorTarget) { return; }
     constructionState.floorsBuilt++;
     var tower = document.getElementById("building-tower");
@@ -3463,6 +3785,101 @@
       speakText(finalLetter, { cancelFirst: true });
     }, duration * 1000);
   };
+
+  // ---------- 경찰과 도둑 ----------
+  var HIDING_PROPS = ["🌳", "📦", "🚗", "🛢️", "🧺", "🚪", "🪴", "🧱"];
+  var POLICE_TOTAL_ROUNDS = 5;
+
+  var policeState = {
+    round: 0,
+    caught: 0,
+    currentRound: null,
+    answered: false
+  };
+
+  window.openPoliceScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("police-screen");
+    startPoliceGame();
+  };
+
+  window.startPoliceGame = function () {
+    policeState = { round: 0, caught: 0, currentRound: null, answered: false };
+    nextPoliceRound();
+  };
+
+  function buildPoliceRound() {
+    var target = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+    var pool = WORD_PAIRS.filter(function (p) { return p.word !== target.word; });
+    var distractors = shuffle(pool).slice(0, 3);
+    var options = shuffle([target].concat(distractors));
+    var props = shuffle(HIDING_PROPS).slice(0, 4);
+    return { target: target, options: options, props: props };
+  }
+
+  function nextPoliceRound() {
+    policeState.round++;
+    if (policeState.round > POLICE_TOTAL_ROUNDS) {
+      finishPoliceGame();
+      return;
+    }
+    policeState.answered = false;
+    policeState.currentRound = buildPoliceRound();
+    renderPoliceRound();
+  }
+
+  function renderPoliceRound() {
+    document.getElementById("police-round-badge").textContent = policeState.round + " / " + POLICE_TOTAL_ROUNDS;
+    var r = policeState.currentRound;
+    var stage = document.getElementById("police-stage");
+
+    var gridHtml = '<div class="police-grid" id="police-grid">';
+    r.options.forEach(function (opt, idx) {
+      gridHtml += '<button class="police-spot" data-idx="' + idx + '"><span class="prop-emoji">' + r.props[idx] + '</span><span class="spot-word">' + opt.word + '</span></button>';
+    });
+    gridHtml += '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="police-speak">🔊</span><span>도둑이 어디에 숨었는지 듣고 찾아보세요!</span></div>' +
+      gridHtml;
+
+    document.getElementById("police-speak").onclick = function () { speakText(r.target.word, { cancelFirst: true }); };
+    speakText(r.target.word, { cancelFirst: true });
+
+    var spots = stage.querySelectorAll(".police-spot");
+    spots.forEach(function (spot, idx) {
+      spot.addEventListener("click", function () { onPoliceSpotClick(spot, r.options[idx]); });
+    });
+  }
+
+  function onPoliceSpotClick(spotEl, option) {
+    if (policeState.answered) { return; }
+    var r = policeState.currentRound;
+    if (option.word === r.target.word) {
+      policeState.answered = true;
+      policeState.caught++;
+      spotEl.classList.add("caught");
+      spotEl.innerHTML += '<span class="reveal-icon">🦹</span>';
+      var allSpots = document.querySelectorAll("#police-grid .police-spot");
+      allSpots.forEach(function (s) { s.style.pointerEvents = "none"; });
+      playDing();
+      showCelebrateMsg("도둑을 잡았어요! 👮 \"" + r.target.word + "\"", 1600);
+      speakText("도둑을 잡았어요", { cancelFirst: false });
+      setTimeout(nextPoliceRound, 1300);
+    } else {
+      spotEl.classList.remove("wrong-shake");
+      void spotEl.offsetWidth;
+      spotEl.classList.add("wrong-shake");
+      showBanner("이런, 빈 곳이었어요! 다시 찾아볼까요? 😊", 1500);
+    }
+  }
+
+  function finishPoliceGame() {
+    var stage = document.getElementById("police-stage");
+    stage.innerHTML = '<div class="construction-instruction">도둑을 ' + policeState.caught + '명 잡았어요!</div>';
+    showCelebrateMsg("도둑을 다 잡았어요! 최고의 경찰이에요! 🚓🎉", 2800);
+    speakText("최고의 경찰이에요", { cancelFirst: true });
+  }
 })();
 </script>
 </body>
