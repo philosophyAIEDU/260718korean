@@ -147,6 +147,8 @@
   .mode-btn.m11 { background: linear-gradient(145deg, #4a5568, #1a1f26); }
   .mode-btn.m12 { background: linear-gradient(145deg, #ff8a65, #e64a19); }
   .mode-btn.m13 { background: linear-gradient(145deg, #ff8fa3, #ff5c7a); }
+  .mode-btn.m14 { background: linear-gradient(145deg, #ffd27a, #d4a017); }
+  .mode-btn.m15 { background: linear-gradient(145deg, #90caf9, #4a90d9); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1677,6 +1679,83 @@
   .treatment-btn .emoji { font-size: 36px; }
   .treatment-btn .label { font-size: 15px; font-weight: 700; color: #4a5568; }
   .treatment-btn.correct-flash { border: 4px solid #4ecba0; background: #eafff6; }
+
+  /* ---------- 보물찾기 ---------- */
+  .treasure-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: min(85vw, 340px);
+  }
+  .treasure-spot {
+    position: relative;
+    border: none;
+    border-radius: 18px;
+    background: #fff3d6;
+    border: 4px solid #e0b45c;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-height: 100px;
+  }
+  .treasure-spot .emoji { font-size: 42px; }
+  .treasure-spot .label { font-size: 18px; font-weight: 900; color: #4a5568; }
+  .treasure-spot.found { border-color: #4ecba0; background: #eafff6; }
+  .treasure-spot .found-icon {
+    position: absolute;
+    top: -16px;
+    right: -6px;
+    font-size: 32px;
+  }
+
+  /* ---------- 비행기 놀이 ---------- */
+  .sky-scene {
+    position: relative;
+    width: min(88vw, 340px);
+    height: 130px;
+    background: linear-gradient(180deg, #bfe6ff, #eaf7ff);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sky-scene .plane-emoji {
+    font-size: 60px;
+    z-index: 2;
+  }
+  .sky-cloud {
+    position: absolute;
+    font-size: 30px;
+    opacity: 0.85;
+  }
+
+  .cloud-porthole {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #bfe6ff, #eaf7ff);
+    border: 10px solid #ffffff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cloud-letter-display {
+    position: relative;
+    z-index: 2;
+    font-size: 68px;
+    font-weight: 900;
+    color: #4a6cf7;
+    text-shadow: 0 2px 0 #ffffff;
+  }
 </style>
 </head>
 <body>
@@ -1741,6 +1820,14 @@
       <div class="menu-item">
         <button class="mode-btn m13" onclick="openAmbulanceScreen()">구급차 놀이 🚑</button>
         <div class="mode-desc">환자에게 출동해서 알맞은 치료를 하고 병원으로 옮겨요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m14" onclick="openTreasureScreen()">보물찾기 🏆</button>
+        <div class="mode-desc">들려주는 단어를 듣고 보물이 묻힌 곳을 찾아 파봐요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m15" onclick="openAirplaneScreen()">비행기 놀이 ✈️</button>
+        <div class="mode-desc">이륙하고 하늘에서 글자 구름을 잡고 안전하게 착륙해요</div>
       </div>
     </div>
   </div>
@@ -1986,6 +2073,36 @@
 
     <div class="construction-controls">
       <button class="reset-btn" onclick="startAmbulanceGame()">처음부터 다시</button>
+    </div>
+  </div>
+
+  <!-- ============ 보물찾기 화면 ============ -->
+  <div id="treasure-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">보물찾기 🏆</div>
+      <div class="cart-badge" id="treasure-round-badge">🏆 0</div>
+    </div>
+
+    <div class="construction-stage" id="treasure-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startTreasureGame()">처음부터 다시</button>
+    </div>
+  </div>
+
+  <!-- ============ 비행기 놀이 화면 ============ -->
+  <div id="airplane-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">비행기 놀이 ✈️</div>
+      <div class="cart-badge" id="airplane-step-badge">1 / 3</div>
+    </div>
+
+    <div class="construction-stage" id="airplane-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startAirplaneGame()">처음부터 다시</button>
     </div>
   </div>
 
@@ -2250,6 +2367,11 @@
       if (spaceState.cycleTimerId) { clearInterval(spaceState.cycleTimerId); spaceState.cycleTimerId = null; }
       if (spaceState.roundTimerId) { clearInterval(spaceState.roundTimerId); spaceState.roundTimerId = null; }
       spaceState.active = false;
+    }
+    if (typeof airplaneState !== "undefined" && airplaneState.fly) {
+      if (airplaneState.fly.cycleTimerId) { clearInterval(airplaneState.fly.cycleTimerId); }
+      if (airplaneState.fly.roundTimerId) { clearInterval(airplaneState.fly.roundTimerId); }
+      airplaneState.fly.active = false;
     }
     showScreen("start-screen");
   };
@@ -4689,6 +4811,294 @@
     if (ambulanceState.hospitalProgress >= AMBULANCE_CONFIG.hospitalTarget) {
       showCelebrateMsg("환자를 안전하게 옮겼어요! 최고의 구급대원이에요! 🚑🎉", 2600);
       speakText("최고의 구급대원이에요", { cancelFirst: true });
+    }
+  };
+
+  // ---------- 보물찾기 ----------
+  var TREASURE_TOTAL_ROUNDS = 5;
+  var TREASURE_ICONS = ["💰", "💎", "🏆", "👑", "💍"];
+
+  var treasureState = {
+    round: 0,
+    found: 0,
+    currentRound: null,
+    answered: false
+  };
+
+  window.openTreasureScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("treasure-screen");
+    startTreasureGame();
+  };
+
+  window.startTreasureGame = function () {
+    treasureState = { round: 0, found: 0, currentRound: null, answered: false };
+    nextTreasureRound();
+  };
+
+  function buildTreasureRound() {
+    var target = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+    var pool = WORD_PAIRS.filter(function (p) { return p.word !== target.word; });
+    var distractors = shuffle(pool).slice(0, 5);
+    var options = shuffle([target].concat(distractors));
+    return { target: target, options: options };
+  }
+
+  function nextTreasureRound() {
+    treasureState.round++;
+    if (treasureState.round > TREASURE_TOTAL_ROUNDS) {
+      finishTreasureGame();
+      return;
+    }
+    treasureState.answered = false;
+    treasureState.currentRound = buildTreasureRound();
+    renderTreasureRound();
+  }
+
+  function updateTreasureBadge() {
+    document.getElementById("treasure-round-badge").textContent = "🏆 " + treasureState.found;
+  }
+
+  function renderTreasureRound() {
+    updateTreasureBadge();
+    var r = treasureState.currentRound;
+    var stage = document.getElementById("treasure-stage");
+
+    var gridHtml = '<div class="treasure-grid" id="treasure-grid">';
+    r.options.forEach(function (opt, idx) {
+      gridHtml += '<button class="treasure-spot" data-idx="' + idx + '"><span class="emoji">' + opt.emoji + '</span><span class="label">' + opt.word + '</span></button>';
+    });
+    gridHtml += '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="treasure-speak">🔊</span><span>보물이 어디에 묻혔는지 듣고 파보세요! (' + treasureState.round + '/' + TREASURE_TOTAL_ROUNDS + ')</span></div>' +
+      gridHtml;
+
+    document.getElementById("treasure-speak").onclick = function () { speakText(r.target.word, { cancelFirst: true }); };
+    speakText(r.target.word, { cancelFirst: true });
+
+    var spots = stage.querySelectorAll(".treasure-spot");
+    spots.forEach(function (spot, idx) {
+      spot.addEventListener("click", function () { onTreasureSpotClick(spot, r.options[idx]); });
+    });
+  }
+
+  function onTreasureSpotClick(spotEl, option) {
+    if (treasureState.answered) { return; }
+    var r = treasureState.currentRound;
+    if (option.word === r.target.word) {
+      treasureState.answered = true;
+      treasureState.found++;
+      spotEl.classList.add("found");
+      var icon = TREASURE_ICONS[Math.floor(Math.random() * TREASURE_ICONS.length)];
+      spotEl.innerHTML += '<span class="found-icon">' + icon + '</span>';
+      var allSpots = document.querySelectorAll("#treasure-grid .treasure-spot");
+      allSpots.forEach(function (s) { s.style.pointerEvents = "none"; });
+      updateTreasureBadge();
+      playDing();
+      showCelebrateMsg("보물을 찾았어요! " + icon + " \"" + r.target.word + "\"", 1600);
+      speakText("보물을 찾았어요", { cancelFirst: false });
+      setTimeout(nextTreasureRound, 1300);
+    } else {
+      spotEl.classList.remove("wrong-shake");
+      void spotEl.offsetWidth;
+      spotEl.classList.add("wrong-shake");
+      showBanner("빈 구덩이였어요! 다시 찾아볼까요? 😊", 1500);
+    }
+  }
+
+  function finishTreasureGame() {
+    var stage = document.getElementById("treasure-stage");
+    stage.innerHTML = '<div class="construction-instruction">보물을 ' + treasureState.found + '개 찾았어요!</div>';
+    showCelebrateMsg("보물을 다 찾았어요! 최고의 탐험가예요! 🏆🎉", 2800);
+    speakText("최고의 탐험가예요", { cancelFirst: true });
+  }
+
+  // ---------- 비행기 놀이 ----------
+  var AIRPLANE_CONFIG = {
+    takeoffTarget: 6,
+    flyRounds: 3,
+    flyRoundSeconds: 8,
+    landingTarget: 6
+  };
+
+  var airplaneState = {
+    step: 1,
+    takeoffProgress: 0,
+    landingProgress: 0,
+    fly: null
+  };
+
+  window.openAirplaneScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("airplane-screen");
+    startAirplaneGame();
+  };
+
+  window.startAirplaneGame = function () {
+    stopAirplaneFlyTimers();
+    airplaneState = { step: 1, takeoffProgress: 0, landingProgress: 0, fly: null };
+    renderAirplaneStep();
+  };
+
+  function updateAirplaneStepBadge() {
+    document.getElementById("airplane-step-badge").textContent = airplaneState.step + " / 3";
+  }
+
+  function renderAirplaneStep() {
+    updateAirplaneStepBadge();
+    var stage = document.getElementById("airplane-stage");
+
+    if (airplaneState.step === 1) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="air-speak-1">🔊</span><span>비행기를 이륙시켜보아요!</span></div>' +
+        '<div class="sky-scene"><span class="sky-cloud" style="left:15%; top:20%;">☁️</span><span class="sky-cloud" style="left:70%; top:55%;">☁️</span><span class="plane-emoji" id="plane-icon">✈️</span></div>' +
+        '<button class="dig-btn" onclick="takeoffPlane()">출발! 🛫</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="takeoff-progress-fill"></div></div>';
+      document.getElementById("air-speak-1").onclick = function () { speakText("비행기", { cancelFirst: true }); };
+      updateTakeoffProgress();
+    } else if (airplaneState.step === 2) {
+      startFlyRound();
+    } else if (airplaneState.step === 3) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="air-speak-3">🔊</span><span>안전하게 착륙시켜보아요!</span></div>' +
+        '<div class="sky-scene"><span class="sky-cloud" style="left:20%; top:25%;">☁️</span><span class="sky-cloud" style="left:65%; top:50%;">☁️</span><span class="plane-emoji" id="plane-icon">🛬</span></div>' +
+        '<button class="dig-btn" onclick="landPlane()">착륙! 🛬</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="landing-progress-fill"></div></div>';
+      document.getElementById("air-speak-3").onclick = function () { speakText("착륙", { cancelFirst: true }); };
+      updateLandingProgress();
+    }
+  }
+
+  function updateTakeoffProgress() {
+    var pct = Math.min(100, (airplaneState.takeoffProgress / AIRPLANE_CONFIG.takeoffTarget) * 100);
+    var fill = document.getElementById("takeoff-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.takeoffPlane = function () {
+    if (airplaneState.step !== 1) { return; }
+    airplaneState.takeoffProgress++;
+    updateTakeoffProgress();
+    playDing();
+    var icon = document.getElementById("plane-icon");
+    if (icon) {
+      icon.style.transform = "translateY(-6px)";
+      setTimeout(function () { icon.style.transform = ""; }, 100);
+    }
+    if (airplaneState.takeoffProgress === 1) { speakText("이륙", { cancelFirst: true }); }
+    if (airplaneState.takeoffProgress >= AIRPLANE_CONFIG.takeoffTarget) {
+      showBanner("이륙했어요! 이제 하늘에서 글자 구름을 잡아볼까요? 👍", 1900);
+      airplaneState.step = 2;
+      setTimeout(renderAirplaneStep, 750);
+    }
+  };
+
+  function stopAirplaneFlyTimers() {
+    if (airplaneState.fly) {
+      if (airplaneState.fly.cycleTimerId) { clearInterval(airplaneState.fly.cycleTimerId); }
+      if (airplaneState.fly.roundTimerId) { clearInterval(airplaneState.fly.roundTimerId); }
+    }
+  }
+
+  function startFlyRound() {
+    stopAirplaneFlyTimers();
+    var target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    airplaneState.fly = {
+      target: target,
+      currentDisplayed: null,
+      active: true,
+      cycleTimerId: null,
+      roundTimerId: null,
+      timeLeft: AIRPLANE_CONFIG.flyRoundSeconds,
+      caught: airplaneState.fly ? airplaneState.fly.caught : 0
+    };
+
+    var stage = document.getElementById("airplane-stage");
+    stage.innerHTML =
+      '<div class="space-target-row"><span class="speak-mini" id="air-speak-2">🔊</span><div class="space-target-badge">목표 글자: <span class="target-letter" id="fly-target-letter">' + target + '</span></div><div class="timer-badge" id="fly-timer-badge">⏱️ ' + AIRPLANE_CONFIG.flyRoundSeconds + '</div></div>' +
+      '<div class="cloud-porthole"><div class="cloud-letter-display" id="fly-letter-display">☁️</div></div>' +
+      '<button class="space-catch-btn" onclick="flyCatchAttempt()">잡아요! ✈️</button>' +
+      '<div class="construction-instruction">잡은 구름: ' + airplaneState.fly.caught + '/' + AIRPLANE_CONFIG.flyRounds + '</div>';
+
+    document.getElementById("air-speak-2").onclick = function () { speakText(target, { cancelFirst: true }); };
+    speakText(target, { cancelFirst: true });
+
+    airplaneState.fly.cycleTimerId = setInterval(cycleFlyLetter, 280);
+    airplaneState.fly.roundTimerId = setInterval(tickFlyTimer, 1000);
+  }
+
+  function cycleFlyLetter() {
+    var fly = airplaneState.fly;
+    if (!fly) { return; }
+    var showTarget = Math.random() < 0.32;
+    fly.currentDisplayed = showTarget ? fly.target : LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    var display = document.getElementById("fly-letter-display");
+    if (display) { display.textContent = fly.currentDisplayed; }
+  }
+
+  function tickFlyTimer() {
+    var fly = airplaneState.fly;
+    if (!fly) { return; }
+    fly.timeLeft--;
+    var badge = document.getElementById("fly-timer-badge");
+    if (badge) {
+      badge.textContent = "⏱️ " + Math.max(0, fly.timeLeft);
+      badge.classList.toggle("urgent", fly.timeLeft <= 3 && fly.timeLeft > 0);
+    }
+    if (fly.timeLeft <= 0) {
+      fly.active = false;
+      stopAirplaneFlyTimers();
+      showBanner("시간이 다 됐어요! 다음 글자 구름에 도전해봐요! 😊", 1800);
+      setTimeout(startFlyRound, 1600);
+    }
+  }
+
+  window.flyCatchAttempt = function () {
+    var fly = airplaneState.fly;
+    if (!fly || !fly.active) { return; }
+    if (fly.currentDisplayed === fly.target) {
+      fly.active = false;
+      stopAirplaneFlyTimers();
+      fly.caught++;
+      playDing();
+      showCelebrateMsg("잡았어요! \"" + fly.target + "\" ☁️✈️", 1600);
+      speakText(fly.target, { cancelFirst: true });
+      if (fly.caught >= AIRPLANE_CONFIG.flyRounds) {
+        setTimeout(function () {
+          showBanner("글자 구름을 다 모았어요! 이제 착륙해볼까요? 👍", 1900);
+          airplaneState.step = 3;
+          renderAirplaneStep();
+        }, 1600);
+      } else {
+        setTimeout(startFlyRound, 1600);
+      }
+    } else {
+      var porthole = document.querySelector(".cloud-porthole");
+      if (porthole) {
+        porthole.classList.remove("shake-wrong");
+        void porthole.offsetWidth;
+        porthole.classList.add("shake-wrong");
+      }
+      showBanner("아직이에요! 같은 글자가 나올 때 눌러보아요 😊", 1400);
+    }
+  };
+
+  function updateLandingProgress() {
+    var pct = Math.min(100, (airplaneState.landingProgress / AIRPLANE_CONFIG.landingTarget) * 100);
+    var fill = document.getElementById("landing-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.landPlane = function () {
+    if (airplaneState.step !== 3) { return; }
+    airplaneState.landingProgress++;
+    updateLandingProgress();
+    playDing();
+    if (airplaneState.landingProgress === 1) { speakText("착륙", { cancelFirst: true }); }
+    if (airplaneState.landingProgress >= AIRPLANE_CONFIG.landingTarget) {
+      showCelebrateMsg("안전하게 착륙했어요! 최고의 조종사예요! ✈️🎉", 2600);
+      speakText("최고의 조종사예요", { cancelFirst: true });
     }
   };
 })();
