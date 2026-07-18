@@ -368,6 +368,16 @@
     text-shadow: 2px 2px 0 #ffffff;
   }
 
+  @keyframes resultBounce {
+    0%   { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+    50%  { transform: scale(1.18) rotate(5deg); opacity: 1; }
+    72%  { transform: scale(0.94) rotate(-3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .result-title.animate {
+    animation: resultBounce 0.7s ease;
+  }
+
   .result-sub {
     font-size: clamp(16px, 4vw, 22px);
     color: #4a5568;
@@ -456,7 +466,7 @@
 
   <!-- ============ 결과 화면 ============ -->
   <div id="result-screen" class="screen">
-    <div class="result-title">참 잘했어요! 🎉</div>
+    <div class="result-title">참 잘했어요! 🎉😄</div>
     <div class="result-sub" id="result-sub">오늘도 한 걸음 성장했어요!</div>
     <div class="star-row" id="star-row"></div>
     <div class="result-buttons">
@@ -495,7 +505,50 @@
     { emoji: "🧦", word: "양말" },
     { emoji: "🚌", word: "버스" },
     { emoji: "🏠", word: "집" },
-    { emoji: "🐢", word: "거북이" }
+    { emoji: "🐢", word: "거북이" },
+    { emoji: "🍉", word: "수박" },
+    { emoji: "🍊", word: "귤" },
+    { emoji: "🍋", word: "레몬" },
+    { emoji: "🍑", word: "복숭아" },
+    { emoji: "🍓", word: "딸기" },
+    { emoji: "🥕", word: "당근" },
+    { emoji: "🌽", word: "옥수수" },
+    { emoji: "🍄", word: "버섯" },
+    { emoji: "🌸", word: "꽃" },
+    { emoji: "🌳", word: "나무" },
+    { emoji: "🌈", word: "무지개" },
+    { emoji: "☀️", word: "해" },
+    { emoji: "☁️", word: "구름" },
+    { emoji: "❄️", word: "눈" },
+    { emoji: "🔥", word: "불" },
+    { emoji: "🐭", word: "쥐" },
+    { emoji: "🦊", word: "여우" },
+    { emoji: "🐻", word: "곰" },
+    { emoji: "🐼", word: "판다" },
+    { emoji: "🦁", word: "사자" },
+    { emoji: "🐘", word: "코끼리" },
+    { emoji: "🦒", word: "기린" },
+    { emoji: "🐴", word: "말" },
+    { emoji: "🐑", word: "양" },
+    { emoji: "🐧", word: "펭귄" },
+    { emoji: "🐝", word: "벌" },
+    { emoji: "🐌", word: "달팽이" },
+    { emoji: "🐳", word: "고래" },
+    { emoji: "🦀", word: "게" },
+    { emoji: "🚲", word: "자전거" },
+    { emoji: "✈️", word: "비행기" },
+    { emoji: "🚂", word: "기차" },
+    { emoji: "⛵", word: "배" },
+    { emoji: "🏫", word: "학교" },
+    { emoji: "⚽", word: "축구공" },
+    { emoji: "🎂", word: "케이크" },
+    { emoji: "🍕", word: "피자" },
+    { emoji: "🍦", word: "아이스크림" },
+    { emoji: "📚", word: "책" },
+    { emoji: "✏️", word: "연필" },
+    { emoji: "👕", word: "옷" },
+    { emoji: "👟", word: "신발" },
+    { emoji: "🚪", word: "문" }
   ];
 
   var BALLOON_COLORS = ["#ff8fa3", "#ffb84d", "#4ecba0", "#5aa9e6", "#b18bff", "#ffd93d", "#ff7f6b", "#5ad1c9"];
@@ -590,16 +643,61 @@
     } catch (e) { /* audio not available, ignore */ }
   }
 
-  function speakLetter(letter) {
+  // 가능한 한국어 음성 중 가장 또렷한 음성을 골라 캐시해둔다.
+  var koreanVoice = null;
+  function pickKoreanVoice() {
+    if (!("speechSynthesis" in window)) { return null; }
+    var voices = window.speechSynthesis.getVoices();
+    var koreans = voices.filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf("ko") === 0; });
+    if (!koreans.length) { return null; }
+    var preferred = ["google 한국의", "google korean", "yuna", "heami", "sun-hi", "injoon", "narae", "korean"];
+    for (var p = 0; p < preferred.length; p++) {
+      for (var i = 0; i < koreans.length; i++) {
+        if (koreans[i].name.toLowerCase().indexOf(preferred[p]) !== -1) { return koreans[i]; }
+      }
+    }
+    return koreans[0];
+  }
+
+  function refreshKoreanVoice() {
+    var v = pickKoreanVoice();
+    if (v) { koreanVoice = v; }
+  }
+  refreshKoreanVoice();
+  if ("speechSynthesis" in window && "onvoiceschanged" in window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = refreshKoreanVoice;
+  }
+
+  function speakOnce(text) {
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";
+    if (koreanVoice) { utter.voice = koreanVoice; }
+    utter.rate = 0.72;
+    utter.pitch = 1.0;
+    utter.volume = 1;
+    window.speechSynthesis.speak(utter);
+  }
+
+  // 한 글자짜리 낱글자는 구분이 쉽도록 짧게 두 번 읽어준다.
+  function speakText(text, options) {
     if (!("speechSynthesis" in window)) { return; }
+    options = options || {};
     try {
-      window.speechSynthesis.cancel();
-      var utter = new SpeechSynthesisUtterance(letter);
-      utter.lang = "ko-KR";
-      utter.rate = 0.85;
-      utter.pitch = 1.1;
-      window.speechSynthesis.speak(utter);
+      if (!koreanVoice) { refreshKoreanVoice(); }
+      if (options.cancelFirst) { window.speechSynthesis.cancel(); }
+      var isSingleLetter = Array.from(text).length === 1;
+      speakOnce(text);
+      if (isSingleLetter) { speakOnce(text); }
     } catch (e) { /* ignore */ }
+  }
+
+  // 발음이 끝날 때까지 다음 문제로 넘어가지 않도록 대략적인 재생 시간을 추정한다.
+  function estimateSpeechMs(text) {
+    var chars = Array.from(text).length;
+    var isSingleLetter = chars === 1;
+    var oneRead = 480 + chars * 340;
+    var total = isSingleLetter ? oneRead * 2 : oneRead;
+    return Math.min(3200, total);
   }
 
   // ---------- Game flow ----------
@@ -639,9 +737,9 @@
       speakBtn.className = "speak-btn";
       speakBtn.textContent = "🔊";
       speakBtn.setAttribute("aria-label", "소리 듣기");
-      speakBtn.onclick = function () { speakLetter(q.correctAnswer); };
+      speakBtn.onclick = function () { speakText(q.correctAnswer, { cancelFirst: true }); };
       promptArea.appendChild(speakBtn);
-      speakLetter(q.correctAnswer);
+      speakText(q.correctAnswer, { cancelFirst: true });
     } else if (state.mode === 2) {
       var letterBox = document.createElement("div");
       letterBox.className = "prompt-letter";
@@ -697,7 +795,9 @@
       playDing();
       gainStar();
       disableAllBalloons();
-      setTimeout(nextQuestion, 800);
+      setTimeout(function () { speakText(correctAnswer, { cancelFirst: false }); }, 350);
+      var nextDelay = ("speechSynthesis" in window) ? (350 + estimateSpeechMs(correctAnswer) + 350) : 900;
+      setTimeout(nextQuestion, nextDelay);
     } else {
       shakeBalloon(balloon);
       showEncourage();
@@ -794,6 +894,25 @@
     }
 
     showScreen("result-screen");
+
+    var titleEl = document.querySelector("#result-screen .result-title");
+    titleEl.classList.remove("animate");
+    void titleEl.offsetWidth;
+    titleEl.classList.add("animate");
+
+    celebrateWin();
+  }
+
+  function celebrateWin() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    for (var i = 0; i < 5; i++) {
+      (function (idx) {
+        setTimeout(function () {
+          spawnConfetti(w * (0.15 + Math.random() * 0.7), h * (0.12 + Math.random() * 0.3));
+        }, idx * 200);
+      })(i);
+    }
   }
 })();
 </script>
