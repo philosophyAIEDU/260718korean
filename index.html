@@ -151,6 +151,7 @@
   .mode-btn.m15 { background: linear-gradient(145deg, #90caf9, #4a90d9); }
   .mode-btn.m16 { background: linear-gradient(145deg, #b39ddb, #7e57c2); }
   .mode-btn.m17 { background: linear-gradient(145deg, #81c784, #43a047); }
+  .mode-btn.m18 { background: linear-gradient(145deg, #ffb74d, #f57c00); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1864,6 +1865,89 @@
     min-height: 70px;
   }
   .math-answer-btn.correct-flash { border-color: #2e7d32; background: #eafff0; }
+
+  /* ---------- 스티커판 & 직업체험 ---------- */
+  .sticker-nav-btn {
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-bottom: 3vh;
+    font-size: 16px;
+    font-weight: 800;
+    color: #8a6200;
+    background: linear-gradient(145deg, #fff3c4, #ffe28a);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 14px;
+  }
+  .sticker-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    opacity: 0.55;
+  }
+  .sticker-card.earned {
+    opacity: 1;
+    background: linear-gradient(145deg, #fff9e6, #ffefc2);
+    box-shadow: 0 4px 10px rgba(255,180,0,0.3);
+  }
+  .sticker-emoji { font-size: 40px; }
+  .sticker-label { font-size: 13px; font-weight: 700; color: #4a5568; text-align: center; }
+
+  .sticker-toast {
+    position: fixed;
+    top: 14%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: #2d3436;
+    color: #ffe066;
+    font-size: 16px;
+    font-weight: 800;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 35;
+    pointer-events: none;
+  }
+  .sticker-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .career-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    width: min(88vw, 360px);
+  }
+  .career-card {
+    border: none;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 20px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    min-height: 110px;
+  }
+  .career-card .emoji { font-size: 46px; }
+  .career-card .label { font-size: 18px; font-weight: 900; color: #4a5568; }
 </style>
 </head>
 <body>
@@ -1875,6 +1959,8 @@
     <div class="cloud cloud3"></div>
 
     <h1 class="title">말랑말랑<br>한글 풍선</h1>
+
+    <button class="sticker-nav-btn" onclick="openStickerScreen()">🎖️ 내 스티커 <span class="sticker-count-badge">0 / 18</span></button>
 
     <div class="menu">
       <div class="menu-item">
@@ -1944,6 +2030,10 @@
       <div class="menu-item">
         <button class="mode-btn m17" onclick="openMathScreen()">숫자 놀이 ➕</button>
         <div class="mode-desc">그림을 보며 더하기 빼기를 배워요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m18" onclick="openCareerScreen()">직업체험 🎭</button>
+        <div class="mode-desc">경찰, 소방관, 구급대원, 공사장 인부, 의사가 되어봐요</div>
       </div>
     </div>
   </div>
@@ -2253,8 +2343,46 @@
     <div class="construction-stage" id="math-stage"></div>
   </div>
 
+  <!-- ============ 스티커판 화면 ============ -->
+  <div id="sticker-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">내 스티커판 🎖️</div>
+      <div class="cart-badge sticker-count-badge">0 / 18</div>
+    </div>
+    <div class="gallery-grid-wrap">
+      <div class="sticker-grid" id="sticker-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ 직업체험 화면 ============ -->
+  <div id="career-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">직업체험 🎭</div>
+    </div>
+    <div class="construction-stage">
+      <div class="construction-instruction">오늘은 어떤 직업이 되어볼까요?</div>
+      <div class="career-grid" id="career-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ 의사 놀이 화면 ============ -->
+  <div id="doctor-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">의사 놀이 🩺</div>
+      <div class="cart-badge" id="doctor-step-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="doctor-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startDoctorGame()">처음부터 다시</button>
+    </div>
+  </div>
+
   <div class="celebrate-msg" id="celebrate-msg"></div>
   <div class="banner-msg" id="banner-msg"></div>
+  <div class="sticker-toast" id="sticker-toast"></div>
 
 <script>
 (function () {
@@ -2745,6 +2873,8 @@
     titleEl.classList.add("animate");
 
     celebrateWin();
+    playFanfare();
+    awardSticker("stage" + state.mode);
   }
 
   function celebrateWin() {
@@ -3224,6 +3354,99 @@
     bannerTimer = setTimeout(function () { el.classList.remove("show"); }, duration || 1800);
   }
 
+  // ---------- 스티커 성취 시스템 ----------
+  var STICKER_LIST = [
+    { id: "stage1", label: "듣고 글자 찾기", emoji: "🎧" },
+    { id: "stage2", label: "같은 글자 찾기", emoji: "👀" },
+    { id: "stage3", label: "그림 보고 단어 찾기", emoji: "🖼️" },
+    { id: "color", label: "색칠 놀이", emoji: "🎨" },
+    { id: "mart", label: "마트 놀이", emoji: "🛒" },
+    { id: "pizza", label: "피자 요리사", emoji: "🍕" },
+    { id: "unicorn", label: "유니콘 만들기", emoji: "🦄" },
+    { id: "construction", label: "공사장 놀이", emoji: "🚧" },
+    { id: "top", label: "팽이 놀이", emoji: "🌀" },
+    { id: "police", label: "경찰과 도둑", emoji: "🚓" },
+    { id: "space", label: "우주선 놀이", emoji: "🚀" },
+    { id: "fire", label: "소방관 놀이", emoji: "🚒" },
+    { id: "ambulance", label: "구급차 놀이", emoji: "🚑" },
+    { id: "treasure", label: "보물찾기", emoji: "🏆" },
+    { id: "airplane", label: "비행기 놀이", emoji: "✈️" },
+    { id: "english", label: "영어 학습", emoji: "🔤" },
+    { id: "math", label: "숫자 놀이", emoji: "➕" },
+    { id: "doctor", label: "의사 놀이", emoji: "🩺" }
+  ];
+
+  var earnedStickers = {};
+
+  function awardSticker(id) {
+    if (earnedStickers[id]) { return; }
+    earnedStickers[id] = true;
+    updateStickerCountBadges();
+    var toast = document.getElementById("sticker-toast");
+    if (toast) {
+      var item = STICKER_LIST.filter(function (s) { return s.id === id; })[0];
+      toast.textContent = "🎖️ 새 스티커 획득! " + (item ? item.emoji : "");
+      toast.classList.add("show");
+      setTimeout(function () { toast.classList.remove("show"); }, 1800);
+    }
+  }
+
+  function updateStickerCountBadges() {
+    var count = Object.keys(earnedStickers).length;
+    document.querySelectorAll(".sticker-count-badge").forEach(function (el) {
+      el.textContent = count + " / " + STICKER_LIST.length;
+    });
+  }
+
+  window.openStickerScreen = function () {
+    showScreen("sticker-screen");
+    var grid = document.getElementById("sticker-grid");
+    grid.innerHTML = "";
+    STICKER_LIST.forEach(function (s) {
+      var earned = !!earnedStickers[s.id];
+      var card = document.createElement("div");
+      card.className = "sticker-card" + (earned ? " earned" : "");
+      card.innerHTML = '<span class="sticker-emoji">' + (earned ? s.emoji : "❓") + '</span><span class="sticker-label">' + s.label + '</span>';
+      grid.appendChild(card);
+    });
+    updateStickerCountBadges();
+  };
+
+  // ---------- 다양한 축하 문구 & 사운드 ----------
+  var CHEER_PHRASES = ["참 잘했어요!", "정말 대단해요!", "최고예요!", "훌륭해요!", "멋져요!", "굉장해요!"];
+  function randomCheer() {
+    return CHEER_PHRASES[Math.floor(Math.random() * CHEER_PHRASES.length)];
+  }
+
+  function playFanfare() {
+    try {
+      var ctx = getAudioCtx();
+      if (ctx.state === "suspended") { ctx.resume(); }
+      var now = ctx.currentTime;
+      var notes = [523, 659, 784, 1047];
+      notes.forEach(function (freq, idx) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        var start = now + idx * 0.1;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.35, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.45);
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  function celebrateGameFinish(msgHtml, stickerId) {
+    playFanfare();
+    showCelebrateMsg(msgHtml, 2800);
+    if (stickerId) { awardSticker(stickerId); }
+  }
+
   function showColorCelebration() {
     showCelebrateMsg("참 예쁘게 색칠했어요! 🎉<br>다른 그림도 칠해볼까요?", 2200);
   }
@@ -3298,7 +3521,7 @@
         dataUrl: dataUrl
       });
       updateGalleryBadge();
-      showCelebrateMsg("갤러리에 저장했어요! 🖼️", 1800);
+      celebrateGameFinish(randomCheer() + " 갤러리에 저장했어요! 🖼️", "color");
     });
   };
 
@@ -3682,7 +3905,7 @@
     martState.active = false;
     if (martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; }
     if (success) {
-      showCelebrateMsg("장보기 성공! 참 잘했어요! 🛒🎉", 2400);
+      celebrateGameFinish(randomCheer() + " 장보기 성공! 🛒🎉", "mart");
       speakText("장보기 성공했어요", { cancelFirst: true });
     } else {
       showBanner("시간이 다 됐어요! 다음엔 더 빨리 찾아볼까요? 😊<br>\"새 목록\" 버튼을 눌러 다시 도전해봐요!", 3200);
@@ -3895,7 +4118,7 @@
     overlay.classList.add("active");
     setTimeout(function () {
       overlay.classList.remove("active");
-      showCelebrateMsg("냠냠! 레시피대로 맛있는 피자가 완성됐어요! 🍕😋", 2400);
+      celebrateGameFinish(randomCheer() + " 맛있는 피자가 완성됐어요! 🍕😋", "pizza");
       speakText("맛있는 피자가 완성됐어요", { cancelFirst: true });
     }, 1400);
   };
@@ -4134,7 +4357,7 @@
         dataUrl: dataUrl
       });
       updateGalleryBadge();
-      showCelebrateMsg("갤러리에 저장했어요! 🦄✨", 1800);
+      celebrateGameFinish(randomCheer() + " 갤러리에 저장했어요! 🦄✨", "unicorn");
     });
   };
 
@@ -4433,7 +4656,7 @@
       var stackBtn = document.getElementById("stack-btn");
       if (stackBtn) { stackBtn.disabled = true; }
       setTimeout(function () {
-        showCelebrateMsg("멋진 건물이 완성됐어요! 🏗️🎉", 2600);
+        celebrateGameFinish(randomCheer() + " 멋진 건물이 완성됐어요! 🏗️🎉", "construction");
         speakText("멋진 건물이 완성됐어요", { cancelFirst: true });
       }, 400);
     }
@@ -4506,6 +4729,7 @@
       playDing();
       showCelebrateMsg("짠! \"" + finalLetter + "\" 글자가 나왔어요! 🌀", 2200);
       speakText(finalLetter, { cancelFirst: true });
+      awardSticker("top");
     }, duration * 1000);
   };
 
@@ -4635,6 +4859,7 @@
     playDing();
     showCelebrateMsg("도둑을 잡았어요! 🚓🎉", 2000);
     speakText("도둑을 잡았어요", { cancelFirst: true });
+    awardSticker("police");
     setTimeout(startPoliceChase, 1800);
   }
 
@@ -4741,6 +4966,7 @@
       playDing();
       showCelebrateMsg("찾았어요! \"" + letter + "\" 🚀✨", 1800);
       speakText(letter, { cancelFirst: true });
+      awardSticker("space");
       setTimeout(startSpaceRound, 1600);
     } else {
       btnEl.classList.remove("wrong-shake");
@@ -4934,7 +5160,7 @@
         r.rescuedCount++;
         playDing();
         if (r.rescuedCount >= FIRE_CONFIG.floorCount) {
-          showCelebrateMsg("모두 구했어요! 최고의 소방관이에요! 🚒🎉", 2600);
+          celebrateGameFinish(randomCheer() + " 모두 구했어요! 최고의 소방관이에요! 🚒🎉", "fire");
           speakText("최고의 소방관이에요", { cancelFirst: true });
         } else {
           renderRescueStep();
@@ -5100,7 +5326,7 @@
     playDing();
     if (ambulanceState.hospitalProgress === 1) { speakText("병원", { cancelFirst: true }); }
     if (ambulanceState.hospitalProgress >= AMBULANCE_CONFIG.hospitalTarget) {
-      showCelebrateMsg("환자를 안전하게 옮겼어요! 최고의 구급대원이에요! 🚑🎉", 2600);
+      celebrateGameFinish(randomCheer() + " 환자를 안전하게 옮겼어요! 최고의 구급대원이에요! 🚑🎉", "ambulance");
       speakText("최고의 구급대원이에요", { cancelFirst: true });
     }
   };
@@ -5201,7 +5427,7 @@
   function finishTreasureGame() {
     var stage = document.getElementById("treasure-stage");
     stage.innerHTML = '<div class="construction-instruction">보물을 ' + treasureState.found + '개 찾았어요!</div>';
-    showCelebrateMsg("보물을 다 찾았어요! 최고의 탐험가예요! 🏆🎉", 2800);
+    celebrateGameFinish(randomCheer() + " 최고의 탐험가예요! 🏆🎉", "treasure");
     speakText("최고의 탐험가예요", { cancelFirst: true });
   }
 
@@ -5393,7 +5619,7 @@
     playDing();
     if (airplaneState.landingProgress === 1) { speakText("착륙", { cancelFirst: true }); }
     if (airplaneState.landingProgress >= AIRPLANE_CONFIG.landingTarget) {
-      showCelebrateMsg("안전하게 착륙했어요! 최고의 조종사예요! ✈️🎉", 2600);
+      celebrateGameFinish(randomCheer() + " 안전하게 착륙했어요! 최고의 조종사예요! ✈️🎉", "airplane");
       speakText("최고의 조종사예요", { cancelFirst: true });
     }
   };
@@ -5556,7 +5782,7 @@
   function finishEnglishGame() {
     var stage = document.getElementById("english-stage");
     stage.innerHTML = '<div class="construction-instruction">잘했어요! 8문제를 다 풀었어요!</div>';
-    showCelebrateMsg("참 잘했어요! 영어 실력이 쑥쑥 자라고 있어요! 🔤🎉", 2600);
+    celebrateGameFinish(randomCheer() + " 영어 실력이 쑥쑥 자라고 있어요! 🔤🎉", "english");
     speakText("참 잘했어요", { cancelFirst: true });
   }
 
@@ -5687,9 +5913,160 @@
   function finishMathGame() {
     var stage = document.getElementById("math-stage");
     stage.innerHTML = '<div class="construction-instruction">별을 ' + mathState.stars + '개 모았어요!</div>';
-    showCelebrateMsg("참 잘했어요! 숫자 박사가 되어가고 있어요! ➕🎉", 2600);
+    celebrateGameFinish(randomCheer() + " 숫자 박사가 되어가고 있어요! ➕🎉", "math");
     speakText("참 잘했어요", { cancelFirst: true });
   }
+
+  // ---------- 직업체험 ----------
+  var CAREERS = [
+    { id: "police", label: "경찰관", emoji: "👮", action: function () { openPoliceScreen(); } },
+    { id: "fire", label: "소방관", emoji: "👨‍🚒", action: function () { openFireScreen(); } },
+    { id: "ambulance", label: "구급대원", emoji: "🚑", action: function () { openAmbulanceScreen(); } },
+    { id: "construction", label: "공사장 인부", emoji: "👷", action: function () { openConstructionScreen(); } },
+    { id: "doctor", label: "의사", emoji: "🩺", action: function () { openDoctorScreen(); } }
+  ];
+
+  window.openCareerScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("career-screen");
+    var grid = document.getElementById("career-grid");
+    if (!grid.childElementCount) {
+      CAREERS.forEach(function (c) {
+        var btn = document.createElement("button");
+        btn.className = "career-card";
+        btn.innerHTML = '<span class="emoji">' + c.emoji + '</span><span class="label">' + c.label + '</span>';
+        btn.onclick = function () {
+          speakText("오늘은 " + c.label + "이 되어볼까요", { cancelFirst: true });
+          setTimeout(c.action, 600);
+        };
+        grid.appendChild(btn);
+      });
+    }
+  };
+
+  // ---------- 의사 놀이 ----------
+  var DOCTOR_CONFIG = { examineRounds: 3, prescribeTarget: 6 };
+
+  var DIAGNOSTIC_PAIRS = [
+    { symptomEmoji: "😷", symptomWord: "기침", toolEmoji: "🩺", toolWord: "청진기" },
+    { symptomEmoji: "🤒", symptomWord: "열", toolEmoji: "🌡️", toolWord: "체온계" },
+    { symptomEmoji: "👂", symptomWord: "귀 아픔", toolEmoji: "🔦", toolWord: "손전등" },
+    { symptomEmoji: "🦴", symptomWord: "다리 아픔", toolEmoji: "🩻", toolWord: "엑스레이" }
+  ];
+
+  var doctorState = {
+    step: 1,
+    examineRound: 0,
+    examineCurrent: null,
+    examineAnswered: false,
+    prescribeProgress: 0
+  };
+
+  window.openDoctorScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("doctor-screen");
+    startDoctorGame();
+  };
+
+  window.startDoctorGame = function () {
+    doctorState = { step: 1, examineRound: 0, examineCurrent: null, examineAnswered: false, prescribeProgress: 0 };
+    renderDoctorStep();
+  };
+
+  function updateDoctorStepBadge() {
+    document.getElementById("doctor-step-badge").textContent = doctorState.step + " / 2";
+  }
+
+  function renderDoctorStep() {
+    updateDoctorStepBadge();
+    if (doctorState.step === 1) {
+      renderDoctorExamineRound();
+    } else {
+      var stage = document.getElementById("doctor-stage");
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="doc-speak-2">🔊</span><span>처방전을 써서 환자에게 주어보아요!</span></div>' +
+        '<div class="fire-scene"><div class="truck-emoji">🩺</div><div class="house-emoji">🤗</div></div>' +
+        '<button class="dig-btn" onclick="prescribeMedicine()">처방전 주기 📋</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="prescribe-progress-fill"></div></div>';
+      document.getElementById("doc-speak-2").onclick = function () { speakText("처방전", { cancelFirst: true }); };
+      updatePrescribeProgress();
+    }
+  }
+
+  function renderDoctorExamineRound() {
+    doctorState.examineAnswered = false;
+    var pair = DIAGNOSTIC_PAIRS[Math.floor(Math.random() * DIAGNOSTIC_PAIRS.length)];
+    doctorState.examineCurrent = pair;
+
+    var distractors = shuffle(DIAGNOSTIC_PAIRS.filter(function (p) { return p.toolWord !== pair.toolWord; })).slice(0, 3);
+    var options = shuffle([pair].concat(distractors));
+
+    var stage = document.getElementById("doctor-stage");
+    var gridHtml = '<div class="treatment-grid" id="doctor-grid">';
+    options.forEach(function (opt) {
+      gridHtml += '<button class="treatment-btn"><span class="emoji">' + opt.toolEmoji + '</span><span class="label">' + opt.toolWord + '</span></button>';
+    });
+    gridHtml += '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="doc-speak-1">🔊</span><span>환자를 진찰해요 (<span id="examine-count">' + doctorState.examineRound + '</span>/' + DOCTOR_CONFIG.examineRounds + ')</span></div>' +
+      '<div class="patient-symptom">' + pair.symptomEmoji + '</div>' +
+      '<div class="patient-word-row"><span class="patient-word">' + pair.symptomWord + '</span></div>' +
+      gridHtml;
+
+    document.getElementById("doc-speak-1").onclick = function () { speakText(pair.symptomWord, { cancelFirst: true }); };
+    speakText(pair.symptomWord, { cancelFirst: true });
+
+    var btns = stage.querySelectorAll(".treatment-btn");
+    btns.forEach(function (btn, idx) {
+      btn.addEventListener("click", function () { onDoctorToolClick(btn, options[idx]); });
+    });
+  }
+
+  function onDoctorToolClick(btnEl, option) {
+    if (doctorState.examineAnswered) { return; }
+    var pair = doctorState.examineCurrent;
+    if (option.toolWord === pair.toolWord) {
+      doctorState.examineAnswered = true;
+      btnEl.classList.add("correct-flash");
+      var allBtns = document.querySelectorAll("#doctor-grid .treatment-btn");
+      allBtns.forEach(function (b) { b.style.pointerEvents = "none"; });
+      playDing();
+      speakText(option.toolWord, { cancelFirst: true });
+      showCelebrateMsg("진찰했어요! " + option.toolEmoji, 1400);
+      doctorState.examineRound++;
+      if (doctorState.examineRound >= DOCTOR_CONFIG.examineRounds) {
+        showBanner("진찰을 다 마쳤어요! 이제 처방전을 써볼까요? 👍", 1900);
+        doctorState.step = 2;
+        setTimeout(renderDoctorStep, 1300);
+      } else {
+        setTimeout(renderDoctorExamineRound, 1300);
+      }
+    } else {
+      btnEl.classList.remove("shake-wrong");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("shake-wrong");
+      showBanner("그건 아니에요! 다시 골라볼까요? 😊", 1400);
+    }
+  }
+
+  function updatePrescribeProgress() {
+    var pct = Math.min(100, (doctorState.prescribeProgress / DOCTOR_CONFIG.prescribeTarget) * 100);
+    var fill = document.getElementById("prescribe-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.prescribeMedicine = function () {
+    if (doctorState.step !== 2) { return; }
+    doctorState.prescribeProgress++;
+    updatePrescribeProgress();
+    playDing();
+    if (doctorState.prescribeProgress === 1) { speakText("처방전", { cancelFirst: true }); }
+    if (doctorState.prescribeProgress >= DOCTOR_CONFIG.prescribeTarget) {
+      celebrateGameFinish(randomCheer() + " 훌륭한 의사 선생님이에요! 🩺🎉", "doctor");
+      speakText("훌륭한 의사 선생님이에요", { cancelFirst: true });
+    }
+  };
 })();
 </script>
 </body>
