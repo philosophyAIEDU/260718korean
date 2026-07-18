@@ -2380,6 +2380,103 @@
     </div>
   </div>
 
+  <!-- ============ 직업체험 미니게임 화면들 ============ -->
+  <div id="cjob-police-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">교통 정리 🚦</div>
+      <div class="cart-badge" id="cjob-police-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-police-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cpolice')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-fire-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">화재 진압 🧯</div>
+      <div class="cart-badge" id="cjob-fire-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-fire-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cfire')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-ambulance-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">응급처치 ❤️‍🩹</div>
+      <div class="cart-badge" id="cjob-ambulance-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-ambulance-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cambulance')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-construction-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">못 박기 🔨</div>
+      <div class="cart-badge" id="cjob-construction-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-construction-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cconstruction')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-chef-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">요리하기 🍳</div>
+      <div class="cart-badge" id="cjob-chef-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-chef-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cchef')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-teacher-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">받아쓰기 📚</div>
+      <div class="cart-badge" id="cjob-teacher-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-teacher-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cteacher')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-mailman-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">우편 배달 📮</div>
+      <div class="cart-badge" id="cjob-mailman-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-mailman-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('cmailman')">처음부터 다시</button>
+    </div>
+  </div>
+
+  <div id="cjob-hair-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">머리 손질 💇</div>
+      <div class="cart-badge" id="cjob-hair-badge">1 / 2</div>
+    </div>
+    <div class="construction-stage" id="cjob-hair-stage"></div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="resetCareerMiniGame('chair')">처음부터 다시</button>
+    </div>
+  </div>
+
   <div class="celebrate-msg" id="celebrate-msg"></div>
   <div class="banner-msg" id="banner-msg"></div>
   <div class="sticker-toast" id="sticker-toast"></div>
@@ -5919,11 +6016,15 @@
 
   // ---------- 직업체험 ----------
   var CAREERS = [
-    { id: "police", label: "경찰관", emoji: "👮", action: function () { openPoliceScreen(); } },
-    { id: "fire", label: "소방관", emoji: "👨‍🚒", action: function () { openFireScreen(); } },
-    { id: "ambulance", label: "구급대원", emoji: "🚑", action: function () { openAmbulanceScreen(); } },
-    { id: "construction", label: "공사장 인부", emoji: "👷", action: function () { openConstructionScreen(); } },
-    { id: "doctor", label: "의사", emoji: "🩺", action: function () { openDoctorScreen(); } }
+    { id: "police", label: "경찰관", emoji: "👮", action: function () { openCjobPoliceScreen(); } },
+    { id: "fire", label: "소방관", emoji: "👨‍🚒", action: function () { openCjobFireScreen(); } },
+    { id: "ambulance", label: "구급대원", emoji: "🚑", action: function () { openCjobAmbulanceScreen(); } },
+    { id: "construction", label: "공사장 인부", emoji: "👷", action: function () { openCjobConstructionScreen(); } },
+    { id: "doctor", label: "의사", emoji: "🩺", action: function () { openDoctorScreen(); } },
+    { id: "chef", label: "요리사", emoji: "👨‍🍳", action: function () { openCjobChefScreen(); } },
+    { id: "teacher", label: "선생님", emoji: "🧑‍🏫", action: function () { openCjobTeacherScreen(); } },
+    { id: "mailman", label: "우체부", emoji: "📬", action: function () { openCjobMailmanScreen(); } },
+    { id: "hair", label: "미용사", emoji: "💇‍♀️", action: function () { openCjobHairScreen(); } }
   ];
 
   window.openCareerScreen = function () {
@@ -6067,6 +6168,257 @@
       speakText("훌륭한 의사 선생님이에요", { cancelFirst: true });
     }
   };
+
+  // ---------- 직업체험 미니게임 (경찰관/소방관/구급대원/공사장 인부/요리사/선생님/우체부/미용사) ----------
+  var CAREER_MINI_DEFS = [
+    {
+      id: "cpolice", avatarEmoji: "👮",
+      screenId: "cjob-police-screen", stageId: "cjob-police-stage", badgeId: "cjob-police-badge",
+      roundLabel: "표지판을 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "정지", emoji: "🛑" },
+        { word: "출발", emoji: "🟢" },
+        { word: "좌회전", emoji: "⬅️" },
+        { word: "우회전", emoji: "➡️" }
+      ],
+      finishLabel: "호루라기를 불어 차를 통제해요!", finishSpeakWord: "호루라기",
+      finishBtnLabel: "호루라기 불기 🚨", finishEmoji: "🚦", finishCompanionEmoji: "🚗", finishTarget: 6,
+      finishCelebrateMsg: "무사고 하루였어요! 최고의 경찰관이에요! 🚦🎉", finishCelebrateSpeak: "최고의 경찰관이에요",
+      stickerId: "career_police", stickerLabel: "교통 정리", stickerEmoji: "🚦"
+    },
+    {
+      id: "cfire", avatarEmoji: "👨‍🚒",
+      screenId: "cjob-fire-screen", stageId: "cjob-fire-stage", badgeId: "cjob-fire-badge",
+      roundLabel: "위험을 알아차려요", roundTarget: 3,
+      pairs: [
+        { word: "불", emoji: "🔥" },
+        { word: "연기", emoji: "💨" },
+        { word: "경보", emoji: "🚨" },
+        { word: "위험", emoji: "⚠️" }
+      ],
+      finishLabel: "소화기로 불을 꺼요!", finishSpeakWord: "소화기",
+      finishBtnLabel: "물 뿌리기 🧯", finishEmoji: "🔥", finishCompanionEmoji: "🧯", finishTarget: 6,
+      finishCelebrateMsg: "불을 다 껐어요! 최고의 소방관이에요! 🧯🎉", finishCelebrateSpeak: "최고의 소방관이에요",
+      stickerId: "career_fire", stickerLabel: "화재 진압", stickerEmoji: "🧯"
+    },
+    {
+      id: "cambulance", avatarEmoji: "🚑",
+      screenId: "cjob-ambulance-screen", stageId: "cjob-ambulance-stage", badgeId: "cjob-ambulance-badge",
+      roundLabel: "필요한 도구를 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "붕대", emoji: "🩹" },
+        { word: "들것", emoji: "🛏️" },
+        { word: "마스크", emoji: "😷" },
+        { word: "얼음찜질", emoji: "🧊" }
+      ],
+      finishLabel: "심폐소생술을 해요!", finishSpeakWord: "심폐소생술",
+      finishBtnLabel: "가슴 압박하기 ❤️", finishEmoji: "❤️", finishCompanionEmoji: "🧑", finishTarget: 8,
+      finishCelebrateMsg: "환자를 살렸어요! 최고의 구급대원이에요! ❤️‍🩹🎉", finishCelebrateSpeak: "최고의 구급대원이에요",
+      stickerId: "career_ambulance", stickerLabel: "응급처치", stickerEmoji: "❤️‍🩹"
+    },
+    {
+      id: "cconstruction", avatarEmoji: "👷",
+      screenId: "cjob-construction-screen", stageId: "cjob-construction-stage", badgeId: "cjob-construction-badge",
+      roundLabel: "연장을 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "망치", emoji: "🔨" },
+        { word: "드라이버", emoji: "🪛" },
+        { word: "톱", emoji: "🪚" },
+        { word: "스패너", emoji: "🔧" }
+      ],
+      finishLabel: "못을 박아요!", finishSpeakWord: "망치질",
+      finishBtnLabel: "망치질하기 🔨", finishEmoji: "🔨", finishCompanionEmoji: "🪵", finishTarget: 6,
+      finishCelebrateMsg: "튼튼한 집을 지었어요! 최고의 목수예요! 🏠🎉", finishCelebrateSpeak: "최고의 목수예요",
+      stickerId: "career_construction", stickerLabel: "못 박기", stickerEmoji: "🔨"
+    },
+    {
+      id: "cchef", avatarEmoji: "👨‍🍳",
+      screenId: "cjob-chef-screen", stageId: "cjob-chef-stage", badgeId: "cjob-chef-badge",
+      roundLabel: "재료를 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "당근", emoji: "🥕" },
+        { word: "양파", emoji: "🧅" },
+        { word: "감자", emoji: "🥔" },
+        { word: "계란", emoji: "🥚" }
+      ],
+      finishLabel: "재료를 볶아요!", finishSpeakWord: "볶음",
+      finishBtnLabel: "볶음하기 🍳", finishEmoji: "🍳", finishCompanionEmoji: "🥘", finishTarget: 6,
+      finishCelebrateMsg: "맛있는 요리가 완성됐어요! 최고의 요리사예요! 😋🎉", finishCelebrateSpeak: "최고의 요리사예요",
+      stickerId: "career_chef", stickerLabel: "요리하기", stickerEmoji: "🍳"
+    },
+    {
+      id: "cteacher", avatarEmoji: "🧑‍🏫",
+      screenId: "cjob-teacher-screen", stageId: "cjob-teacher-stage", badgeId: "cjob-teacher-badge",
+      roundLabel: "단어를 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "사과", emoji: "🍎" },
+        { word: "나무", emoji: "🌳" },
+        { word: "바다", emoji: "🌊" },
+        { word: "구름", emoji: "☁️" }
+      ],
+      finishLabel: "학생에게 칭찬 스티커를 줘요!", finishSpeakWord: "칭찬 스티커",
+      finishBtnLabel: "스티커 주기 ⭐", finishEmoji: "📚", finishCompanionEmoji: "🧒", finishTarget: 6,
+      finishCelebrateMsg: "학생들이 모두 잘 배웠어요! 최고의 선생님이에요! 📚🎉", finishCelebrateSpeak: "최고의 선생님이에요",
+      stickerId: "career_teacher", stickerLabel: "받아쓰기", stickerEmoji: "📚"
+    },
+    {
+      id: "cmailman", avatarEmoji: "📬",
+      screenId: "cjob-mailman-screen", stageId: "cjob-mailman-stage", badgeId: "cjob-mailman-badge",
+      roundLabel: "배달할 곳을 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "우체국", emoji: "🏤" },
+        { word: "학교", emoji: "🏫" },
+        { word: "병원", emoji: "🏥" },
+        { word: "우리집", emoji: "🏠" }
+      ],
+      finishLabel: "편지를 배달해요!", finishSpeakWord: "편지",
+      finishBtnLabel: "편지 넣기 📮", finishEmoji: "✉️", finishCompanionEmoji: "🏠", finishTarget: 6,
+      finishCelebrateMsg: "편지를 모두 배달했어요! 최고의 우체부예요! 📮🎉", finishCelebrateSpeak: "최고의 우체부예요",
+      stickerId: "career_mailman", stickerLabel: "우편 배달", stickerEmoji: "📮"
+    },
+    {
+      id: "chair", avatarEmoji: "💇‍♀️",
+      screenId: "cjob-hair-screen", stageId: "cjob-hair-stage", badgeId: "cjob-hair-badge",
+      roundLabel: "도구를 찾아요", roundTarget: 3,
+      pairs: [
+        { word: "가위", emoji: "✂️" },
+        { word: "리본", emoji: "🎀" },
+        { word: "왕관", emoji: "👑" },
+        { word: "거울", emoji: "🪞" }
+      ],
+      finishLabel: "머리를 손질해요!", finishSpeakWord: "머리 손질",
+      finishBtnLabel: "머리 손질하기 💇", finishEmoji: "✂️", finishCompanionEmoji: "😊", finishTarget: 6,
+      finishCelebrateMsg: "예쁘게 머리를 완성했어요! 최고의 미용사예요! 💇🎉", finishCelebrateSpeak: "최고의 미용사예요",
+      stickerId: "career_hair", stickerLabel: "머리 손질", stickerEmoji: "💇"
+    }
+  ];
+
+  var CAREER_GAMES = {};
+
+  function startCareerMiniGame(id) {
+    var cfg = CAREER_GAMES[id];
+    cfg.state = { step: 1, round: 0, current: null, answered: false, progress: 0 };
+    renderCareerMiniStep(cfg);
+  }
+  window.resetCareerMiniGame = function (id) { startCareerMiniGame(id); };
+
+  function updateCareerMiniBadge(cfg) {
+    var el = document.getElementById(cfg.badgeId);
+    if (el) { el.textContent = cfg.state.step + " / 2"; }
+  }
+
+  function renderCareerMiniStep(cfg) {
+    updateCareerMiniBadge(cfg);
+    if (cfg.state.step === 1) {
+      renderCareerMiniRound(cfg);
+    } else {
+      renderCareerMiniFinisher(cfg);
+    }
+  }
+
+  function renderCareerMiniRound(cfg) {
+    var st = cfg.state;
+    st.answered = false;
+    var pair = cfg.pairs[Math.floor(Math.random() * cfg.pairs.length)];
+    st.current = pair;
+
+    var distractors = shuffle(cfg.pairs.filter(function (p) { return p.word !== pair.word; })).slice(0, 3);
+    var options = shuffle([pair].concat(distractors));
+
+    var stage = document.getElementById(cfg.stageId);
+    var gridHtml = '<div class="treatment-grid" id="' + cfg.stageId + '-grid">';
+    options.forEach(function (opt) {
+      gridHtml += '<button class="treatment-btn"><span class="emoji">' + opt.emoji + '</span><span class="label">' + opt.word + '</span></button>';
+    });
+    gridHtml += '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="' + cfg.stageId + '-speak-1">🔊</span><span>' + cfg.roundLabel + ' (<span>' + st.round + '</span>/' + cfg.roundTarget + ')</span></div>' +
+      '<div class="patient-symptom">' + cfg.avatarEmoji + '</div>' +
+      gridHtml;
+
+    document.getElementById(cfg.stageId + "-speak-1").onclick = function () { speakText(pair.word, { cancelFirst: true }); };
+    speakText(pair.word, { cancelFirst: true });
+
+    var btns = stage.querySelectorAll(".treatment-btn");
+    btns.forEach(function (btn, idx) {
+      btn.addEventListener("click", function () { onCareerMiniRoundClick(cfg, btn, options[idx]); });
+    });
+  }
+
+  function onCareerMiniRoundClick(cfg, btnEl, option) {
+    var st = cfg.state;
+    if (st.answered) { return; }
+    var pair = st.current;
+    if (option.word === pair.word) {
+      st.answered = true;
+      btnEl.classList.add("correct-flash");
+      var allBtns = document.querySelectorAll("#" + cfg.stageId + "-grid .treatment-btn");
+      allBtns.forEach(function (b) { b.style.pointerEvents = "none"; });
+      playDing();
+      speakText(option.word, { cancelFirst: true });
+      showCelebrateMsg("정답이에요! " + option.emoji, 1400);
+      st.round++;
+      if (st.round >= cfg.roundTarget) {
+        showBanner("잘 찾았어요! 이제 일을 마무리해볼까요? 👍", 1900);
+        st.step = 2;
+        setTimeout(function () { renderCareerMiniStep(cfg); }, 1300);
+      } else {
+        setTimeout(function () { renderCareerMiniRound(cfg); }, 1300);
+      }
+    } else {
+      btnEl.classList.remove("shake-wrong");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("shake-wrong");
+      showBanner("그건 아니에요! 다시 골라볼까요? 😊", 1400);
+    }
+  }
+
+  function renderCareerMiniFinisher(cfg) {
+    var stage = document.getElementById(cfg.stageId);
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="' + cfg.stageId + '-speak-2">🔊</span><span>' + cfg.finishLabel + '</span></div>' +
+      '<div class="fire-scene"><div class="truck-emoji">' + cfg.finishEmoji + '</div><div class="house-emoji">' + cfg.finishCompanionEmoji + '</div></div>' +
+      '<button class="dig-btn">' + cfg.finishBtnLabel + '</button>' +
+      '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="' + cfg.stageId + '-progress-fill"></div></div>';
+    document.getElementById(cfg.stageId + "-speak-2").onclick = function () { speakText(cfg.finishSpeakWord, { cancelFirst: true }); };
+    stage.querySelector(".dig-btn").onclick = function () { onCareerMiniFinishTap(cfg); };
+    updateCareerMiniProgress(cfg);
+  }
+
+  function updateCareerMiniProgress(cfg) {
+    var pct = Math.min(100, (cfg.state.progress / cfg.finishTarget) * 100);
+    var fill = document.getElementById(cfg.stageId + "-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  function onCareerMiniFinishTap(cfg) {
+    var st = cfg.state;
+    if (st.step !== 2) { return; }
+    st.progress++;
+    updateCareerMiniProgress(cfg);
+    playDing();
+    if (st.progress === 1) { speakText(cfg.finishSpeakWord, { cancelFirst: true }); }
+    if (st.progress >= cfg.finishTarget) {
+      celebrateGameFinish(randomCheer() + " " + cfg.finishCelebrateMsg, cfg.stickerId);
+      speakText(cfg.finishCelebrateSpeak, { cancelFirst: true });
+    }
+  }
+
+  CAREER_MINI_DEFS.forEach(function (cfg) {
+    CAREER_GAMES[cfg.id] = cfg;
+    STICKER_LIST.push({ id: cfg.stickerId, label: cfg.stickerLabel, emoji: cfg.stickerEmoji });
+  });
+  updateStickerCountBadges();
+
+  window.openCjobPoliceScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-police-screen"); startCareerMiniGame("cpolice"); };
+  window.openCjobFireScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-fire-screen"); startCareerMiniGame("cfire"); };
+  window.openCjobAmbulanceScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-ambulance-screen"); startCareerMiniGame("cambulance"); };
+  window.openCjobConstructionScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-construction-screen"); startCareerMiniGame("cconstruction"); };
+  window.openCjobChefScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-chef-screen"); startCareerMiniGame("cchef"); };
+  window.openCjobTeacherScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-teacher-screen"); startCareerMiniGame("cteacher"); };
+  window.openCjobMailmanScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-mailman-screen"); startCareerMiniGame("cmailman"); };
+  window.openCjobHairScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-hair-screen"); startCareerMiniGame("chair"); };
 })();
 </script>
 </body>
