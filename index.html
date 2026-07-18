@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>말랑말랑 한글 풍선</title>
+<style>
+  :root {
+    --pastel1: #ff8fa3;
+    --pastel2: #ffc785;
+    --pastel3: #a0e7c4;
+    --pastel4: #8ecdf7;
+    --pastel5: #c7a4ff;
+    --pastel6: #ffe066;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Segoe UI Rounded", sans-serif;
+  }
+
+  body {
+    background: linear-gradient(to bottom, #7fc8f8 0%, #bfe8ff 45%, #eaf9ff 100%);
+    position: relative;
+  }
+
+  .screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  /* ---------- clouds ---------- */
+  .cloud {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50px;
+    opacity: 0.85;
+    z-index: 0;
+    filter: blur(0.3px);
+  }
+  .cloud::before, .cloud::after {
+    content: "";
+    position: absolute;
+    background: #ffffff;
+    border-radius: 50%;
+  }
+  .cloud1 { width: 120px; height: 40px; top: 8%; left: 8%; animation: drift 26s linear infinite; }
+  .cloud1::before { width: 60px; height: 60px; top: -30px; left: 15px; }
+  .cloud1::after { width: 45px; height: 45px; top: -20px; left: 60px; }
+
+  .cloud2 { width: 90px; height: 34px; top: 18%; left: 65%; animation: drift 34s linear infinite; }
+  .cloud2::before { width: 50px; height: 50px; top: -24px; left: 10px; }
+  .cloud2::after { width: 35px; height: 35px; top: -16px; left: 48px; }
+
+  .cloud3 { width: 100px; height: 36px; top: 4%; left: 40%; animation: drift 20s linear infinite reverse; }
+  .cloud3::before { width: 50px; height: 50px; top: -26px; left: 12px; }
+  .cloud3::after { width: 40px; height: 40px; top: -18px; left: 52px; }
+
+  @keyframes drift {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(30px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* ---------- start screen ---------- */
+  #start-screen {
+    justify-content: flex-start;
+    padding-top: 5vh;
+  }
+
+  .title {
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 900;
+    color: #ff6b81;
+    text-shadow: 3px 3px 0 #ffffff, 5px 5px 8px rgba(0,0,0,0.15);
+    margin: 0 0 4vh 0;
+    text-align: center;
+    z-index: 2;
+    letter-spacing: 1px;
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 90%;
+    max-width: 520px;
+    z-index: 2;
+  }
+
+  .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mode-btn {
+    width: 100%;
+    min-height: 90px;
+    border: none;
+    border-radius: 28px;
+    font-size: clamp(20px, 4.5vw, 28px);
+    font-weight: 800;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 8px 14px rgba(0,0,0,0.15);
+    transition: transform 0.08s ease;
+  }
+  .mode-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .mode-btn.m1 { background: linear-gradient(145deg, #ff9aa8, #ff6b81); }
+  .mode-btn.m2 { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
+  .mode-btn.m3 { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
+
+  .mode-desc {
+    margin-top: 8px;
+    font-size: clamp(14px, 3vw, 17px);
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  /* ---------- game screen ---------- */
+  #game-screen {
+    justify-content: flex-start;
+  }
+
+  .game-topbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    z-index: 3;
+  }
+
+  .home-btn {
+    background: #ffffffcc;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  .progress-badge {
+    background: #ffffffcc;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #4a5568;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  .star-badge {
+    background: #ffffffcc;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #d68a00;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    position: relative;
+  }
+
+  .prompt-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 16vh;
+    z-index: 3;
+  }
+
+  .speak-btn {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #ffd97a, #ffb84d);
+    font-size: 52px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.2);
+    transition: transform 0.08s ease;
+  }
+  .speak-btn:active { transform: scale(0.94); }
+
+  .prompt-letter {
+    font-size: clamp(64px, 16vw, 110px);
+    font-weight: 900;
+    color: #ffffff;
+    background: linear-gradient(145deg, #ff9aa8, #ff6b81);
+    width: 150px;
+    height: 150px;
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 10px 18px rgba(0,0,0,0.18);
+  }
+
+  .prompt-emoji {
+    font-size: clamp(70px, 18vw, 120px);
+    line-height: 1;
+    filter: drop-shadow(0 6px 6px rgba(0,0,0,0.2));
+  }
+
+  .balloon-area {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .balloon {
+    position: absolute;
+    bottom: -220px;
+    width: 130px;
+    height: 160px;
+    border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+    cursor: pointer;
+    box-shadow: inset -10px -10px 25px rgba(0,0,0,0.12), inset 10px 10px 20px rgba(255,255,255,0.35), 0 10px 14px rgba(0,0,0,0.15);
+    animation-name: floatUp;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .balloon::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 14px solid currentColor;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    18%  { transform: translate(-22px, -18vh) rotate(-5deg); }
+    36%  { transform: translate(18px, -34vh) rotate(4deg); }
+    54%  { transform: translate(-18px, -50vh) rotate(-4deg); }
+    72%  { transform: translate(22px, -66vh) rotate(5deg); }
+    90%  { transform: translate(-10px, -80vh) rotate(-2deg); }
+    100% { transform: translate(0, -95vh) rotate(0deg); }
+  }
+
+  @keyframes shakeBalloon {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    20% { transform: translateX(-14px) rotate(-6deg); }
+    40% { transform: translateX(12px) rotate(6deg); }
+    60% { transform: translateX(-10px) rotate(-4deg); }
+    80% { transform: translateX(8px) rotate(4deg); }
+  }
+
+  .balloon.shake {
+    animation: shakeBalloon 0.45s ease;
+  }
+
+  .balloon.popping {
+    animation: none !important;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    transform: scale(1.5);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .encourage-msg {
+    position: fixed;
+    bottom: 6%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #ffffff;
+    color: #ff6b81;
+    font-size: 22px;
+    font-weight: 800;
+    padding: 14px 28px;
+    border-radius: 30px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .encourage-msg.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 20;
+    pointer-events: none;
+    border-radius: 2px;
+  }
+  @keyframes confettiFly {
+    0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+  }
+
+  .star-pop {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffb400;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @keyframes starPop {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+  }
+  .star-pop.play { animation: starPop 0.8s ease forwards; }
+
+  /* ---------- result screen ---------- */
+  #result-screen {
+    justify-content: center;
+    gap: 24px;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .result-title {
+    font-size: clamp(32px, 7vw, 52px);
+    font-weight: 900;
+    color: #ff6b81;
+    text-shadow: 2px 2px 0 #ffffff;
+  }
+
+  .result-sub {
+    font-size: clamp(16px, 4vw, 22px);
+    color: #4a5568;
+    font-weight: 700;
+  }
+
+  .star-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    max-width: 480px;
+  }
+
+  .star-row span {
+    font-size: clamp(26px, 6vw, 40px);
+  }
+
+  .result-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .result-btn {
+    min-height: 80px;
+    min-width: 200px;
+    border: none;
+    border-radius: 24px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 800;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15), 0 8px 14px rgba(0,0,0,0.15);
+    padding: 10px 20px;
+  }
+  .result-btn:active { transform: translateY(3px); }
+  .result-btn.retry { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
+  .result-btn.home { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
+</style>
+</head>
+<body>
+
+  <!-- ============ 시작 화면 ============ -->
+  <div id="start-screen" class="screen active">
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+
+    <h1 class="title">말랑말랑<br>한글 풍선</h1>
+
+    <div class="menu">
+      <div class="menu-item">
+        <button class="mode-btn m1" onclick="startGame(1)">1단계: 듣고 글자 찾기 🎧</button>
+        <div class="mode-desc">소리를 듣고 맞는 글자 풍선을 터뜨려요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m2" onclick="startGame(2)">2단계: 같은 글자 찾기 👀</button>
+        <div class="mode-desc">위에 있는 글자와 똑같은 풍선을 찾아요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m3" onclick="startGame(3)">3단계: 그림 보고 단어 찾기 🖼️</button>
+        <div class="mode-desc">그림에 어울리는 단어 풍선을 터뜨려요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 게임 화면 ============ -->
+  <div id="game-screen" class="screen">
+    <div class="game-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="progress-badge" id="progress-badge">1 / 10</div>
+      <div class="star-badge" id="star-badge">⭐ x 0
+        <span class="star-pop" id="star-pop">+1</span>
+      </div>
+    </div>
+
+    <div class="prompt-area" id="prompt-area"></div>
+
+    <div class="balloon-area" id="balloon-area"></div>
+  </div>
+
+  <div class="encourage-msg" id="encourage-msg">다시 찾아볼까? 😊</div>
+
+  <!-- ============ 결과 화면 ============ -->
+  <div id="result-screen" class="screen">
+    <div class="result-title">참 잘했어요! 🎉</div>
+    <div class="result-sub" id="result-sub">오늘도 한 걸음 성장했어요!</div>
+    <div class="star-row" id="star-row"></div>
+    <div class="result-buttons">
+      <button class="result-btn retry" onclick="retrySame()">다시 하기</button>
+      <button class="result-btn home" onclick="goHome()">다른 단계 하기</button>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var LETTERS = ["가","나","다","라","마","바","사","아","자","차","카","타","파","하"];
+
+  var WORD_PAIRS = [
+    { emoji: "🍎", word: "사과" },
+    { emoji: "🦋", word: "나비" },
+    { emoji: "🥛", word: "우유" },
+    { emoji: "🧢", word: "모자" },
+    { emoji: "🛝", word: "시소" },
+    { emoji: "🐰", word: "토끼" },
+    { emoji: "🍌", word: "바나나" },
+    { emoji: "🐟", word: "고기" },
+    { emoji: "🍇", word: "포도" },
+    { emoji: "🐸", word: "개구리" },
+    { emoji: "🌂", word: "우산" },
+    { emoji: "🎈", word: "풍선" },
+    { emoji: "🍭", word: "사탕" },
+    { emoji: "🚗", word: "자동차" },
+    { emoji: "🐱", word: "고양이" },
+    { emoji: "🌙", word: "달" },
+    { emoji: "⭐", word: "별" },
+    { emoji: "🐶", word: "강아지" },
+    { emoji: "🎁", word: "선물" },
+    { emoji: "🍞", word: "빵" },
+    { emoji: "🧦", word: "양말" },
+    { emoji: "🚌", word: "버스" },
+    { emoji: "🏠", word: "집" },
+    { emoji: "🐢", word: "거북이" }
+  ];
+
+  var BALLOON_COLORS = ["#ff8fa3", "#ffb84d", "#4ecba0", "#5aa9e6", "#b18bff", "#ffd93d", "#ff7f6b", "#5ad1c9"];
+
+  var TOTAL_QUESTIONS = 10;
+
+  var state = {
+    mode: null,
+    currentIndex: 0,
+    stars: 0,
+    questions: [],
+    answered: false
+  };
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function pickN(pool, n) {
+    return shuffle(pool).slice(0, n);
+  }
+
+  function buildLetterQuestion() {
+    var target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    var others = LETTERS.filter(function (l) { return l !== target; });
+    var distractors = pickN(others, 3);
+    var options = shuffle([target].concat(distractors));
+    return { correctAnswer: target, options: options };
+  }
+
+  function buildWordQuestion() {
+    var targetPair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+    var others = WORD_PAIRS.filter(function (p) { return p.word !== targetPair.word; });
+    var distractors = pickN(others, 3).map(function (p) { return p.word; });
+    var options = shuffle([targetPair.word].concat(distractors));
+    return { correctAnswer: targetPair.word, options: options, emoji: targetPair.emoji };
+  }
+
+  function generateQuestions(mode) {
+    var qs = [];
+    for (var i = 0; i < TOTAL_QUESTIONS; i++) {
+      if (mode === 1 || mode === 2) {
+        qs.push(buildLetterQuestion());
+      } else {
+        qs.push(buildWordQuestion());
+      }
+    }
+    return qs;
+  }
+
+  function showScreen(id) {
+    var screens = document.querySelectorAll(".screen");
+    screens.forEach(function (s) { s.classList.remove("active"); });
+    document.getElementById(id).classList.add("active");
+  }
+
+  // ---------- Audio ----------
+  var audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  function playDing() {
+    try {
+      var ctx = getAudioCtx();
+      if (ctx.state === "suspended") { ctx.resume(); }
+      var now = ctx.currentTime;
+      var notes = [880, 1320];
+      notes.forEach(function (freq, idx) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        var start = now + idx * 0.12;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.4);
+      });
+    } catch (e) { /* audio not available, ignore */ }
+  }
+
+  function speakLetter(letter) {
+    if (!("speechSynthesis" in window)) { return; }
+    try {
+      window.speechSynthesis.cancel();
+      var utter = new SpeechSynthesisUtterance(letter);
+      utter.lang = "ko-KR";
+      utter.rate = 0.85;
+      utter.pitch = 1.1;
+      window.speechSynthesis.speak(utter);
+    } catch (e) { /* ignore */ }
+  }
+
+  // ---------- Game flow ----------
+  window.startGame = function (mode) {
+    state.mode = mode;
+    state.currentIndex = 0;
+    state.stars = 0;
+    state.questions = generateQuestions(mode);
+    updateStarBadge();
+    showScreen("game-screen");
+    renderQuestion();
+  };
+
+  window.retrySame = function () {
+    startGame(state.mode);
+  };
+
+  window.goHome = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("start-screen");
+  };
+
+  function updateStarBadge() {
+    document.getElementById("star-badge").firstChild.textContent = "⭐ x " + state.stars;
+  }
+
+  function renderQuestion() {
+    state.answered = false;
+    var q = state.questions[state.currentIndex];
+    document.getElementById("progress-badge").textContent = (state.currentIndex + 1) + " / " + TOTAL_QUESTIONS;
+
+    var promptArea = document.getElementById("prompt-area");
+    promptArea.innerHTML = "";
+
+    if (state.mode === 1) {
+      var speakBtn = document.createElement("button");
+      speakBtn.className = "speak-btn";
+      speakBtn.textContent = "🔊";
+      speakBtn.setAttribute("aria-label", "소리 듣기");
+      speakBtn.onclick = function () { speakLetter(q.correctAnswer); };
+      promptArea.appendChild(speakBtn);
+      speakLetter(q.correctAnswer);
+    } else if (state.mode === 2) {
+      var letterBox = document.createElement("div");
+      letterBox.className = "prompt-letter";
+      letterBox.textContent = q.correctAnswer;
+      promptArea.appendChild(letterBox);
+    } else {
+      var emojiBox = document.createElement("div");
+      emojiBox.className = "prompt-emoji";
+      emojiBox.textContent = q.emoji;
+      promptArea.appendChild(emojiBox);
+    }
+
+    renderBalloons(q);
+  }
+
+  function renderBalloons(q) {
+    var area = document.getElementById("balloon-area");
+    area.innerHTML = "";
+    var colors = shuffle(BALLOON_COLORS).slice(0, 4);
+    var lefts = shuffle([6, 30, 54, 76]);
+
+    q.options.forEach(function (opt, idx) {
+      var balloon = document.createElement("div");
+      balloon.className = "balloon";
+      balloon.textContent = opt;
+      balloon.style.color = colors[idx];
+      balloon.style.background = "linear-gradient(145deg, " + lightenColor(colors[idx]) + ", " + colors[idx] + ")";
+      balloon.style.left = lefts[idx] + "%";
+      var duration = 6 + Math.random() * 4;
+      balloon.style.animationDuration = duration + "s";
+      balloon.style.animationDelay = "-" + (Math.random() * duration).toFixed(2) + "s";
+      balloon.dataset.value = opt;
+      balloon.addEventListener("click", function () { onBalloonClick(balloon, opt, q.correctAnswer); });
+      balloon.addEventListener("touchstart", function (e) { e.preventDefault(); onBalloonClick(balloon, opt, q.correctAnswer); }, { passive: false });
+      area.appendChild(balloon);
+    });
+  }
+
+  function lightenColor(hex) {
+    var num = parseInt(hex.replace("#", ""), 16);
+    var r = Math.min(255, (num >> 16) + 60);
+    var g = Math.min(255, ((num >> 8) & 0xff) + 60);
+    var b = Math.min(255, (num & 0xff) + 60);
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
+
+  function onBalloonClick(balloon, value, correctAnswer) {
+    if (state.answered) { return; }
+
+    if (value === correctAnswer) {
+      state.answered = true;
+      popBalloon(balloon);
+      playDing();
+      gainStar();
+      disableAllBalloons();
+      setTimeout(nextQuestion, 800);
+    } else {
+      shakeBalloon(balloon);
+      showEncourage();
+    }
+  }
+
+  function disableAllBalloons() {
+    var balloons = document.querySelectorAll(".balloon");
+    balloons.forEach(function (b) { b.style.pointerEvents = "none"; });
+  }
+
+  function popBalloon(balloon) {
+    var rect = balloon.getBoundingClientRect();
+    balloon.style.position = "fixed";
+    balloon.style.left = rect.left + "px";
+    balloon.style.top = rect.top + "px";
+    balloon.style.bottom = "auto";
+    balloon.style.animation = "none";
+    // force reflow so the transition below applies cleanly
+    void balloon.offsetWidth;
+    balloon.classList.add("popping");
+    spawnConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+
+  function spawnConfetti(x, y) {
+    var colors = ["#ff8fa3", "#ffd93d", "#4ecba0", "#5aa9e6", "#b18bff", "#ff7f6b"];
+    for (var i = 0; i < 14; i++) {
+      var piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      piece.style.left = x + "px";
+      piece.style.top = y + "px";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 60 + Math.random() * 90;
+      var dx = Math.cos(angle) * dist;
+      var dy = Math.sin(angle) * dist - 40;
+      piece.style.setProperty("--dx", dx + "px");
+      piece.style.setProperty("--dy", dy + "px");
+      piece.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
+      piece.style.animation = "confettiFly " + (0.6 + Math.random() * 0.4) + "s ease-out forwards";
+      document.body.appendChild(piece);
+      (function (p) { setTimeout(function () { p.remove(); }, 1100); })(piece);
+    }
+  }
+
+  function shakeBalloon(balloon) {
+    balloon.classList.add("shake");
+    setTimeout(function () { balloon.classList.remove("shake"); }, 450);
+  }
+
+  var encourageTimer = null;
+  function showEncourage() {
+    var msg = document.getElementById("encourage-msg");
+    msg.classList.add("show");
+    if (encourageTimer) { clearTimeout(encourageTimer); }
+    encourageTimer = setTimeout(function () { msg.classList.remove("show"); }, 1500);
+  }
+
+  function gainStar() {
+    state.stars++;
+    updateStarBadge();
+    var pop = document.getElementById("star-pop");
+    pop.classList.remove("play");
+    void pop.offsetWidth;
+    pop.classList.add("play");
+  }
+
+  function nextQuestion() {
+    state.currentIndex++;
+    if (state.currentIndex >= TOTAL_QUESTIONS) {
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResult() {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    var sub = document.getElementById("result-sub");
+    var msgs = [
+      "오늘도 한 걸음 성장했어요!",
+      "정말 멋지게 해냈어요!",
+      "최고예요! 다음에도 또 해봐요!",
+      "훌륭해요! 한글이랑 점점 친해지고 있어요!"
+    ];
+    sub.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+
+    var starRow = document.getElementById("star-row");
+    starRow.innerHTML = "";
+    for (var i = 0; i < TOTAL_QUESTIONS; i++) {
+      var span = document.createElement("span");
+      span.textContent = i < state.stars ? "⭐" : "☆";
+      starRow.appendChild(span);
+    }
+
+    showScreen("result-screen");
+  }
+})();
+</script>
+</body>
+</html>
