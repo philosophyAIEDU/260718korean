@@ -1545,19 +1545,55 @@
     text-shadow: 0 0 14px rgba(255, 224, 102, 0.85);
   }
 
-  .space-catch-btn {
-    height: 64px;
-    padding: 0 40px;
-    border: none;
-    border-radius: 24px;
-    font-weight: 900;
-    font-size: 20px;
-    color: #ffffff;
-    background: linear-gradient(145deg, #7a9cff, #4a6cf7);
-    box-shadow: 0 5px 0 rgba(0,0,0,0.15), 0 7px 12px rgba(0,0,0,0.2);
-    cursor: pointer;
+  .orbit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: min(85vw, 320px);
   }
-  .space-catch-btn:active { transform: translateY(3px); }
+  .orbit-spot {
+    position: relative;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #2d3560, #1b2a52);
+    border: 4px solid #4a5fa8;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-height: 96px;
+  }
+  .orbit-spot .emoji { font-size: 36px; }
+  .orbit-spot .label { font-size: 26px; font-weight: 900; color: #ffe066; }
+  .orbit-spot.correct-flash { border-color: #4ecba0; background: linear-gradient(145deg, #1f4a3d, #123527); }
+
+  .cloud-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: min(85vw, 320px);
+  }
+  .cloud-spot {
+    position: relative;
+    border: none;
+    border-radius: 20px;
+    background: #eaf7ff;
+    border: 4px solid #90caf9;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-height: 96px;
+  }
+  .cloud-spot .emoji { font-size: 36px; }
+  .cloud-spot .label { font-size: 26px; font-weight: 900; color: #4a6cf7; }
+  .cloud-spot.correct-flash { border-color: #4ecba0; background: #eafff6; }
 
   /* ---------- 소방관 놀이 ---------- */
   .fire-scene {
@@ -1735,27 +1771,6 @@
     opacity: 0.85;
   }
 
-  .cloud-porthole {
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #bfe6ff, #eaf7ff);
-    border: 10px solid #ffffff;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.08);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .cloud-letter-display {
-    position: relative;
-    z-index: 2;
-    font-size: 68px;
-    font-weight: 900;
-    color: #4a6cf7;
-    text-shadow: 0 2px 0 #ffffff;
-  }
 </style>
 </head>
 <body>
@@ -2038,11 +2053,11 @@
         <span class="speak-mini" id="space-speak">🔊</span>
         <div class="space-target-badge">목표 글자: <span class="target-letter" id="space-target-letter">?</span></div>
       </div>
-      <div class="space-porthole">
+      <div class="space-porthole" style="width:130px; height:130px;">
         <div class="space-stars"></div>
-        <div class="space-letter-display" id="space-letter-display">★</div>
+        <div class="space-letter-display" style="font-size:44px;">🛸</div>
       </div>
-      <button class="space-catch-btn" onclick="spaceCatchAttempt()">잡아요! 🚀</button>
+      <div class="orbit-grid" id="space-options"></div>
     </div>
   </div>
 
@@ -2363,14 +2378,13 @@
       policeChaseState.thiefTimerId = null;
       policeChaseState.active = false;
     }
-    if (typeof spaceState !== "undefined") {
-      if (spaceState.cycleTimerId) { clearInterval(spaceState.cycleTimerId); spaceState.cycleTimerId = null; }
-      if (spaceState.roundTimerId) { clearInterval(spaceState.roundTimerId); spaceState.roundTimerId = null; }
+    if (typeof spaceState !== "undefined" && spaceState.timerId) {
+      clearInterval(spaceState.timerId);
+      spaceState.timerId = null;
       spaceState.active = false;
     }
     if (typeof airplaneState !== "undefined" && airplaneState.fly) {
-      if (airplaneState.fly.cycleTimerId) { clearInterval(airplaneState.fly.cycleTimerId); }
-      if (airplaneState.fly.roundTimerId) { clearInterval(airplaneState.fly.roundTimerId); }
+      if (airplaneState.fly.timerId) { clearInterval(airplaneState.fly.timerId); airplaneState.fly.timerId = null; }
       airplaneState.fly.active = false;
     }
     showScreen("start-screen");
@@ -4360,14 +4374,15 @@
   }
 
   // ---------- 우주선 놀이 ----------
-  var SPACE_ROUND_SECONDS = 8;
+  var SPACE_ROUND_SECONDS = 10;
+  var PLANET_EMOJIS = ["🪐", "🌍", "🌕", "🛸", "🌟", "🌎"];
 
   var spaceState = {
     target: null,
+    options: null,
     active: false,
-    cycleTimerId: null,
-    roundTimerId: null,
-    currentDisplayed: null,
+    answered: false,
+    timerId: null,
     caught: 0,
     timeLeft: SPACE_ROUND_SECONDS
   };
@@ -4387,29 +4402,39 @@
   };
 
   function stopSpaceTimers() {
-    if (spaceState.cycleTimerId) { clearInterval(spaceState.cycleTimerId); spaceState.cycleTimerId = null; }
-    if (spaceState.roundTimerId) { clearInterval(spaceState.roundTimerId); spaceState.roundTimerId = null; }
+    if (spaceState.timerId) { clearInterval(spaceState.timerId); spaceState.timerId = null; }
   }
 
   function startSpaceRound() {
     stopSpaceTimers();
-    spaceState.target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    spaceState.currentDisplayed = null;
+    var target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    var pool = LETTERS.filter(function (l) { return l !== target; });
+    var distractors = shuffle(pool).slice(0, 3);
+    spaceState.target = target;
+    spaceState.options = shuffle([target].concat(distractors));
     spaceState.active = true;
+    spaceState.answered = false;
     spaceState.timeLeft = SPACE_ROUND_SECONDS;
-    document.getElementById("space-target-letter").textContent = spaceState.target;
-    updateSpaceTimerDisplay();
-    speakText(spaceState.target, { cancelFirst: true });
 
-    spaceState.cycleTimerId = setInterval(cycleSpaceLetter, 280);
-    spaceState.roundTimerId = setInterval(tickSpaceTimer, 1000);
+    document.getElementById("space-target-letter").textContent = target;
+    updateSpaceTimerDisplay();
+    renderSpaceOptions();
+    speakText(target, { cancelFirst: true });
+
+    spaceState.timerId = setInterval(tickSpaceTimer, 1000);
   }
 
-  function cycleSpaceLetter() {
-    var showTarget = Math.random() < 0.32;
-    spaceState.currentDisplayed = showTarget ? spaceState.target : LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    var display = document.getElementById("space-letter-display");
-    if (display) { display.textContent = spaceState.currentDisplayed; }
+  function renderSpaceOptions() {
+    var planetPicks = shuffle(PLANET_EMOJIS).slice(0, spaceState.options.length);
+    var wrap = document.getElementById("space-options");
+    wrap.innerHTML = "";
+    spaceState.options.forEach(function (letter, idx) {
+      var btn = document.createElement("button");
+      btn.className = "orbit-spot";
+      btn.innerHTML = '<span class="emoji">' + planetPicks[idx] + '</span><span class="label">' + letter + '</span>';
+      btn.onclick = function () { onSpaceOptionClick(btn, letter); };
+      wrap.appendChild(btn);
+    });
   }
 
   function updateSpaceTimerDisplay() {
@@ -4437,27 +4462,28 @@
     setTimeout(startSpaceRound, 1600);
   }
 
-  window.spaceCatchAttempt = function () {
-    if (!spaceState.active) { return; }
-    if (spaceState.currentDisplayed === spaceState.target) {
+  function onSpaceOptionClick(btnEl, letter) {
+    if (!spaceState.active || spaceState.answered) { return; }
+    if (letter === spaceState.target) {
       spaceState.active = false;
+      spaceState.answered = true;
       stopSpaceTimers();
       spaceState.caught++;
       updateSpaceCaughtBadge();
+      btnEl.classList.add("correct-flash");
+      var allSpots = document.querySelectorAll("#space-options .orbit-spot");
+      allSpots.forEach(function (s) { s.style.pointerEvents = "none"; });
       playDing();
-      showCelebrateMsg("잡았어요! \"" + spaceState.target + "\" 🚀✨", 1800);
-      speakText(spaceState.target, { cancelFirst: true });
+      showCelebrateMsg("찾았어요! \"" + letter + "\" 🚀✨", 1800);
+      speakText(letter, { cancelFirst: true });
       setTimeout(startSpaceRound, 1600);
     } else {
-      var porthole = document.querySelector(".space-porthole");
-      if (porthole) {
-        porthole.classList.remove("shake-wrong");
-        void porthole.offsetWidth;
-        porthole.classList.add("shake-wrong");
-      }
-      showBanner("아직이에요! 같은 글자가 나올 때 눌러보아요 😊", 1400);
+      btnEl.classList.remove("wrong-shake");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("wrong-shake");
+      showBanner("다른 행성이에요! 다시 찾아볼까요? 😊", 1400);
     }
-  };
+  }
 
   // ---------- 소방관 놀이 ----------
   var FIRE_CONFIG = {
@@ -4918,7 +4944,6 @@
   var AIRPLANE_CONFIG = {
     takeoffTarget: 6,
     flyRounds: 3,
-    flyRoundSeconds: 8,
     landingTarget: 6
   };
 
@@ -4994,47 +5019,52 @@
     }
   };
 
+  var AIRPLANE_FLY_ROUND_SECONDS = 10;
+
   function stopAirplaneFlyTimers() {
-    if (airplaneState.fly) {
-      if (airplaneState.fly.cycleTimerId) { clearInterval(airplaneState.fly.cycleTimerId); }
-      if (airplaneState.fly.roundTimerId) { clearInterval(airplaneState.fly.roundTimerId); }
+    if (airplaneState.fly && airplaneState.fly.timerId) {
+      clearInterval(airplaneState.fly.timerId);
+      airplaneState.fly.timerId = null;
     }
   }
 
   function startFlyRound() {
     stopAirplaneFlyTimers();
     var target = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    var pool = LETTERS.filter(function (l) { return l !== target; });
+    var distractors = shuffle(pool).slice(0, 3);
+    var options = shuffle([target].concat(distractors));
+    var caughtSoFar = airplaneState.fly ? airplaneState.fly.caught : 0;
+
     airplaneState.fly = {
       target: target,
-      currentDisplayed: null,
+      options: options,
       active: true,
-      cycleTimerId: null,
-      roundTimerId: null,
-      timeLeft: AIRPLANE_CONFIG.flyRoundSeconds,
-      caught: airplaneState.fly ? airplaneState.fly.caught : 0
+      answered: false,
+      timerId: null,
+      timeLeft: AIRPLANE_FLY_ROUND_SECONDS,
+      caught: caughtSoFar
     };
 
     var stage = document.getElementById("airplane-stage");
     stage.innerHTML =
-      '<div class="space-target-row"><span class="speak-mini" id="air-speak-2">🔊</span><div class="space-target-badge">목표 글자: <span class="target-letter" id="fly-target-letter">' + target + '</span></div><div class="timer-badge" id="fly-timer-badge">⏱️ ' + AIRPLANE_CONFIG.flyRoundSeconds + '</div></div>' +
-      '<div class="cloud-porthole"><div class="cloud-letter-display" id="fly-letter-display">☁️</div></div>' +
-      '<button class="space-catch-btn" onclick="flyCatchAttempt()">잡아요! ✈️</button>' +
-      '<div class="construction-instruction">잡은 구름: ' + airplaneState.fly.caught + '/' + AIRPLANE_CONFIG.flyRounds + '</div>';
+      '<div class="space-target-row"><span class="speak-mini" id="air-speak-2">🔊</span><div class="space-target-badge">목표 글자: <span class="target-letter" id="fly-target-letter">' + target + '</span></div><div class="timer-badge" id="fly-timer-badge">⏱️ ' + AIRPLANE_FLY_ROUND_SECONDS + '</div></div>' +
+      '<div class="construction-instruction">잡은 구름: ' + airplaneState.fly.caught + '/' + AIRPLANE_CONFIG.flyRounds + '</div>' +
+      '<div class="cloud-grid" id="fly-options"></div>';
 
     document.getElementById("air-speak-2").onclick = function () { speakText(target, { cancelFirst: true }); };
     speakText(target, { cancelFirst: true });
 
-    airplaneState.fly.cycleTimerId = setInterval(cycleFlyLetter, 280);
-    airplaneState.fly.roundTimerId = setInterval(tickFlyTimer, 1000);
-  }
+    var wrap = document.getElementById("fly-options");
+    options.forEach(function (letter) {
+      var btn = document.createElement("button");
+      btn.className = "cloud-spot";
+      btn.innerHTML = '<span class="emoji">☁️</span><span class="label">' + letter + '</span>';
+      btn.onclick = function () { onFlyOptionClick(btn, letter); };
+      wrap.appendChild(btn);
+    });
 
-  function cycleFlyLetter() {
-    var fly = airplaneState.fly;
-    if (!fly) { return; }
-    var showTarget = Math.random() < 0.32;
-    fly.currentDisplayed = showTarget ? fly.target : LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    var display = document.getElementById("fly-letter-display");
-    if (display) { display.textContent = fly.currentDisplayed; }
+    airplaneState.fly.timerId = setInterval(tickFlyTimer, 1000);
   }
 
   function tickFlyTimer() {
@@ -5054,16 +5084,20 @@
     }
   }
 
-  window.flyCatchAttempt = function () {
+  function onFlyOptionClick(btnEl, letter) {
     var fly = airplaneState.fly;
-    if (!fly || !fly.active) { return; }
-    if (fly.currentDisplayed === fly.target) {
+    if (!fly || !fly.active || fly.answered) { return; }
+    if (letter === fly.target) {
       fly.active = false;
+      fly.answered = true;
       stopAirplaneFlyTimers();
       fly.caught++;
+      btnEl.classList.add("correct-flash");
+      var allSpots = document.querySelectorAll("#fly-options .cloud-spot");
+      allSpots.forEach(function (s) { s.style.pointerEvents = "none"; });
       playDing();
-      showCelebrateMsg("잡았어요! \"" + fly.target + "\" ☁️✈️", 1600);
-      speakText(fly.target, { cancelFirst: true });
+      showCelebrateMsg("찾았어요! \"" + letter + "\" ☁️✈️", 1600);
+      speakText(letter, { cancelFirst: true });
       if (fly.caught >= AIRPLANE_CONFIG.flyRounds) {
         setTimeout(function () {
           showBanner("글자 구름을 다 모았어요! 이제 착륙해볼까요? 👍", 1900);
@@ -5074,15 +5108,12 @@
         setTimeout(startFlyRound, 1600);
       }
     } else {
-      var porthole = document.querySelector(".cloud-porthole");
-      if (porthole) {
-        porthole.classList.remove("shake-wrong");
-        void porthole.offsetWidth;
-        porthole.classList.add("shake-wrong");
-      }
-      showBanner("아직이에요! 같은 글자가 나올 때 눌러보아요 😊", 1400);
+      btnEl.classList.remove("wrong-shake");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("wrong-shake");
+      showBanner("다른 구름이에요! 다시 찾아볼까요? 😊", 1400);
     }
-  };
+  }
 
   function updateLandingProgress() {
     var pct = Math.min(100, (airplaneState.landingProgress / AIRPLANE_CONFIG.landingTarget) * 100);
