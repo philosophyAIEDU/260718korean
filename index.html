@@ -140,6 +140,7 @@
   .mode-btn.m4 { background: linear-gradient(145deg, #d4b3ff, #a978f0); }
   .mode-btn.m5 { background: linear-gradient(145deg, #ffcf8f, #ff9f43); }
   .mode-btn.m6 { background: linear-gradient(145deg, #ff9a8b, #ff6b6b); }
+  .mode-btn.m7 { background: linear-gradient(145deg, #ffb3e6, #d68aff); }
 
   .mode-desc {
     margin-top: 8px;
@@ -485,7 +486,7 @@
     z-index: 2;
   }
 
-  #color-canvas {
+  #color-canvas, .canvas-box {
     width: min(94vw, 560px);
     height: 100%;
     max-height: 44vh;
@@ -497,7 +498,7 @@
     justify-content: center;
     padding: 10px;
   }
-  #color-canvas svg { width: 100%; height: 100%; }
+  #color-canvas svg, .canvas-box svg { width: 100%; height: 100%; }
 
   .fill-region {
     fill: #ffffff;
@@ -527,6 +528,12 @@
     gap: 10px;
     overflow-x: auto;
     padding: 4px 2px;
+  }
+
+  #unicorn-swatch-row {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .swatch {
@@ -1071,11 +1078,15 @@
       </div>
       <div class="menu-item">
         <button class="mode-btn m5" onclick="openMartScreen()">마트 놀이 🛒</button>
-        <div class="mode-desc">채소, 간식, 요리 재료, 장난감을 구경하고 담아요</div>
+        <div class="mode-desc">장보기 목록을 보고 시간 안에 물건을 찾아요</div>
       </div>
       <div class="menu-item">
         <button class="mode-btn m6" onclick="openPizzaScreen()">피자 요리사 🍕</button>
-        <div class="mode-desc">내가 원하는 재료로 나만의 피자를 만들어요</div>
+        <div class="mode-desc">레시피를 보고 시간 안에 피자를 완성해요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m7" onclick="openUnicornScreen()">유니콘 만들기 🦄</button>
+        <div class="mode-desc">뿔과 날개를 달고 색칠해서 나만의 유니콘을 만들어요</div>
       </div>
     </div>
   </div>
@@ -1113,7 +1124,7 @@
     <div class="color-topbar">
       <button class="home-btn" onclick="goHome()">🏠</button>
       <div class="color-title">색칠 놀이 🎨</div>
-      <button class="gallery-btn" onclick="openGalleryScreen()">🖼️ <span id="gallery-count">0</span></button>
+      <button class="gallery-btn" onclick="openGalleryScreen()">🖼️ <span class="gallery-count-badge">0</span></button>
     </div>
 
     <div class="mart-tabs" id="color-tabs"></div>
@@ -1136,7 +1147,7 @@
     <div class="color-topbar">
       <button class="home-btn" onclick="goHome()">🏠</button>
       <div class="color-title">내 갤러리 🖼️</div>
-      <button class="reset-btn" onclick="openColorScreen()">색칠하러 가기</button>
+      <button class="reset-btn" onclick="returnFromGallery()">돌아가기</button>
     </div>
 
     <div class="gallery-grid-wrap">
@@ -1188,6 +1199,30 @@
     <div class="pizza-controls">
       <button class="pizza-btn clear" onclick="startPizzaRound()">새 레시피 🔄</button>
       <button class="pizza-btn bake" onclick="bakePizza()">구워요! 🔥</button>
+    </div>
+  </div>
+
+  <!-- ============ 유니콘 만들기 화면 ============ -->
+  <div id="unicorn-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">유니콘 만들기 🦄</div>
+      <button class="gallery-btn" onclick="openGalleryScreen()">🖼️ <span class="gallery-count-badge">0</span></button>
+    </div>
+
+    <div class="mart-tabs" id="unicorn-mode-tabs"></div>
+
+    <div class="pizza-topping-row" id="unicorn-accessory-row"></div>
+    <div class="swatch-row" id="unicorn-swatch-row" style="display:none; padding: 4px 16px 10px 16px;"></div>
+
+    <div class="color-canvas-wrap">
+      <div class="canvas-box" id="unicorn-canvas"></div>
+    </div>
+
+    <div class="color-controls">
+      <div style="flex:1"></div>
+      <button class="reset-btn" onclick="resetUnicorn()">다시 만들기</button>
+      <button class="save-btn" onclick="saveUnicornToGallery()">저장 💾</button>
     </div>
   </div>
 
@@ -2126,14 +2161,28 @@
   };
 
   function updateGalleryBadge() {
-    var el = document.getElementById("gallery-count");
-    if (el) { el.textContent = galleryState.items.length; }
+    var els = document.querySelectorAll(".gallery-count-badge");
+    els.forEach(function (el) { el.textContent = galleryState.items.length; });
   }
+
+  var galleryReturnTo = "color-screen";
 
   window.openGalleryScreen = function () {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    var activeScreen = document.querySelector(".screen.active");
+    if (activeScreen && (activeScreen.id === "color-screen" || activeScreen.id === "unicorn-screen")) {
+      galleryReturnTo = activeScreen.id;
+    }
     showScreen("gallery-screen");
     renderGallery();
+  };
+
+  window.returnFromGallery = function () {
+    if (galleryReturnTo === "unicorn-screen") {
+      openUnicornScreen();
+    } else {
+      openColorScreen();
+    }
   };
 
   function renderGallery() {
@@ -2611,6 +2660,242 @@
       showCelebrateMsg("냠냠! 레시피대로 맛있는 피자가 완성됐어요! 🍕😋", 2400);
       speakText("맛있는 피자가 완성됐어요", { cancelFirst: true });
     }, 1400);
+  };
+
+  // ---------- 유니콘 만들기 ----------
+  var HORSE_SVG = '<svg viewBox="-70 -70 560 440">' +
+    '<path class="fill-region" data-region="tail" d="M318,145 C352,132 378,150 372,182 C368,200 348,212 330,204 C348,190 352,162 318,155 Z"/>' +
+    '<rect class="fill-region" data-region="legFL" x="125" y="205" width="28" height="68" rx="13"/>' +
+    '<rect class="fill-region" data-region="legFR" x="170" y="205" width="28" height="68" rx="13"/>' +
+    '<rect class="fill-region" data-region="legBL" x="255" y="205" width="28" height="68" rx="13"/>' +
+    '<rect class="fill-region" data-region="legBR" x="300" y="205" width="28" height="68" rx="13"/>' +
+    '<path class="fill-region" data-region="neck" d="M145,150 C120,125 95,90 78,58 C95,45 118,55 138,80 C155,102 168,125 168,148 Z"/>' +
+    '<path class="fill-region" data-region="mane" d="M155,135 L172,128 L158,118 Z M140,110 L158,102 L145,92 Z M122,88 L140,80 L128,70 Z M100,68 L118,60 L108,50 Z"/>' +
+    '<path class="fill-region" data-region="body" d="M100,165 C100,135 150,118 210,118 C270,118 320,135 320,165 C320,192 270,212 210,212 C150,212 100,192 100,165 Z"/>' +
+    '<path class="fill-region" data-region="head" d="M40,70 C25,62 18,45 26,30 C34,14 56,6 74,14 C88,20 96,34 90,48 C98,50 104,58 98,66 C88,78 66,80 50,72 C46,71 43,70 40,70 Z"/>' +
+    '<path class="fill-region" data-region="earL" d="M52,18 L46,-4 L64,10 Z"/>' +
+    '<path class="fill-region" data-region="earR" d="M64,14 L66,-8 L80,8 Z"/>' +
+    '<circle class="fixed-dark" cx="55" cy="35" r="4"/>' +
+    '</svg>';
+
+  var UNICORN_ACCESSORIES = [
+    {
+      id: "horn",
+      icon: "🦄",
+      label: "뿔",
+      template: '<path class="fill-region accessory-region" data-region="KEY" d="M-13,20 L0,-42 L13,20 Z"/>' +
+        '<line class="deco" x1="-7" y1="8" x2="7" y2="4"/>' +
+        '<line class="deco" x1="-5" y1="-6" x2="6" y2="-10"/>'
+    },
+    {
+      id: "wings",
+      icon: "🪽",
+      label: "날개",
+      template: '<path class="fill-region accessory-region" data-region="KEY" d="M-6,4 C-20,-6 -45,-8 -62,4 C-50,10 -40,18 -30,16 C-38,22 -44,30 -42,38 C-28,32 -14,20 -6,4 Z"/>' +
+        '<path class="fill-region accessory-region" data-region="KEY" d="M6,4 C20,-6 45,-8 62,4 C50,10 40,18 30,16 C38,22 44,30 42,38 C28,32 14,20 6,4 Z"/>'
+    },
+    {
+      id: "bow",
+      icon: "🎀",
+      label: "리본",
+      template: '<path class="fill-region accessory-region" data-region="KEY" d="M-22,0 L-4,-12 L-4,12 Z M22,0 L4,-12 L4,12 Z M-5,-7 L5,-7 L5,7 L-5,7 Z"/>'
+    },
+    {
+      id: "star",
+      icon: "⭐",
+      label: "별",
+      template: '<path class="fill-region accessory-region" data-region="KEY" d="M0,-18 L5,-6 L18,-5 L8,3 L11,16 L0,9 L-11,16 L-8,3 L-18,-5 L-5,-6 Z"/>'
+    },
+    {
+      id: "flower",
+      icon: "🌸",
+      label: "꽃",
+      template: '<ellipse class="fill-region accessory-region" data-region="KEY" cx="0" cy="-10" rx="7" ry="9"/>' +
+        '<ellipse class="fill-region accessory-region" data-region="KEY" cx="0" cy="-10" rx="7" ry="9" transform="rotate(72)"/>' +
+        '<ellipse class="fill-region accessory-region" data-region="KEY" cx="0" cy="-10" rx="7" ry="9" transform="rotate(144)"/>' +
+        '<ellipse class="fill-region accessory-region" data-region="KEY" cx="0" cy="-10" rx="7" ry="9" transform="rotate(216)"/>' +
+        '<ellipse class="fill-region accessory-region" data-region="KEY" cx="0" cy="-10" rx="7" ry="9" transform="rotate(288)"/>' +
+        '<circle class="fixed-dark" cx="0" cy="0" r="6"/>'
+    },
+    {
+      id: "gem",
+      icon: "💎",
+      label: "보석",
+      template: '<path class="fill-region accessory-region" data-region="KEY" d="M0,-15 L13,-2 L0,15 L-13,-2 Z"/>' +
+        '<line class="deco" x1="-13" y1="-2" x2="13" y2="-2"/>'
+    }
+  ];
+
+  var unicornState = {
+    mode: "decorate",
+    selectedAccessory: UNICORN_ACCESSORIES[0],
+    selectedColor: COLOR_PALETTE[0],
+    accCounter: 0
+  };
+
+  window.openUnicornScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("unicorn-screen");
+    var canvas = document.getElementById("unicorn-canvas");
+    if (!canvas.dataset.wired) {
+      canvas.innerHTML = HORSE_SVG;
+      canvas.addEventListener("click", onUnicornCanvasClick);
+      canvas.addEventListener("touchend", function (e) {
+        if (e.changedTouches && e.changedTouches.length) {
+          e.preventDefault();
+          onUnicornCanvasClick(e.changedTouches[0]);
+        }
+      }, { passive: false });
+      canvas.dataset.wired = "1";
+      renderUnicornModeTabs();
+      renderAccessoryRow();
+      renderUnicornSwatches();
+      switchUnicornMode("decorate");
+    }
+  };
+
+  function renderUnicornModeTabs() {
+    var wrap = document.getElementById("unicorn-mode-tabs");
+    wrap.innerHTML = "";
+    var modes = [{ id: "decorate", label: "꾸미기 🦄" }, { id: "paint", label: "색칠하기 🎨" }];
+    modes.forEach(function (m) {
+      var btn = document.createElement("button");
+      btn.className = "mart-tab-btn";
+      btn.id = "unicorn-tab-" + m.id;
+      btn.textContent = m.label;
+      btn.onclick = function () { switchUnicornMode(m.id); };
+      wrap.appendChild(btn);
+    });
+    highlightUnicornTab("decorate");
+  }
+
+  function highlightUnicornTab(modeId) {
+    document.querySelectorAll("#unicorn-mode-tabs .mart-tab-btn").forEach(function (t) { t.classList.remove("active"); });
+    var el = document.getElementById("unicorn-tab-" + modeId);
+    if (el) { el.classList.add("active"); }
+  }
+
+  function switchUnicornMode(modeId) {
+    unicornState.mode = modeId;
+    highlightUnicornTab(modeId);
+    document.getElementById("unicorn-accessory-row").style.display = (modeId === "decorate") ? "flex" : "none";
+    document.getElementById("unicorn-swatch-row").style.display = (modeId === "paint") ? "flex" : "none";
+  }
+
+  function renderAccessoryRow() {
+    var row = document.getElementById("unicorn-accessory-row");
+    row.innerHTML = "";
+    UNICORN_ACCESSORIES.forEach(function (acc) {
+      var btn = document.createElement("button");
+      btn.className = "topping-btn";
+      btn.id = "accbtn-" + acc.id;
+      btn.textContent = acc.icon;
+      btn.setAttribute("aria-label", acc.label);
+      btn.onclick = function () { selectAccessory(acc, btn); };
+      row.appendChild(btn);
+    });
+    selectAccessory(UNICORN_ACCESSORIES[0], document.getElementById("accbtn-" + UNICORN_ACCESSORIES[0].id));
+  }
+
+  function selectAccessory(acc, btnEl) {
+    unicornState.selectedAccessory = acc;
+    document.querySelectorAll("#unicorn-accessory-row .topping-btn").forEach(function (b) { b.classList.remove("active"); });
+    if (btnEl) { btnEl.classList.add("active"); }
+  }
+
+  function renderUnicornSwatches() {
+    var row = document.getElementById("unicorn-swatch-row");
+    row.innerHTML = "";
+    COLOR_PALETTE.forEach(function (color) {
+      var sw = document.createElement("button");
+      sw.className = "swatch";
+      sw.style.background = color;
+      if (color === unicornState.selectedColor) { sw.classList.add("active"); }
+      sw.onclick = function () { selectUnicornColor(color, sw); };
+      row.appendChild(sw);
+    });
+    var eraser = document.createElement("button");
+    eraser.className = "swatch eraser";
+    eraser.textContent = "🧹";
+    eraser.onclick = function () { selectUnicornColor("eraser", eraser); };
+    row.appendChild(eraser);
+  }
+
+  function selectUnicornColor(color, btnEl) {
+    unicornState.selectedColor = color;
+    document.querySelectorAll("#unicorn-swatch-row .swatch").forEach(function (s) { s.classList.remove("active"); });
+    btnEl.classList.add("active");
+  }
+
+  function getSvgPoint(svg, clientX, clientY) {
+    var pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    var ctm = svg.getScreenCTM();
+    if (!ctm) { return { x: 0, y: 0 }; }
+    var svgP = pt.matrixTransform(ctm.inverse());
+    return { x: svgP.x, y: svgP.y };
+  }
+
+  function onUnicornCanvasClick(e) {
+    var svg = document.querySelector("#unicorn-canvas svg");
+    if (!svg) { return; }
+    if (unicornState.mode === "decorate") {
+      var accEl = e.target.closest && e.target.closest("[data-accessory-key]");
+      if (accEl) {
+        accEl.remove();
+      } else {
+        placeAccessoryAtEvent(e, svg);
+      }
+    } else {
+      var regionEl = e.target.closest && e.target.closest(".fill-region");
+      if (regionEl) { paintUnicornRegion(regionEl, svg); }
+    }
+  }
+
+  function placeAccessoryAtEvent(e, svg) {
+    var pt = getSvgPoint(svg, e.clientX, e.clientY);
+    var acc = unicornState.selectedAccessory;
+    unicornState.accCounter++;
+    var key = "acc" + Date.now() + unicornState.accCounter;
+    var rot = (Math.random() * 40 - 20).toFixed(1);
+    var scale = (0.85 + Math.random() * 0.3).toFixed(2);
+    var inner = acc.template.split("KEY").join(key);
+    var markup = '<g data-accessory-key="' + key + '" transform="translate(' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ') rotate(' + rot + ') scale(' + scale + ')">' + inner + '</g>';
+    svg.insertAdjacentHTML("beforeend", markup);
+    playDing();
+  }
+
+  function paintUnicornRegion(el, svg) {
+    var key = el.getAttribute("data-region");
+    var color = unicornState.selectedColor === "eraser" ? "" : unicornState.selectedColor;
+    if (key) {
+      svg.querySelectorAll('[data-region="' + key + '"]').forEach(function (e2) { e2.style.fill = color; });
+    } else {
+      el.style.fill = color;
+    }
+  }
+
+  window.resetUnicorn = function () {
+    var svg = document.querySelector("#unicorn-canvas svg");
+    if (!svg) { return; }
+    svg.querySelectorAll("[data-accessory-key]").forEach(function (g) { g.remove(); });
+    svg.querySelectorAll(".fill-region").forEach(function (el) { el.style.fill = ""; });
+  };
+
+  window.saveUnicornToGallery = function () {
+    var svg = document.querySelector("#unicorn-canvas svg");
+    if (!svg) { return; }
+    svgElementToPngDataUrl(svg, function (dataUrl) {
+      if (!dataUrl) { return; }
+      galleryState.items.unshift({
+        id: "g" + Date.now() + Math.floor(Math.random() * 1000),
+        label: "나만의 유니콘",
+        dataUrl: dataUrl
+      });
+      updateGalleryBadge();
+      showCelebrateMsg("갤러리에 저장했어요! 🦄✨", 1800);
+    });
   };
 })();
 </script>
