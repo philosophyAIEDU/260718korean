@@ -620,6 +620,95 @@
     box-shadow: 0 3px 6px rgba(0,0,0,0.15);
   }
 
+  .timer-badge {
+    background: #ffffffcc;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #3d8b6b;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+  .timer-badge.urgent {
+    color: #ff5252;
+    animation: timerPulse 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes timerPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.12); }
+  }
+
+  .shopping-list-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    padding: 2px 16px 10px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .list-chip {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 8px 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+    font-weight: 800;
+    color: #4a5568;
+    font-size: 16px;
+    border: 3px solid transparent;
+  }
+  .list-chip .emoji { font-size: 22px; }
+  .list-chip.bought {
+    border-color: #4ecba0;
+    background: #eafff6;
+    color: #3d8b6b;
+    text-decoration: line-through;
+  }
+
+  .mart-item-btn.bought-item {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(5px); }
+  }
+  .shake-wrong { animation: wrongShake 0.4s ease; }
+
+  .banner-msg {
+    position: fixed;
+    bottom: 8%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #ffffff;
+    color: #3d8b6b;
+    font-size: 18px;
+    font-weight: 800;
+    padding: 12px 24px;
+    border-radius: 26px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 25;
+    pointer-events: none;
+    text-align: center;
+    max-width: 86vw;
+  }
+  .banner-msg.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   .mart-tabs {
     width: 100%;
     display: flex;
@@ -1060,8 +1149,11 @@
     <div class="mart-topbar">
       <button class="home-btn" onclick="goHome()">🏠</button>
       <div class="mart-title">마트 놀이 🛒</div>
-      <div class="cart-badge" id="cart-badge">🛒 0</div>
+      <div class="timer-badge" id="mart-timer-badge">⏱️ 60</div>
+      <div class="cart-badge" id="mart-progress-badge">🛍️ 0/5</div>
     </div>
+
+    <div class="shopping-list-row" id="mart-shopping-list"></div>
 
     <div class="mart-tabs" id="mart-tabs"></div>
 
@@ -1070,8 +1162,8 @@
     </div>
 
     <div class="cart-row-wrap">
-      <div class="cart-row" id="cart-row"><span class="cart-empty-hint">장바구니가 비어있어요. 물건을 눌러 담아보세요!</span></div>
-      <button class="reset-btn" onclick="clearCart()">비우기</button>
+      <div class="cart-row" id="cart-row"><span class="cart-empty-hint">목록에 있는 물건을 시간 안에 찾아 담아보세요! 🕐</span></div>
+      <button class="reset-btn" onclick="startMartRound()">새 목록 🔄</button>
     </div>
   </div>
 
@@ -1080,7 +1172,10 @@
     <div class="pizza-topbar">
       <button class="home-btn" onclick="goHome()">🏠</button>
       <div class="pizza-title">피자 요리사 🍕</div>
+      <div class="timer-badge" id="pizza-timer-badge">⏱️ 90</div>
     </div>
+
+    <div class="shopping-list-row" id="pizza-recipe-list"></div>
 
     <div class="pizza-stage-wrap">
       <div class="pizza-base" id="pizza-base">
@@ -1091,12 +1186,13 @@
     <div class="pizza-topping-row" id="pizza-topping-row"></div>
 
     <div class="pizza-controls">
-      <button class="pizza-btn clear" onclick="clearPizza()">다시 만들기</button>
+      <button class="pizza-btn clear" onclick="startPizzaRound()">새 레시피 🔄</button>
       <button class="pizza-btn bake" onclick="bakePizza()">구워요! 🔥</button>
     </div>
   </div>
 
   <div class="celebrate-msg" id="celebrate-msg"></div>
+  <div class="banner-msg" id="banner-msg"></div>
 
 <script>
 (function () {
@@ -1340,6 +1436,8 @@
 
   window.goHome = function () {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    if (typeof martState !== "undefined" && martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; martState.active = false; }
+    if (typeof pizzaState !== "undefined" && pizzaState.timerId) { clearInterval(pizzaState.timerId); pizzaState.timerId = null; pizzaState.active = false; }
     showScreen("start-screen");
   };
 
@@ -1940,6 +2038,15 @@
     celebrateTimer = setTimeout(function () { msg.classList.remove("show"); }, duration || 2200);
   }
 
+  var bannerTimer = null;
+  function showBanner(html, duration) {
+    var el = document.getElementById("banner-msg");
+    el.innerHTML = html;
+    el.classList.add("show");
+    if (bannerTimer) { clearTimeout(bannerTimer); }
+    bannerTimer = setTimeout(function () { el.classList.remove("show"); }, duration || 1800);
+  }
+
   function showColorCelebration() {
     showCelebrateMsg("참 예쁘게 색칠했어요! 🎉<br>다른 그림도 칠해볼까요?", 2200);
   }
@@ -2132,9 +2239,16 @@
     }
   ];
 
+  var ALL_MART_ITEMS = MART_CATEGORIES.reduce(function (acc, cat) { return acc.concat(cat.items); }, []);
+  var MART_ROUND_SECONDS = 60;
+  var MART_LIST_SIZE = 5;
+
   var martState = {
     currentCategory: "veg",
-    cart: []
+    shoppingList: [],
+    timeLeft: MART_ROUND_SECONDS,
+    timerId: null,
+    active: false
   };
 
   window.openMartScreen = function () {
@@ -2143,8 +2257,7 @@
     if (!document.getElementById("mart-tabs").childElementCount) {
       renderMartTabs();
     }
-    renderMartGrid(martState.currentCategory);
-    renderCart();
+    startMartRound();
   };
 
   function renderMartTabs() {
@@ -2179,24 +2292,94 @@
     cat.items.forEach(function (item) {
       var btn = document.createElement("button");
       btn.className = "mart-item-btn";
+      var isBought = martState.shoppingList.some(function (li) { return li.word === item.word && li.bought; });
+      if (isBought) { btn.classList.add("bought-item"); }
       btn.innerHTML = '<span class="emoji">' + item.emoji + '</span><span class="label">' + item.word + '</span>';
-      btn.onclick = function () { addToCart(item, btn); };
+      btn.onclick = function () { onMartItemClick(item, btn); };
       grid.appendChild(btn);
     });
   }
 
-  function addToCart(item, sourceEl) {
-    martState.cart.push(item);
-    updateCartBadge();
-    renderCart();
-    speakText(item.word, { cancelFirst: true });
-    flyToCart(item.emoji, sourceEl);
+  window.startMartRound = function () {
+    if (martState.timerId) { clearInterval(martState.timerId); }
+    var picks = shuffle(ALL_MART_ITEMS).slice(0, MART_LIST_SIZE);
+    martState.shoppingList = picks.map(function (item) { return { emoji: item.emoji, word: item.word, bought: false }; });
+    martState.timeLeft = MART_ROUND_SECONDS;
+    martState.active = true;
+    renderShoppingList();
+    updateMartProgressBadge();
+    updateMartTimerDisplay();
+    renderMartGrid(martState.currentCategory);
+    martState.timerId = setInterval(tickMartTimer, 1000);
+  };
+
+  function tickMartTimer() {
+    martState.timeLeft--;
+    updateMartTimerDisplay();
+    if (martState.timeLeft <= 0) {
+      endMartRound(false);
+    }
   }
 
-  function flyToCart(emoji, sourceEl) {
+  function updateMartTimerDisplay() {
+    var badge = document.getElementById("mart-timer-badge");
+    badge.textContent = "⏱️ " + Math.max(0, martState.timeLeft);
+    badge.classList.toggle("urgent", martState.timeLeft <= 10 && martState.timeLeft > 0);
+  }
+
+  function renderShoppingList() {
+    var wrap = document.getElementById("mart-shopping-list");
+    wrap.innerHTML = "";
+    martState.shoppingList.forEach(function (li) {
+      var chip = document.createElement("span");
+      chip.className = "list-chip" + (li.bought ? " bought" : "");
+      chip.id = "list-chip-" + li.word;
+      chip.innerHTML = '<span class="emoji">' + li.emoji + '</span><span>' + li.word + '</span>';
+      wrap.appendChild(chip);
+    });
+  }
+
+  function updateMartProgressBadge() {
+    var boughtCount = martState.shoppingList.filter(function (li) { return li.bought; }).length;
+    document.getElementById("mart-progress-badge").textContent = "🛍️ " + boughtCount + "/" + martState.shoppingList.length;
+  }
+
+  function onMartItemClick(item, sourceEl) {
+    if (!martState.active) { return; }
+    var listEntry = martState.shoppingList.filter(function (li) { return li.word === item.word; })[0];
+    if (!listEntry) {
+      shakeElement(sourceEl);
+      showBanner("그건 목록에 없어요! 다른 걸 찾아볼까요? 😊", 1500);
+      return;
+    }
+    if (listEntry.bought) {
+      shakeElement(sourceEl);
+      return;
+    }
+    listEntry.bought = true;
+    updateMartProgressBadge();
+    renderShoppingList();
+    sourceEl.classList.add("bought-item");
+    speakText(item.word, { cancelFirst: true });
+    flyToBadge(item.emoji, sourceEl, "mart-progress-badge");
+
+    var allBought = martState.shoppingList.every(function (li) { return li.bought; });
+    if (allBought) {
+      endMartRound(true);
+    }
+  }
+
+  function shakeElement(el) {
+    el.classList.remove("shake-wrong");
+    void el.offsetWidth;
+    el.classList.add("shake-wrong");
+    setTimeout(function () { el.classList.remove("shake-wrong"); }, 400);
+  }
+
+  function flyToBadge(emoji, sourceEl, badgeId) {
     var srcRect = sourceEl.getBoundingClientRect();
-    var cartBadge = document.getElementById("cart-badge");
-    var dstRect = cartBadge.getBoundingClientRect();
+    var badge = document.getElementById(badgeId);
+    var dstRect = badge.getBoundingClientRect();
     var fly = document.createElement("div");
     fly.className = "fly-item";
     fly.textContent = emoji;
@@ -2211,30 +2394,16 @@
     setTimeout(function () { fly.remove(); }, 600);
   }
 
-  function updateCartBadge() {
-    document.getElementById("cart-badge").textContent = "🛒 " + martState.cart.length;
-  }
-
-  function renderCart() {
-    var row = document.getElementById("cart-row");
-    if (!martState.cart.length) {
-      row.innerHTML = '<span class="cart-empty-hint">장바구니가 비어있어요. 물건을 눌러 담아보세요!</span>';
-      return;
+  function endMartRound(success) {
+    martState.active = false;
+    if (martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; }
+    if (success) {
+      showCelebrateMsg("장보기 성공! 참 잘했어요! 🛒🎉", 2400);
+      speakText("장보기 성공했어요", { cancelFirst: true });
+    } else {
+      showBanner("시간이 다 됐어요! 다음엔 더 빨리 찾아볼까요? 😊<br>\"새 목록\" 버튼을 눌러 다시 도전해봐요!", 3200);
     }
-    row.innerHTML = "";
-    martState.cart.forEach(function (item) {
-      var chip = document.createElement("span");
-      chip.className = "cart-chip";
-      chip.textContent = item.emoji;
-      row.appendChild(chip);
-    });
   }
-
-  window.clearCart = function () {
-    martState.cart = [];
-    updateCartBadge();
-    renderCart();
-  };
 
   // ---------- 피자 요리사 ----------
   var TOPPING_LIST = [
@@ -2252,24 +2421,83 @@
     { id: "egg", emoji: "🥚", label: "계란" }
   ];
 
+  var PIZZA_ROUND_SECONDS = 90;
+  var PIZZA_RECIPE_SIZE = 3;
+
   var pizzaState = {
-    selectedTopping: TOPPING_LIST[0],
-    toppings: []
+    selectedTopping: null,
+    toppings: [],
+    recipe: [],       // [{id, emoji, label, need, have}]
+    timeLeft: PIZZA_ROUND_SECONDS,
+    timerId: null,
+    active: false
   };
 
   window.openPizzaScreen = function () {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
     showScreen("pizza-screen");
-    if (!document.getElementById("pizza-topping-row").childElementCount) {
-      renderToppingRow();
+    if (!document.getElementById("pizza-topping-row").dataset.wired) {
       wirePizzaBaseClick();
+      document.getElementById("pizza-topping-row").dataset.wired = "1";
     }
+    startPizzaRound();
   };
+
+  window.startPizzaRound = function () {
+    if (pizzaState.timerId) { clearInterval(pizzaState.timerId); }
+    pizzaState.toppings.forEach(function (t) { t.el.remove(); });
+    pizzaState.toppings = [];
+
+    var picks = shuffle(TOPPING_LIST).slice(0, PIZZA_RECIPE_SIZE);
+    pizzaState.recipe = picks.map(function (t) {
+      return { id: t.id, emoji: t.emoji, label: t.label, need: 2 + Math.floor(Math.random() * 4), have: 0 };
+    });
+    pizzaState.timeLeft = PIZZA_ROUND_SECONDS;
+    pizzaState.active = true;
+    pizzaState.selectedTopping = picks[0];
+
+    renderRecipeList();
+    updatePizzaTimerDisplay();
+    renderToppingRow();
+    pizzaState.timerId = setInterval(tickPizzaTimer, 1000);
+  };
+
+  function tickPizzaTimer() {
+    pizzaState.timeLeft--;
+    updatePizzaTimerDisplay();
+    if (pizzaState.timeLeft <= 0) {
+      endPizzaRoundTimeout();
+    }
+  }
+
+  function updatePizzaTimerDisplay() {
+    var badge = document.getElementById("pizza-timer-badge");
+    badge.textContent = "⏱️ " + Math.max(0, pizzaState.timeLeft);
+    badge.classList.toggle("urgent", pizzaState.timeLeft <= 10 && pizzaState.timeLeft > 0);
+  }
+
+  function renderRecipeList() {
+    var wrap = document.getElementById("pizza-recipe-list");
+    wrap.innerHTML = "";
+    pizzaState.recipe.forEach(function (r) {
+      var chip = document.createElement("span");
+      chip.className = "list-chip" + (r.have >= r.need ? " bought" : "");
+      chip.id = "recipe-chip-" + r.id;
+      chip.innerHTML = '<span class="emoji">' + r.emoji + '</span><span>' + r.label + ' ' + r.have + '/' + r.need + '</span>';
+      wrap.appendChild(chip);
+    });
+  }
+
+  function endPizzaRoundTimeout() {
+    pizzaState.active = false;
+    if (pizzaState.timerId) { clearInterval(pizzaState.timerId); pizzaState.timerId = null; }
+    showBanner("시간이 다 됐어요! 다음엔 더 빨리 만들어볼까요? 😊<br>\"새 레시피\" 버튼을 눌러 다시 도전해봐요!", 3200);
+  }
 
   function renderToppingRow() {
     var row = document.getElementById("pizza-topping-row");
     row.innerHTML = "";
-    TOPPING_LIST.forEach(function (t) {
+    pizzaState.recipe.forEach(function (t) {
       var btn = document.createElement("button");
       btn.className = "topping-btn";
       btn.id = "topping-" + t.id;
@@ -2278,7 +2506,8 @@
       btn.onclick = function () { selectTopping(t, btn); };
       row.appendChild(btn);
     });
-    selectTopping(pizzaState.selectedTopping, document.getElementById("topping-" + pizzaState.selectedTopping.id));
+    var firstBtn = document.getElementById("topping-" + pizzaState.selectedTopping.id);
+    selectTopping(pizzaState.selectedTopping, firstBtn);
   }
 
   function selectTopping(topping, btnEl) {
@@ -2302,6 +2531,12 @@
   }
 
   function placeToppingAtEvent(e) {
+    if (!pizzaState.active || !pizzaState.selectedTopping) { return; }
+    var recipeEntry = pizzaState.recipe.filter(function (r) { return r.id === pizzaState.selectedTopping.id; })[0];
+    if (recipeEntry && recipeEntry.have >= recipeEntry.need) {
+      showBanner(recipeEntry.label + "은(는) 다 넣었어요! " + recipeEntry.emoji, 1400);
+      return;
+    }
     var base = document.getElementById("pizza-base");
     var rect = base.getBoundingClientRect();
     var x = e.clientX - rect.left;
@@ -2333,25 +2568,47 @@
     el.style.transform = "translate(-50%, -50%) rotate(" + rot + "deg)";
     el.addEventListener("click", function (e) {
       e.stopPropagation();
+      if (!pizzaState.active) { return; }
       el.remove();
       pizzaState.toppings = pizzaState.toppings.filter(function (t) { return t.el !== el; });
+      adjustRecipeCount(topping.id, -1);
     });
     base.appendChild(el);
     pizzaState.toppings.push({ el: el, topping: topping, x: xPct, y: yPct });
     playDing();
+    adjustRecipeCount(topping.id, 1);
   }
 
-  window.clearPizza = function () {
-    pizzaState.toppings.forEach(function (t) { t.el.remove(); });
-    pizzaState.toppings = [];
-  };
+  function adjustRecipeCount(toppingId, delta) {
+    var entry = pizzaState.recipe.filter(function (r) { return r.id === toppingId; })[0];
+    if (!entry) { return; }
+    entry.have = Math.max(0, entry.have + delta);
+    renderRecipeList();
+    if (delta > 0) {
+      var allDone = pizzaState.recipe.every(function (r) { return r.have >= r.need; });
+      if (allDone) { onRecipeComplete(); }
+    }
+  }
+
+  function onRecipeComplete() {
+    pizzaState.active = false;
+    if (pizzaState.timerId) { clearInterval(pizzaState.timerId); pizzaState.timerId = null; }
+    bakePizza();
+  }
 
   window.bakePizza = function () {
+    if (pizzaState.active) {
+      var incomplete = pizzaState.recipe.some(function (r) { return r.have < r.need; });
+      if (incomplete) {
+        showBanner("재료가 아직 부족해요! 레시피를 확인해볼까요? 😊", 1600);
+        return;
+      }
+    }
     var overlay = document.getElementById("baking-overlay");
     overlay.classList.add("active");
     setTimeout(function () {
       overlay.classList.remove("active");
-      showCelebrateMsg("냠냠! 맛있는 피자가 완성됐어요! 🍕😋", 2400);
+      showCelebrateMsg("냠냠! 레시피대로 맛있는 피자가 완성됐어요! 🍕😋", 2400);
       speakText("맛있는 피자가 완성됐어요", { cancelFirst: true });
     }, 1400);
   };
