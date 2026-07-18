@@ -2021,7 +2021,9 @@
       <div class="cart-badge" id="mart-progress-badge">🛍️ 0/5</div>
     </div>
 
-    <div class="shopping-list-panel">
+    <div class="mart-tabs" id="mart-mode-tabs"></div>
+
+    <div class="shopping-list-panel" id="mart-list-panel">
       <div class="shopping-list-heading">📋 오늘의 장보기 목록</div>
       <div class="shopping-list-row" id="mart-shopping-list"></div>
     </div>
@@ -2034,7 +2036,7 @@
 
     <div class="cart-row-wrap">
       <div class="cart-row" id="cart-row"><span class="cart-empty-hint">목록에 있는 물건을 시간 안에 찾아 담아보세요! 🕐</span></div>
-      <button class="reset-btn" onclick="startMartRound()">새 목록 🔄</button>
+      <button class="reset-btn" id="mart-reset-btn" onclick="startMartRound()">새 목록 🔄</button>
     </div>
   </div>
 
@@ -3433,11 +3435,13 @@
   var MART_LIST_SIZE = 5;
 
   var martState = {
+    mode: "mission",
     currentCategory: "veg",
     shoppingList: [],
     timeLeft: MART_ROUND_SECONDS,
     timerId: null,
-    active: false
+    active: false,
+    freeCart: []
   };
 
   window.openMartScreen = function () {
@@ -3446,8 +3450,59 @@
     if (!document.getElementById("mart-tabs").childElementCount) {
       renderMartTabs();
     }
-    startMartRound();
+    if (!document.getElementById("mart-mode-tabs").childElementCount) {
+      renderMartModeTabs();
+    }
+    martState.freeCart = [];
+    switchMartMode("mission");
   };
+
+  function renderMartModeTabs() {
+    var wrap = document.getElementById("mart-mode-tabs");
+    wrap.innerHTML = "";
+    var modes = [{ id: "mission", label: "미션 🎯" }, { id: "free", label: "자유 쇼핑 🛍️" }];
+    modes.forEach(function (m) {
+      var btn = document.createElement("button");
+      btn.className = "mart-tab-btn";
+      btn.id = "mart-mode-" + m.id;
+      btn.textContent = m.label;
+      btn.onclick = function () { switchMartMode(m.id); };
+      wrap.appendChild(btn);
+    });
+    highlightMartModeTab(martState.mode);
+  }
+
+  function highlightMartModeTab(modeId) {
+    document.querySelectorAll("#mart-mode-tabs .mart-tab-btn").forEach(function (t) { t.classList.remove("active"); });
+    var el = document.getElementById("mart-mode-" + modeId);
+    if (el) { el.classList.add("active"); }
+  }
+
+  function switchMartMode(mode) {
+    martState.mode = mode;
+    highlightMartModeTab(mode);
+    var listPanel = document.getElementById("mart-list-panel");
+    var timerBadge = document.getElementById("mart-timer-badge");
+    var resetBtn = document.getElementById("mart-reset-btn");
+
+    if (mode === "mission") {
+      listPanel.style.display = "";
+      timerBadge.style.display = "";
+      resetBtn.textContent = "새 목록 🔄";
+      resetBtn.onclick = function () { startMartRound(); };
+      startMartRound();
+    } else {
+      if (martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; }
+      martState.active = false;
+      listPanel.style.display = "none";
+      timerBadge.style.display = "none";
+      resetBtn.textContent = "비우기 🗑️";
+      resetBtn.onclick = function () { clearFreeCart(); };
+      updateMartProgressBadge();
+      renderMartGrid(martState.currentCategory);
+      renderFreeCart();
+    }
+  }
 
   function renderMartTabs() {
     var wrap = document.getElementById("mart-tabs");
@@ -3468,7 +3523,7 @@
   }
 
   function highlightTab(catId) {
-    var tabs = document.querySelectorAll(".mart-tab-btn");
+    var tabs = document.querySelectorAll("#mart-tabs .mart-tab-btn");
     tabs.forEach(function (t) { t.classList.remove("active"); });
     var el = document.getElementById("tab-" + catId);
     if (el) { el.classList.add("active"); }
@@ -3481,10 +3536,14 @@
     cat.items.forEach(function (item) {
       var btn = document.createElement("button");
       btn.className = "mart-item-btn";
-      var isBought = martState.shoppingList.some(function (li) { return li.word === item.word && li.bought; });
-      if (isBought) { btn.classList.add("bought-item"); }
+      if (martState.mode === "mission") {
+        var isBought = martState.shoppingList.some(function (li) { return li.word === item.word && li.bought; });
+        if (isBought) { btn.classList.add("bought-item"); }
+      }
       btn.innerHTML = '<span class="emoji">' + item.emoji + '</span><span class="label">' + item.word + '</span>';
-      btn.onclick = function () { onMartItemClick(item, btn); };
+      btn.onclick = function () {
+        if (martState.mode === "mission") { onMartItemClick(item, btn); } else { onFreeShopItemClick(item, btn); }
+      };
       grid.appendChild(btn);
     });
   }
@@ -3531,8 +3590,42 @@
   }
 
   function updateMartProgressBadge() {
-    var boughtCount = martState.shoppingList.filter(function (li) { return li.bought; }).length;
-    document.getElementById("mart-progress-badge").textContent = "🛍️ " + boughtCount + "/" + martState.shoppingList.length;
+    var badge = document.getElementById("mart-progress-badge");
+    if (martState.mode === "mission") {
+      var boughtCount = martState.shoppingList.filter(function (li) { return li.bought; }).length;
+      badge.textContent = "🛍️ " + boughtCount + "/" + martState.shoppingList.length;
+    } else {
+      badge.textContent = "🛒 " + martState.freeCart.length;
+    }
+  }
+
+  function onFreeShopItemClick(item, sourceEl) {
+    martState.freeCart.push(item);
+    updateMartProgressBadge();
+    renderFreeCart();
+    speakText(item.word, { cancelFirst: true });
+    flyToBadge(item.emoji, sourceEl, "mart-progress-badge");
+  }
+
+  function renderFreeCart() {
+    var row = document.getElementById("cart-row");
+    if (!martState.freeCart.length) {
+      row.innerHTML = '<span class="cart-empty-hint">마음에 드는 물건을 눌러서 장바구니에 담아보세요! 🛍️</span>';
+      return;
+    }
+    row.innerHTML = "";
+    martState.freeCart.forEach(function (item) {
+      var chip = document.createElement("span");
+      chip.className = "cart-chip";
+      chip.textContent = item.emoji;
+      row.appendChild(chip);
+    });
+  }
+
+  function clearFreeCart() {
+    martState.freeCart = [];
+    updateMartProgressBadge();
+    renderFreeCart();
   }
 
   function onMartItemClick(item, sourceEl) {
