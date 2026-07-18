@@ -646,11 +646,28 @@
     100% { transform: scale(1.12); }
   }
 
+  .shopping-list-panel {
+    width: 100%;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #fff6d6, #ffe28a);
+    border-top: 3px solid #ffca4d;
+    border-bottom: 3px solid #ffca4d;
+    padding: 8px 0 10px 0;
+    z-index: 3;
+  }
+
+  .shopping-list-heading {
+    font-size: 15px;
+    font-weight: 900;
+    color: #8a6200;
+    padding: 0 16px 6px 16px;
+  }
+
   .shopping-list-row {
     width: 100%;
     display: flex;
-    gap: 10px;
-    padding: 2px 16px 10px 16px;
+    gap: 12px;
+    padding: 2px 16px 4px 16px;
     overflow-x: auto;
     flex-shrink: 0;
     z-index: 3;
@@ -660,17 +677,22 @@
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     background: #ffffff;
-    border-radius: 16px;
-    padding: 8px 12px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
-    font-weight: 800;
+    border-radius: 18px;
+    padding: 10px 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    font-weight: 900;
     color: #4a5568;
-    font-size: 16px;
-    border: 3px solid transparent;
+    font-size: 19px;
+    border: 3px solid #ffca4d;
   }
-  .list-chip .emoji { font-size: 22px; }
+  .list-chip .emoji { font-size: 28px; }
+  .list-chip .chip-speak {
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px;
+  }
   .list-chip.bought {
     border-color: #4ecba0;
     background: #eafff6;
@@ -1164,7 +1186,10 @@
       <div class="cart-badge" id="mart-progress-badge">🛍️ 0/5</div>
     </div>
 
-    <div class="shopping-list-row" id="mart-shopping-list"></div>
+    <div class="shopping-list-panel">
+      <div class="shopping-list-heading">📋 오늘의 장보기 목록</div>
+      <div class="shopping-list-row" id="mart-shopping-list"></div>
+    </div>
 
     <div class="mart-tabs" id="mart-tabs"></div>
 
@@ -1186,7 +1211,10 @@
       <div class="timer-badge" id="pizza-timer-badge">⏱️ 90</div>
     </div>
 
-    <div class="shopping-list-row" id="pizza-recipe-list"></div>
+    <div class="shopping-list-panel">
+      <div class="shopping-list-heading">📋 오늘의 레시피</div>
+      <div class="shopping-list-row" id="pizza-recipe-list"></div>
+    </div>
 
     <div class="pizza-stage-wrap">
       <div class="pizza-base" id="pizza-base">
@@ -1892,26 +1920,78 @@
         '<circle class="fill-region" data-region="cheekL" cx="112" cy="148" r="9"/>' +
         '<circle class="fill-region" data-region="cheekR" cx="188" cy="148" r="9"/>' +
         '</svg>'
+    },
+    {
+      id: "excavator",
+      label: "포크레인",
+      category: "construction",
+      svg: '<svg viewBox="0 0 420 260">' +
+        '<path class="fill-region" data-region="bucket" d="M300,150 L330,145 L345,165 L332,182 L305,178 L295,165 Z"/>' +
+        '<line class="deco" x1="332" y1="168" x2="342" y2="172"/>' +
+        '<line class="deco" x1="330" y1="174" x2="340" y2="180"/>' +
+        '<path class="fill-region" data-region="arm" d="M232,132 L340,60 L352,75 L300,155 L280,148 Z"/>' +
+        '<path class="fill-region" data-region="boom" d="M232,132 L215,150 L245,168 L262,150 Z"/>' +
+        '<path class="fill-region" data-region="body" d="M75,120 Q75,105 90,105 L245,105 Q260,105 260,120 L260,175 Q260,190 245,190 L90,190 Q75,190 75,175 Z"/>' +
+        '<path class="fill-region" data-region="cab" d="M90,70 Q90,58 102,58 L150,58 Q162,58 162,70 L162,105 L90,105 Z"/>' +
+        '<rect class="fill-region" data-region="cabWindow" x="100" y="68" width="52" height="30" rx="6"/>' +
+        '<rect class="fill-region" data-region="tracks" x="35" y="192" width="270" height="42" rx="21"/>' +
+        '<circle class="fixed-dark" cx="70" cy="213" r="15"/>' +
+        '<circle class="fixed-dark" cx="120" cy="213" r="15"/>' +
+        '<circle class="fixed-dark" cx="170" cy="213" r="15"/>' +
+        '<circle class="fixed-dark" cx="220" cy="213" r="15"/>' +
+        '<circle class="fixed-dark" cx="270" cy="213" r="15"/>' +
+        '</svg>'
+    },
+    {
+      id: "dumptruck",
+      label: "덤프트럭",
+      category: "construction",
+      svg: '<svg viewBox="0 0 420 260">' +
+        '<path class="fill-region" data-region="bed" d="M155,80 L340,80 Q356,80 356,96 L356,175 L150,175 L150,96 Q150,80 155,80 Z"/>' +
+        '<line class="deco" x1="150" y1="120" x2="356" y2="120"/>' +
+        '<path class="fill-region" data-region="cab" d="M50,120 Q50,100 70,100 L120,100 Q140,100 148,118 L150,150 L50,150 Z"/>' +
+        '<rect class="fill-region" data-region="cabWindow" x="66" y="112" width="46" height="30" rx="6"/>' +
+        '<path class="fill-region" data-region="chassis" d="M35,150 L360,150 Q372,150 372,162 L372,178 L35,178 Q28,178 28,168 L28,158 Q28,150 35,150 Z"/>' +
+        '<circle class="fixed-dark" cx="95" cy="196" r="26"/>' +
+        '<circle class="fill-region" data-region="hub1" cx="95" cy="196" r="11"/>' +
+        '<circle class="fixed-dark" cx="270" cy="196" r="26"/>' +
+        '<circle class="fill-region" data-region="hub2" cx="270" cy="196" r="11"/>' +
+        '<circle class="fixed-dark" cx="325" cy="196" r="26"/>' +
+        '<circle class="fill-region" data-region="hub3" cx="325" cy="196" r="11"/>' +
+        '<rect class="fill-region" data-region="headlight" x="38" y="128" width="10" height="14" rx="3"/>' +
+        '</svg>'
     }
   ];
 
   var COLOR_CATEGORIES = [
     { id: "vehicle", label: "탈것 🚗" },
+    { id: "construction", label: "공사 차량 🚧" },
     { id: "animal", label: "동물 🐰" },
     { id: "flower", label: "꽃 🌻" },
     { id: "character", label: "캐릭터 🤖" }
   ];
 
   var COLOR_PALETTE = [
-    "#ff6b81", "#ff9f43", "#ffd93d", "#8fd9c4", "#4ecba0",
-    "#54a0ff", "#5aa9e6", "#a978f0", "#fd79a8", "#e17055",
-    "#8d6e63", "#576574", "#2d3436", "#ffffff"
+    { hex: "#ff6b81", name: "빨강" },
+    { hex: "#ff9f43", name: "주황" },
+    { hex: "#ffd93d", name: "노랑" },
+    { hex: "#8fd9c4", name: "연두" },
+    { hex: "#4ecba0", name: "초록" },
+    { hex: "#54a0ff", name: "하늘색" },
+    { hex: "#5aa9e6", name: "파랑" },
+    { hex: "#a978f0", name: "보라" },
+    { hex: "#fd79a8", name: "분홍" },
+    { hex: "#e17055", name: "갈색" },
+    { hex: "#8d6e63", name: "고동색" },
+    { hex: "#576574", name: "회색" },
+    { hex: "#2d3436", name: "검정" },
+    { hex: "#ffffff", name: "하양" }
   ];
 
   var colorState = {
     currentCategory: COLOR_CATEGORIES[0].id,
     currentPictureId: null,
-    currentColor: COLOR_PALETTE[0],
+    currentColor: COLOR_PALETTE[0].hex,
     coloredData: {},   // { pictureId: { regionKey: colorValue } }
     completed: {}      // { pictureId: true }
   };
@@ -1979,9 +2059,9 @@
     COLOR_PALETTE.forEach(function (color) {
       var sw = document.createElement("button");
       sw.className = "swatch";
-      sw.style.background = color;
-      if (color === colorState.currentColor) { sw.classList.add("active"); }
-      sw.onclick = function () { selectColor(color, sw); };
+      sw.style.background = color.hex;
+      if (color.hex === colorState.currentColor) { sw.classList.add("active"); }
+      sw.onclick = function () { selectColor(color.hex, sw, color.name); };
       row.appendChild(sw);
     });
     var eraser = document.createElement("button");
@@ -1991,11 +2071,12 @@
     row.appendChild(eraser);
   }
 
-  function selectColor(color, btnEl) {
+  function selectColor(color, btnEl, colorName) {
     colorState.currentColor = color;
     var swatches = document.querySelectorAll(".swatch");
     swatches.forEach(function (s) { s.classList.remove("active"); });
     btnEl.classList.add("active");
+    if (colorName) { speakText(colorName, { cancelFirst: true }); }
   }
 
   function selectPicture(pictureId) {
@@ -2003,6 +2084,7 @@
     var pic = COLOR_PICTURES.filter(function (p) { return p.id === pictureId; })[0];
     var canvas = document.getElementById("color-canvas");
     canvas.innerHTML = pic.svg;
+    speakText(pic.label, { cancelFirst: true });
 
     var thumbs = document.querySelectorAll(".color-thumb-btn");
     thumbs.forEach(function (t) { t.classList.remove("active"); });
@@ -2383,7 +2465,9 @@
       var chip = document.createElement("span");
       chip.className = "list-chip" + (li.bought ? " bought" : "");
       chip.id = "list-chip-" + li.word;
-      chip.innerHTML = '<span class="emoji">' + li.emoji + '</span><span>' + li.word + '</span>';
+      chip.innerHTML = '<span class="emoji">' + li.emoji + '</span><span>' + li.word + '</span><span class="chip-speak">🔊</span>';
+      var speakBtn = chip.querySelector(".chip-speak");
+      speakBtn.onclick = function (e) { e.stopPropagation(); speakText(li.word, { cancelFirst: true }); };
       wrap.appendChild(chip);
     });
   }
@@ -2532,7 +2616,9 @@
       var chip = document.createElement("span");
       chip.className = "list-chip" + (r.have >= r.need ? " bought" : "");
       chip.id = "recipe-chip-" + r.id;
-      chip.innerHTML = '<span class="emoji">' + r.emoji + '</span><span>' + r.label + ' ' + r.have + '/' + r.need + '</span>';
+      chip.innerHTML = '<span class="emoji">' + r.emoji + '</span><span>' + r.label + ' ' + r.have + '/' + r.need + '</span><span class="chip-speak">🔊</span>';
+      var speakBtn = chip.querySelector(".chip-speak");
+      speakBtn.onclick = function (e) { e.stopPropagation(); speakText(r.label, { cancelFirst: true }); };
       wrap.appendChild(chip);
     });
   }
@@ -2564,6 +2650,7 @@
     var btns = document.querySelectorAll(".topping-btn");
     btns.forEach(function (b) { b.classList.remove("active"); });
     if (btnEl) { btnEl.classList.add("active"); }
+    speakText(topping.label, { cancelFirst: true });
   }
 
   function wirePizzaBaseClick() {
@@ -2729,7 +2816,7 @@
   var unicornState = {
     mode: "decorate",
     selectedAccessory: UNICORN_ACCESSORIES[0],
-    selectedColor: COLOR_PALETTE[0],
+    selectedColor: COLOR_PALETTE[0].hex,
     accCounter: 0
   };
 
@@ -2801,6 +2888,7 @@
     unicornState.selectedAccessory = acc;
     document.querySelectorAll("#unicorn-accessory-row .topping-btn").forEach(function (b) { b.classList.remove("active"); });
     if (btnEl) { btnEl.classList.add("active"); }
+    speakText(acc.label, { cancelFirst: true });
   }
 
   function renderUnicornSwatches() {
@@ -2809,9 +2897,9 @@
     COLOR_PALETTE.forEach(function (color) {
       var sw = document.createElement("button");
       sw.className = "swatch";
-      sw.style.background = color;
-      if (color === unicornState.selectedColor) { sw.classList.add("active"); }
-      sw.onclick = function () { selectUnicornColor(color, sw); };
+      sw.style.background = color.hex;
+      if (color.hex === unicornState.selectedColor) { sw.classList.add("active"); }
+      sw.onclick = function () { selectUnicornColor(color.hex, sw, color.name); };
       row.appendChild(sw);
     });
     var eraser = document.createElement("button");
@@ -2821,10 +2909,11 @@
     row.appendChild(eraser);
   }
 
-  function selectUnicornColor(color, btnEl) {
+  function selectUnicornColor(color, btnEl, colorName) {
     unicornState.selectedColor = color;
     document.querySelectorAll("#unicorn-swatch-row .swatch").forEach(function (s) { s.classList.remove("active"); });
     btnEl.classList.add("active");
+    if (colorName) { speakText(colorName, { cancelFirst: true }); }
   }
 
   function getSvgPoint(svg, clientX, clientY) {
