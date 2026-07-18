@@ -3787,7 +3787,6 @@
   };
 
   // ---------- 경찰과 도둑 ----------
-  var HIDING_PROPS = ["🌳", "📦", "🚗", "🛢️", "🧺", "🚪", "🪴", "🧱"];
   var POLICE_TOTAL_ROUNDS = 5;
 
   var policeState = {
@@ -3813,8 +3812,7 @@
     var pool = WORD_PAIRS.filter(function (p) { return p.word !== target.word; });
     var distractors = shuffle(pool).slice(0, 3);
     var options = shuffle([target].concat(distractors));
-    var props = shuffle(HIDING_PROPS).slice(0, 4);
-    return { target: target, options: options, props: props };
+    return { target: target, options: options };
   }
 
   function nextPoliceRound() {
@@ -3835,7 +3833,7 @@
 
     var gridHtml = '<div class="police-grid" id="police-grid">';
     r.options.forEach(function (opt, idx) {
-      gridHtml += '<button class="police-spot" data-idx="' + idx + '"><span class="prop-emoji">' + r.props[idx] + '</span><span class="spot-word">' + opt.word + '</span></button>';
+      gridHtml += '<button class="police-spot" data-idx="' + idx + '"><span class="prop-emoji">' + opt.emoji + '</span><span class="spot-word">' + opt.word + '</span></button>';
     });
     gridHtml += '</div>';
 
