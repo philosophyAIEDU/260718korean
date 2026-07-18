@@ -145,6 +145,7 @@
   .mode-btn.m9 { background: linear-gradient(145deg, #7ee0d0, #35b9a4); }
   .mode-btn.m10 { background: linear-gradient(145deg, #7a9cff, #4a6cf7); }
   .mode-btn.m11 { background: linear-gradient(145deg, #4a5568, #1a1f26); }
+  .mode-btn.m12 { background: linear-gradient(145deg, #ff8a65, #e64a19); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1554,6 +1555,89 @@
     cursor: pointer;
   }
   .space-catch-btn:active { transform: translateY(3px); }
+
+  /* ---------- 소방관 놀이 ---------- */
+  .fire-scene {
+    position: relative;
+    width: min(82vw, 300px);
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .house-emoji { font-size: 100px; line-height: 1; }
+  .truck-emoji { font-size: 66px; line-height: 1; }
+  .flames-layer {
+    position: absolute;
+    top: -6px;
+    left: 4%;
+    width: 62%;
+    height: 60px;
+  }
+  .flame {
+    position: absolute;
+    bottom: 0;
+    font-size: 32px;
+    animation: flameFlicker 0.45s ease-in-out infinite alternate;
+  }
+  @keyframes flameFlicker {
+    from { transform: scale(1) translateY(0); }
+    to { transform: scale(1.18) translateY(-5px); }
+  }
+  .water-drop {
+    position: fixed;
+    font-size: 22px;
+    z-index: 20;
+    pointer-events: none;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+
+  .rescue-building {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(70vw, 220px);
+  }
+  .rescue-floor {
+    height: 58px;
+    border-radius: 12px;
+    background: #eef2f7;
+    border: 4px solid #cbd3dc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .rescue-floor.active {
+    border-color: #ffca4d;
+    box-shadow: 0 0 0 5px rgba(255, 202, 77, 0.35);
+  }
+  .rescue-floor.rescued {
+    background: #eafff6;
+    border-color: #4ecba0;
+    opacity: 0.55;
+  }
+  .rescue-ground {
+    height: 40px;
+    border-radius: 10px;
+    background: #6ba86b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    border: 4px solid #56925a;
+  }
+  .rescue-ground.active {
+    box-shadow: 0 0 0 5px rgba(255, 202, 77, 0.35);
+  }
+
+  .rescue-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  .rescue-move-row { display: flex; gap: 14px; }
 </style>
 </head>
 <body>
@@ -1610,6 +1694,10 @@
       <div class="menu-item">
         <button class="mode-btn m11" onclick="openSpaceScreen()">우주선 놀이 🚀</button>
         <div class="mode-desc">빙글빙글 도는 우주에서 같은 글자가 나오면 재빨리 잡아봐요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m12" onclick="openFireScreen()">소방관 놀이 🚒</button>
+        <div class="mode-desc">불난 집에 물을 뿌려 끄고, 사다리로 사람들을 구해요</div>
       </div>
     </div>
   </div>
@@ -1825,6 +1913,21 @@
         <div class="space-letter-display" id="space-letter-display">★</div>
       </div>
       <button class="space-catch-btn" onclick="spaceCatchAttempt()">잡아요! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ============ 소방관 놀이 화면 ============ -->
+  <div id="fire-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">소방관 놀이 🚒</div>
+      <div class="cart-badge" id="fire-step-badge">1 / 2</div>
+    </div>
+
+    <div class="construction-stage" id="fire-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startFireGame()">처음부터 다시</button>
     </div>
   </div>
 
@@ -4173,6 +4276,199 @@
         porthole.classList.add("shake-wrong");
       }
       showBanner("아직이에요! 같은 글자가 나올 때 눌러보아요 😊", 1400);
+    }
+  };
+
+  // ---------- 소방관 놀이 ----------
+  var FIRE_CONFIG = {
+    fireTarget: 8,
+    floorCount: 3
+  };
+
+  var PEOPLE_WORDS = ["아빠", "엄마", "아이", "할머니", "할아버지", "강아지", "고양이"];
+
+  var fireState = {
+    step: 1,
+    fireProgress: 0,
+    rescue: null
+  };
+
+  function initRescueState() {
+    var floors = [];
+    for (var i = 0; i < FIRE_CONFIG.floorCount; i++) {
+      floors.push({ hasPerson: true, rescued: false });
+    }
+    return { ladderPos: 0, carrying: false, carryingFromFloor: -1, floors: floors, rescuedCount: 0 };
+  }
+
+  window.openFireScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("fire-screen");
+    startFireGame();
+  };
+
+  window.startFireGame = function () {
+    fireState = { step: 1, fireProgress: 0, rescue: initRescueState() };
+    renderFireStep();
+  };
+
+  function updateFireStepBadge() {
+    document.getElementById("fire-step-badge").textContent = fireState.step + " / 2";
+  }
+
+  function renderFireStep() {
+    updateFireStepBadge();
+    var stage = document.getElementById("fire-stage");
+
+    if (fireState.step === 1) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="fire-speak-1">🔊</span><span>소방차로 불을 꺼보아요!</span></div>' +
+        '<div class="fire-scene" id="fire-scene">' +
+        '<div class="house-emoji">🏠</div>' +
+        '<div class="flames-layer" id="flames-layer">' +
+        '<span class="flame" style="left:6%">🔥</span>' +
+        '<span class="flame" style="left:38%">🔥</span>' +
+        '<span class="flame" style="left:62%">🔥</span>' +
+        '<span class="flame" style="left:22%; bottom:20px;">🔥</span>' +
+        '</div>' +
+        '<div class="truck-emoji">🚒</div>' +
+        '</div>' +
+        '<button class="dig-btn" onclick="sprayWater()">물 뿌리기 💦</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="fire-progress-fill"></div></div>';
+      document.getElementById("fire-speak-1").onclick = function () { speakText("불", { cancelFirst: true }); };
+      updateFireProgress();
+    } else if (fireState.step === 2) {
+      renderRescueStep();
+    }
+  }
+
+  function updateFireProgress() {
+    var pct = Math.min(100, (fireState.fireProgress / FIRE_CONFIG.fireTarget) * 100);
+    var fill = document.getElementById("fire-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.sprayWater = function () {
+    if (fireState.step !== 1) { return; }
+    fireState.fireProgress++;
+    updateFireProgress();
+    playThud();
+    spawnWaterDrops();
+    var flames = document.querySelectorAll("#flames-layer .flame");
+    var toRemove = Math.floor((fireState.fireProgress / FIRE_CONFIG.fireTarget) * flames.length);
+    for (var i = 0; i < toRemove && i < flames.length; i++) {
+      flames[i].style.opacity = "0";
+    }
+    if (fireState.fireProgress === 1) { speakText("불", { cancelFirst: true }); }
+    if (fireState.fireProgress >= FIRE_CONFIG.fireTarget) {
+      showBanner("불을 다 껐어요! 이제 사다리로 사람들을 구해볼까요? 👍", 1900);
+      fireState.step = 2;
+      setTimeout(renderFireStep, 750);
+    }
+  };
+
+  function spawnWaterDrops() {
+    var scene = document.getElementById("fire-scene");
+    if (!scene) { return; }
+    var rect = scene.getBoundingClientRect();
+    for (var i = 0; i < 3; i++) {
+      (function (idx) {
+        var drop = document.createElement("span");
+        drop.className = "water-drop";
+        drop.textContent = "💧";
+        drop.style.left = (rect.left + rect.width * 0.72) + "px";
+        drop.style.top = (rect.top + rect.height * 0.55) + "px";
+        document.body.appendChild(drop);
+        void drop.offsetWidth;
+        requestAnimationFrame(function () {
+          drop.style.transform = "translate(" + (-rect.width * 0.4 - idx * 10) + "px, " + (idx * 8) + "px)";
+          drop.style.opacity = "0";
+        });
+        setTimeout(function () { drop.remove(); }, 550);
+      })(i);
+    }
+  }
+
+  function renderRescueStep() {
+    var r = fireState.rescue;
+    var stage = document.getElementById("fire-stage");
+    var n = FIRE_CONFIG.floorCount;
+
+    var floorsHtml = "";
+    for (var i = n; i >= 1; i--) {
+      var f = r.floors[i - 1];
+      var cls = "rescue-floor" + (r.ladderPos === i ? " active" : "") + (f.rescued ? " rescued" : "");
+      var content = f.rescued ? "✅" : (f.hasPerson ? "🧑" : "");
+      floorsHtml += '<div class="' + cls + '">' + content + '</div>';
+    }
+    var groundCls = "rescue-ground" + (r.ladderPos === 0 ? " active" : "");
+    floorsHtml += '<div class="' + groundCls + '">🚒' + (r.carrying ? " 🧑" : "") + '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="fire-speak-2">🔊</span><span>사다리로 사람들을 구해요! (<span id="rescue-count">' + r.rescuedCount + '</span>/' + n + ')</span></div>' +
+      '<div class="rescue-controls">' +
+      '<div class="rescue-building" id="rescue-building">' + floorsHtml + '</div>' +
+      '<div class="rescue-move-row"><button class="crane-move-btn" id="ladder-up" onclick="moveLadder(1)">⬆️</button><button class="crane-action-btn" id="ladder-action" onclick="ladderAction()">구하기 🧑</button><button class="crane-move-btn" id="ladder-down" onclick="moveLadder(-1)">⬇️</button></div>' +
+      '</div>';
+    document.getElementById("fire-speak-2").onclick = function () { speakText("소방관", { cancelFirst: true }); };
+    updateLadderActionButton();
+  }
+
+  function updateLadderActionButton() {
+    var r = fireState.rescue;
+    var btn = document.getElementById("ladder-action");
+    if (!btn) { return; }
+    if (!r.carrying) {
+      var canRescue = r.ladderPos >= 1 && r.floors[r.ladderPos - 1].hasPerson && !r.floors[r.ladderPos - 1].rescued;
+      btn.textContent = "구하기 🧑";
+      btn.disabled = !canRescue;
+    } else {
+      var canRelease = r.ladderPos === 0;
+      btn.textContent = "내리기 👐";
+      btn.disabled = !canRelease;
+    }
+    var upBtn = document.getElementById("ladder-up");
+    if (upBtn) { upBtn.disabled = r.ladderPos >= FIRE_CONFIG.floorCount; }
+    var downBtn = document.getElementById("ladder-down");
+    if (downBtn) { downBtn.disabled = r.ladderPos <= 0; }
+  }
+
+  window.moveLadder = function (dir) {
+    if (fireState.step !== 2) { return; }
+    var r = fireState.rescue;
+    var newPos = r.ladderPos + dir;
+    if (newPos < 0 || newPos > FIRE_CONFIG.floorCount) { return; }
+    r.ladderPos = newPos;
+    renderRescueStep();
+  };
+
+  window.ladderAction = function () {
+    if (fireState.step !== 2) { return; }
+    var r = fireState.rescue;
+    if (!r.carrying) {
+      if (r.ladderPos >= 1 && r.floors[r.ladderPos - 1].hasPerson && !r.floors[r.ladderPos - 1].rescued) {
+        r.carrying = true;
+        r.carryingFromFloor = r.ladderPos - 1;
+        r.floors[r.ladderPos - 1].hasPerson = false;
+        playDing();
+        var word = PEOPLE_WORDS[Math.floor(Math.random() * PEOPLE_WORDS.length)];
+        speakText(word + "를 구해요", { cancelFirst: true });
+        renderRescueStep();
+      }
+    } else {
+      if (r.ladderPos === 0) {
+        r.carrying = false;
+        if (r.carryingFromFloor >= 0) { r.floors[r.carryingFromFloor].rescued = true; }
+        r.carryingFromFloor = -1;
+        r.rescuedCount++;
+        playDing();
+        if (r.rescuedCount >= FIRE_CONFIG.floorCount) {
+          showCelebrateMsg("모두 구했어요! 최고의 소방관이에요! 🚒🎉", 2600);
+          speakText("최고의 소방관이에요", { cancelFirst: true });
+        } else {
+          renderRescueStep();
+        }
+      }
     }
   };
 })();
