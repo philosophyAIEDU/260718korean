@@ -146,6 +146,7 @@
   .mode-btn.m10 { background: linear-gradient(145deg, #7a9cff, #4a6cf7); }
   .mode-btn.m11 { background: linear-gradient(145deg, #4a5568, #1a1f26); }
   .mode-btn.m12 { background: linear-gradient(145deg, #ff8a65, #e64a19); }
+  .mode-btn.m13 { background: linear-gradient(145deg, #ff8fa3, #ff5c7a); }
 
   .mode-desc {
     margin-top: 8px;
@@ -1638,6 +1639,44 @@
     align-items: center;
   }
   .rescue-move-row { display: flex; gap: 14px; }
+
+  /* ---------- 구급차 놀이 ---------- */
+  .patient-symptom {
+    font-size: 80px;
+    line-height: 1;
+  }
+  .patient-word-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .patient-word {
+    font-size: 26px;
+    font-weight: 900;
+    color: #4a5568;
+  }
+  .treatment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: min(85vw, 320px);
+  }
+  .treatment-btn {
+    border: none;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    min-height: 90px;
+  }
+  .treatment-btn .emoji { font-size: 36px; }
+  .treatment-btn .label { font-size: 15px; font-weight: 700; color: #4a5568; }
+  .treatment-btn.correct-flash { border: 4px solid #4ecba0; background: #eafff6; }
 </style>
 </head>
 <body>
@@ -1698,6 +1737,10 @@
       <div class="menu-item">
         <button class="mode-btn m12" onclick="openFireScreen()">소방관 놀이 🚒</button>
         <div class="mode-desc">불난 집에 물을 뿌려 끄고, 사다리로 사람들을 구해요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m13" onclick="openAmbulanceScreen()">구급차 놀이 🚑</button>
+        <div class="mode-desc">환자에게 출동해서 알맞은 치료를 하고 병원으로 옮겨요</div>
       </div>
     </div>
   </div>
@@ -1928,6 +1971,21 @@
 
     <div class="construction-controls">
       <button class="reset-btn" onclick="startFireGame()">처음부터 다시</button>
+    </div>
+  </div>
+
+  <!-- ============ 구급차 놀이 화면 ============ -->
+  <div id="ambulance-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">구급차 놀이 🚑</div>
+      <div class="cart-badge" id="ambulance-step-badge">1 / 3</div>
+    </div>
+
+    <div class="construction-stage" id="ambulance-stage"></div>
+
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startAmbulanceGame()">처음부터 다시</button>
     </div>
   </div>
 
@@ -4469,6 +4527,168 @@
           renderRescueStep();
         }
       }
+    }
+  };
+
+  // ---------- 구급차 놀이 ----------
+  var AMBULANCE_CONFIG = {
+    dispatchTarget: 6,
+    treatRounds: 3,
+    hospitalTarget: 6
+  };
+
+  var SYMPTOM_TREATMENT_PAIRS = [
+    { symptomEmoji: "🤒", symptomWord: "열", treatmentEmoji: "🧊", treatmentWord: "얼음찜질" },
+    { symptomEmoji: "🤕", symptomWord: "상처", treatmentEmoji: "🩹", treatmentWord: "밴드" },
+    { symptomEmoji: "🤢", symptomWord: "배탈", treatmentEmoji: "💊", treatmentWord: "약" },
+    { symptomEmoji: "🦵", symptomWord: "다리 부상", treatmentEmoji: "🩼", treatmentWord: "목발" }
+  ];
+
+  var ambulanceState = {
+    step: 1,
+    dispatchProgress: 0,
+    treatRound: 0,
+    treatCurrent: null,
+    treatAnswered: false,
+    hospitalProgress: 0
+  };
+
+  window.openAmbulanceScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("ambulance-screen");
+    startAmbulanceGame();
+  };
+
+  window.startAmbulanceGame = function () {
+    ambulanceState = { step: 1, dispatchProgress: 0, treatRound: 0, treatCurrent: null, treatAnswered: false, hospitalProgress: 0 };
+    renderAmbulanceStep();
+  };
+
+  function updateAmbulanceStepBadge() {
+    document.getElementById("ambulance-step-badge").textContent = ambulanceState.step + " / 3";
+  }
+
+  function renderAmbulanceStep() {
+    updateAmbulanceStepBadge();
+    var stage = document.getElementById("ambulance-stage");
+
+    if (ambulanceState.step === 1) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="amb-speak-1">🔊</span><span>환자에게 출동해요! 출동 버튼을 눌러보아요!</span></div>' +
+        '<div class="fire-scene"><div class="truck-emoji" id="ambulance-icon">🚑</div><div class="house-emoji">🧍</div></div>' +
+        '<button class="dig-btn" onclick="dispatchAmbulance()">출동! 🚨</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="dispatch-progress-fill"></div></div>';
+      document.getElementById("amb-speak-1").onclick = function () { speakText("구급차", { cancelFirst: true }); };
+      updateDispatchProgress();
+    } else if (ambulanceState.step === 2) {
+      renderTreatRound();
+    } else if (ambulanceState.step === 3) {
+      stage.innerHTML =
+        '<div class="construction-instruction"><span class="speak-mini" id="amb-speak-3">🔊</span><span>병원으로 출발해요! 출발 버튼을 눌러보아요!</span></div>' +
+        '<div class="fire-scene"><div class="truck-emoji">🚑</div><div class="house-emoji">🏥</div></div>' +
+        '<button class="dig-btn" onclick="driveToHospital()">출발! 🚑💨</button>' +
+        '<div class="progress-bar-wrap"><div class="progress-bar-fill" id="hospital-progress-fill"></div></div>';
+      document.getElementById("amb-speak-3").onclick = function () { speakText("병원", { cancelFirst: true }); };
+      updateHospitalProgress();
+    }
+  }
+
+  function updateDispatchProgress() {
+    var pct = Math.min(100, (ambulanceState.dispatchProgress / AMBULANCE_CONFIG.dispatchTarget) * 100);
+    var fill = document.getElementById("dispatch-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.dispatchAmbulance = function () {
+    if (ambulanceState.step !== 1) { return; }
+    ambulanceState.dispatchProgress++;
+    updateDispatchProgress();
+    playDing();
+    var icon = document.getElementById("ambulance-icon");
+    if (icon) {
+      icon.style.transform = "translateX(6px)";
+      setTimeout(function () { icon.style.transform = ""; }, 100);
+    }
+    if (ambulanceState.dispatchProgress === 1) { speakText("출동", { cancelFirst: true }); }
+    if (ambulanceState.dispatchProgress >= AMBULANCE_CONFIG.dispatchTarget) {
+      showBanner("환자에게 도착했어요! 이제 치료를 해볼까요? 👍", 1900);
+      ambulanceState.step = 2;
+      setTimeout(renderAmbulanceStep, 750);
+    }
+  };
+
+  function renderTreatRound() {
+    ambulanceState.treatAnswered = false;
+    var pair = SYMPTOM_TREATMENT_PAIRS[Math.floor(Math.random() * SYMPTOM_TREATMENT_PAIRS.length)];
+    ambulanceState.treatCurrent = pair;
+
+    var distractors = shuffle(SYMPTOM_TREATMENT_PAIRS.filter(function (p) { return p.treatmentWord !== pair.treatmentWord; })).slice(0, 3);
+    var options = shuffle([pair].concat(distractors));
+
+    var stage = document.getElementById("ambulance-stage");
+    var gridHtml = '<div class="treatment-grid" id="treatment-grid">';
+    options.forEach(function (opt, idx) {
+      gridHtml += '<button class="treatment-btn" data-idx="' + idx + '"><span class="emoji">' + opt.treatmentEmoji + '</span><span class="label">' + opt.treatmentWord + '</span></button>';
+    });
+    gridHtml += '</div>';
+
+    stage.innerHTML =
+      '<div class="construction-instruction"><span class="speak-mini" id="amb-speak-2">🔊</span><span>환자가 아파요 (<span id="treat-count">' + ambulanceState.treatRound + '</span>/' + AMBULANCE_CONFIG.treatRounds + ')</span></div>' +
+      '<div class="patient-symptom">' + pair.symptomEmoji + '</div>' +
+      '<div class="patient-word-row"><span class="patient-word">' + pair.symptomWord + '</span></div>' +
+      gridHtml;
+
+    document.getElementById("amb-speak-2").onclick = function () { speakText(pair.symptomWord, { cancelFirst: true }); };
+    speakText(pair.symptomWord, { cancelFirst: true });
+
+    var btns = stage.querySelectorAll(".treatment-btn");
+    btns.forEach(function (btn, idx) {
+      btn.addEventListener("click", function () { onTreatmentClick(btn, options[idx]); });
+    });
+  }
+
+  function onTreatmentClick(btnEl, option) {
+    if (ambulanceState.treatAnswered) { return; }
+    var pair = ambulanceState.treatCurrent;
+    if (option.treatmentWord === pair.treatmentWord) {
+      ambulanceState.treatAnswered = true;
+      btnEl.classList.add("correct-flash");
+      var allBtns = document.querySelectorAll("#treatment-grid .treatment-btn");
+      allBtns.forEach(function (b) { b.style.pointerEvents = "none"; });
+      playDing();
+      speakText(option.treatmentWord, { cancelFirst: true });
+      showCelebrateMsg("치료했어요! " + option.treatmentEmoji, 1400);
+      ambulanceState.treatRound++;
+      if (ambulanceState.treatRound >= AMBULANCE_CONFIG.treatRounds) {
+        showBanner("치료를 다 마쳤어요! 이제 병원으로 이동해볼까요? 👍", 1900);
+        ambulanceState.step = 3;
+        setTimeout(renderAmbulanceStep, 1300);
+      } else {
+        setTimeout(renderTreatRound, 1300);
+      }
+    } else {
+      btnEl.classList.remove("shake-wrong");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("shake-wrong");
+      showBanner("그건 아니에요! 다시 골라볼까요? 😊", 1400);
+    }
+  }
+
+  function updateHospitalProgress() {
+    var pct = Math.min(100, (ambulanceState.hospitalProgress / AMBULANCE_CONFIG.hospitalTarget) * 100);
+    var fill = document.getElementById("hospital-progress-fill");
+    if (fill) { fill.style.width = pct + "%"; }
+  }
+
+  window.driveToHospital = function () {
+    if (ambulanceState.step !== 3) { return; }
+    ambulanceState.hospitalProgress++;
+    updateHospitalProgress();
+    playDing();
+    if (ambulanceState.hospitalProgress === 1) { speakText("병원", { cancelFirst: true }); }
+    if (ambulanceState.hospitalProgress >= AMBULANCE_CONFIG.hospitalTarget) {
+      showCelebrateMsg("환자를 안전하게 옮겼어요! 최고의 구급대원이에요! 🚑🎉", 2600);
+      speakText("최고의 구급대원이에요", { cancelFirst: true });
     }
   };
 })();
