@@ -138,6 +138,8 @@
   .mode-btn.m2 { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
   .mode-btn.m3 { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
   .mode-btn.m4 { background: linear-gradient(145deg, #d4b3ff, #a978f0); }
+  .mode-btn.m5 { background: linear-gradient(145deg, #ffcf8f, #ff9f43); }
+  .mode-btn.m6 { background: linear-gradient(145deg, #ff9a8b, #ff6b6b); }
 
   .mode-desc {
     margin-top: 8px;
@@ -585,6 +587,282 @@
     opacity: 1;
     transform: translateX(-50%) scale(1);
   }
+
+  /* ---------- 마트 놀이 화면 ---------- */
+  #mart-screen {
+    justify-content: flex-start;
+  }
+
+  .mart-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    z-index: 3;
+    flex-shrink: 0;
+  }
+
+  .mart-title {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 800;
+    color: #4a5568;
+    flex: 1;
+  }
+
+  .cart-badge {
+    background: #ffffffcc;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #d68a00;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  .mart-tabs {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    padding: 4px 16px 10px 16px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .mart-tab-btn {
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 18px;
+    font-size: 16px;
+    font-weight: 800;
+    background: #ffffffcc;
+    color: #4a5568;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+  }
+  .mart-tab-btn.active {
+    background: linear-gradient(145deg, #ffcf8f, #ff9f43);
+    color: #ffffff;
+  }
+
+  .mart-grid-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    padding: 6px 16px;
+    z-index: 2;
+  }
+
+  .mart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+
+  .mart-item-btn {
+    border: none;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    padding: 10px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    min-height: 84px;
+  }
+  .mart-item-btn .emoji { font-size: 34px; }
+  .mart-item-btn .label { font-size: 14px; font-weight: 700; color: #4a5568; }
+
+  .cart-row-wrap {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) 16px;
+    flex-shrink: 0;
+    z-index: 3;
+    background: rgba(255,255,255,0.55);
+  }
+
+  .cart-row {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px;
+    min-height: 40px;
+    align-items: center;
+  }
+
+  .cart-chip {
+    flex: 0 0 auto;
+    font-size: 26px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 4px 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+
+  .cart-empty-hint {
+    font-size: 14px;
+    color: #6b7a90;
+    font-weight: 600;
+  }
+
+  .fly-item {
+    position: fixed;
+    font-size: 30px;
+    z-index: 40;
+    pointer-events: none;
+    transition: transform 0.55s cubic-bezier(.3,.6,.4,1), opacity 0.55s ease;
+  }
+
+  /* ---------- 피자 요리사 화면 ---------- */
+  #pizza-screen {
+    justify-content: flex-start;
+  }
+
+  .pizza-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    z-index: 3;
+    flex-shrink: 0;
+  }
+
+  .pizza-title {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 800;
+    color: #4a5568;
+  }
+
+  .pizza-stage-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    z-index: 2;
+  }
+
+  .pizza-base {
+    position: relative;
+    width: min(78vw, 340px);
+    height: min(78vw, 340px);
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side at 50% 50%,
+      #ffe9a8 0%, #ffe9a8 76%,
+      #d1483a 76%, #d1483a 89%,
+      #eab976 89%, #eab976 100%);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25), inset 0 0 0 3px rgba(0,0,0,0.08);
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .pizza-base::before,
+  .pizza-base::after {
+    content: "";
+    position: absolute;
+    width: 8%;
+    height: 8%;
+    border-radius: 50%;
+    background: #ffd873;
+    opacity: 0.7;
+  }
+  .pizza-base::before { top: 30%; left: 28%; }
+  .pizza-base::after { top: 55%; left: 62%; }
+
+  .topping-el {
+    position: absolute;
+    font-size: 30px;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25));
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .baking-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 50%;
+    background: rgba(255, 140, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .baking-overlay.active {
+    opacity: 1;
+    animation: bakeFlicker 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes bakeFlicker {
+    0% { opacity: 0.25; }
+    100% { opacity: 0.5; }
+  }
+
+  .pizza-topping-row {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 16px 10px 16px;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .topping-btn {
+    flex: 0 0 auto;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    border: 3px solid #ffffff;
+    background: #ffffff;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  .topping-btn.active {
+    border-color: #ff6b6b;
+    background: #fff0ef;
+    transform: scale(1.08);
+  }
+
+  .pizza-controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    padding: 4px 16px calc(12px + env(safe-area-inset-bottom, 0px)) 16px;
+    flex-shrink: 0;
+    z-index: 3;
+  }
+
+  .pizza-btn {
+    flex: 0 0 auto;
+    height: 54px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 16px;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.15);
+  }
+  .pizza-btn.clear { background: linear-gradient(145deg, #b5b9c6, #8a92a6); }
+  .pizza-btn.bake { background: linear-gradient(145deg, #ff9a5a, #ff6b6b); }
 </style>
 </head>
 <body>
@@ -613,6 +891,14 @@
       <div class="menu-item">
         <button class="mode-btn m4" onclick="openColorScreen()">색칠 놀이 🎨</button>
         <div class="mode-desc">자동차, 공룡, 기차를 예쁘게 색칠해요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m5" onclick="openMartScreen()">마트 놀이 🛒</button>
+        <div class="mode-desc">채소, 간식, 요리 재료, 장난감을 구경하고 담아요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m6" onclick="openPizzaScreen()">피자 요리사 🍕</button>
+        <div class="mode-desc">내가 원하는 재료로 나만의 피자를 만들어요</div>
       </div>
     </div>
   </div>
@@ -664,7 +950,48 @@
     </div>
   </div>
 
-  <div class="celebrate-msg" id="celebrate-msg">참 예쁘게 색칠했어요! 🎉<br>다른 그림도 칠해볼까요?</div>
+  <!-- ============ 마트 놀이 화면 ============ -->
+  <div id="mart-screen" class="screen">
+    <div class="mart-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="mart-title">마트 놀이 🛒</div>
+      <div class="cart-badge" id="cart-badge">🛒 0</div>
+    </div>
+
+    <div class="mart-tabs" id="mart-tabs"></div>
+
+    <div class="mart-grid-wrap">
+      <div class="mart-grid" id="mart-grid"></div>
+    </div>
+
+    <div class="cart-row-wrap">
+      <div class="cart-row" id="cart-row"><span class="cart-empty-hint">장바구니가 비어있어요. 물건을 눌러 담아보세요!</span></div>
+      <button class="reset-btn" onclick="clearCart()">비우기</button>
+    </div>
+  </div>
+
+  <!-- ============ 피자 요리사 화면 ============ -->
+  <div id="pizza-screen" class="screen">
+    <div class="pizza-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="pizza-title">피자 요리사 🍕</div>
+    </div>
+
+    <div class="pizza-stage-wrap">
+      <div class="pizza-base" id="pizza-base">
+        <div class="baking-overlay" id="baking-overlay"></div>
+      </div>
+    </div>
+
+    <div class="pizza-topping-row" id="pizza-topping-row"></div>
+
+    <div class="pizza-controls">
+      <button class="pizza-btn clear" onclick="clearPizza()">다시 만들기</button>
+      <button class="pizza-btn bake" onclick="bakePizza()">구워요! 🔥</button>
+    </div>
+  </div>
+
+  <div class="celebrate-msg" id="celebrate-msg"></div>
 
 <script>
 (function () {
@@ -1324,8 +1651,9 @@
   }
 
   var celebrateTimer = null;
-  function showColorCelebration() {
+  function showCelebrateMsg(html, duration) {
     var msg = document.getElementById("celebrate-msg");
+    msg.innerHTML = html;
     msg.classList.add("show");
     playDing();
     var w = window.innerWidth;
@@ -1338,7 +1666,11 @@
       })(i);
     }
     if (celebrateTimer) { clearTimeout(celebrateTimer); }
-    celebrateTimer = setTimeout(function () { msg.classList.remove("show"); }, 2200);
+    celebrateTimer = setTimeout(function () { msg.classList.remove("show"); }, duration || 2200);
+  }
+
+  function showColorCelebration() {
+    showCelebrateMsg("참 예쁘게 색칠했어요! 🎉<br>다른 그림도 칠해볼까요?", 2200);
   }
 
   window.resetCurrentPicture = function () {
@@ -1348,6 +1680,296 @@
     var canvas = document.getElementById("color-canvas");
     var regions = canvas.querySelectorAll(".fill-region");
     regions.forEach(function (region) { region.style.fill = ""; });
+  };
+
+  // ---------- 마트 놀이 ----------
+  var MART_CATEGORIES = [
+    {
+      id: "veg",
+      label: "채소 🥬",
+      items: [
+        { emoji: "🥬", word: "배추" },
+        { emoji: "🥕", word: "당근" },
+        { emoji: "🍅", word: "토마토" },
+        { emoji: "🥔", word: "감자" },
+        { emoji: "🧅", word: "양파" },
+        { emoji: "🌽", word: "옥수수" },
+        { emoji: "🥦", word: "브로콜리" },
+        { emoji: "🍆", word: "가지" },
+        { emoji: "🥒", word: "오이" },
+        { emoji: "🫑", word: "피망" }
+      ]
+    },
+    {
+      id: "snack",
+      label: "간식 🍭",
+      items: [
+        { emoji: "🍭", word: "사탕" },
+        { emoji: "🍫", word: "초콜릿" },
+        { emoji: "🍪", word: "과자" },
+        { emoji: "🍩", word: "도넛" },
+        { emoji: "🍦", word: "아이스크림" },
+        { emoji: "🧁", word: "컵케이크" },
+        { emoji: "🍿", word: "팝콘" },
+        { emoji: "🍬", word: "젤리" }
+      ]
+    },
+    {
+      id: "ingredient",
+      label: "요리 재료 🥚",
+      items: [
+        { emoji: "🥚", word: "계란" },
+        { emoji: "🥛", word: "우유" },
+        { emoji: "🧈", word: "버터" },
+        { emoji: "🧀", word: "치즈" },
+        { emoji: "🍞", word: "빵" },
+        { emoji: "🍚", word: "쌀" },
+        { emoji: "🐟", word: "생선" },
+        { emoji: "🥩", word: "고기" },
+        { emoji: "🍜", word: "라면" },
+        { emoji: "🧂", word: "소금" }
+      ]
+    },
+    {
+      id: "toy",
+      label: "장난감 🧸",
+      items: [
+        { emoji: "🧸", word: "곰인형" },
+        { emoji: "🚗", word: "자동차" },
+        { emoji: "⚽", word: "공" },
+        { emoji: "🪀", word: "요요" },
+        { emoji: "🎈", word: "풍선" },
+        { emoji: "🧩", word: "퍼즐" },
+        { emoji: "🪁", word: "연" },
+        { emoji: "🎨", word: "크레파스" },
+        { emoji: "🚂", word: "기차" },
+        { emoji: "🎠", word: "목마" }
+      ]
+    }
+  ];
+
+  var martState = {
+    currentCategory: "veg",
+    cart: []
+  };
+
+  window.openMartScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("mart-screen");
+    if (!document.getElementById("mart-tabs").childElementCount) {
+      renderMartTabs();
+    }
+    renderMartGrid(martState.currentCategory);
+    renderCart();
+  };
+
+  function renderMartTabs() {
+    var wrap = document.getElementById("mart-tabs");
+    wrap.innerHTML = "";
+    MART_CATEGORIES.forEach(function (cat) {
+      var btn = document.createElement("button");
+      btn.className = "mart-tab-btn";
+      btn.id = "tab-" + cat.id;
+      btn.textContent = cat.label;
+      btn.onclick = function () {
+        martState.currentCategory = cat.id;
+        renderMartGrid(cat.id);
+        highlightTab(cat.id);
+      };
+      wrap.appendChild(btn);
+    });
+    highlightTab(martState.currentCategory);
+  }
+
+  function highlightTab(catId) {
+    var tabs = document.querySelectorAll(".mart-tab-btn");
+    tabs.forEach(function (t) { t.classList.remove("active"); });
+    var el = document.getElementById("tab-" + catId);
+    if (el) { el.classList.add("active"); }
+  }
+
+  function renderMartGrid(catId) {
+    var cat = MART_CATEGORIES.filter(function (c) { return c.id === catId; })[0];
+    var grid = document.getElementById("mart-grid");
+    grid.innerHTML = "";
+    cat.items.forEach(function (item) {
+      var btn = document.createElement("button");
+      btn.className = "mart-item-btn";
+      btn.innerHTML = '<span class="emoji">' + item.emoji + '</span><span class="label">' + item.word + '</span>';
+      btn.onclick = function () { addToCart(item, btn); };
+      grid.appendChild(btn);
+    });
+  }
+
+  function addToCart(item, sourceEl) {
+    martState.cart.push(item);
+    updateCartBadge();
+    renderCart();
+    speakText(item.word, { cancelFirst: true });
+    flyToCart(item.emoji, sourceEl);
+  }
+
+  function flyToCart(emoji, sourceEl) {
+    var srcRect = sourceEl.getBoundingClientRect();
+    var cartBadge = document.getElementById("cart-badge");
+    var dstRect = cartBadge.getBoundingClientRect();
+    var fly = document.createElement("div");
+    fly.className = "fly-item";
+    fly.textContent = emoji;
+    fly.style.left = (srcRect.left + srcRect.width / 2) + "px";
+    fly.style.top = (srcRect.top + srcRect.height / 2) + "px";
+    document.body.appendChild(fly);
+    void fly.offsetWidth;
+    requestAnimationFrame(function () {
+      fly.style.transform = "translate(" + (dstRect.left + dstRect.width / 2 - (srcRect.left + srcRect.width / 2)) + "px, " + (dstRect.top + dstRect.height / 2 - (srcRect.top + srcRect.height / 2)) + "px) scale(0.3)";
+      fly.style.opacity = "0";
+    });
+    setTimeout(function () { fly.remove(); }, 600);
+  }
+
+  function updateCartBadge() {
+    document.getElementById("cart-badge").textContent = "🛒 " + martState.cart.length;
+  }
+
+  function renderCart() {
+    var row = document.getElementById("cart-row");
+    if (!martState.cart.length) {
+      row.innerHTML = '<span class="cart-empty-hint">장바구니가 비어있어요. 물건을 눌러 담아보세요!</span>';
+      return;
+    }
+    row.innerHTML = "";
+    martState.cart.forEach(function (item) {
+      var chip = document.createElement("span");
+      chip.className = "cart-chip";
+      chip.textContent = item.emoji;
+      row.appendChild(chip);
+    });
+  }
+
+  window.clearCart = function () {
+    martState.cart = [];
+    updateCartBadge();
+    renderCart();
+  };
+
+  // ---------- 피자 요리사 ----------
+  var TOPPING_LIST = [
+    { id: "cheese", emoji: "🧀", label: "치즈" },
+    { id: "pepperoni", emoji: "🍕", label: "페퍼로니" },
+    { id: "tomato", emoji: "🍅", label: "토마토" },
+    { id: "mushroom", emoji: "🍄", label: "버섯" },
+    { id: "olive", emoji: "🫒", label: "올리브" },
+    { id: "pepper", emoji: "🫑", label: "피망" },
+    { id: "corn", emoji: "🌽", label: "옥수수" },
+    { id: "bacon", emoji: "🥓", label: "베이컨" },
+    { id: "shrimp", emoji: "🦐", label: "새우" },
+    { id: "pineapple", emoji: "🍍", label: "파인애플" },
+    { id: "onion", emoji: "🧅", label: "양파" },
+    { id: "egg", emoji: "🥚", label: "계란" }
+  ];
+
+  var pizzaState = {
+    selectedTopping: TOPPING_LIST[0],
+    toppings: []
+  };
+
+  window.openPizzaScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("pizza-screen");
+    if (!document.getElementById("pizza-topping-row").childElementCount) {
+      renderToppingRow();
+      wirePizzaBaseClick();
+    }
+  };
+
+  function renderToppingRow() {
+    var row = document.getElementById("pizza-topping-row");
+    row.innerHTML = "";
+    TOPPING_LIST.forEach(function (t) {
+      var btn = document.createElement("button");
+      btn.className = "topping-btn";
+      btn.id = "topping-" + t.id;
+      btn.textContent = t.emoji;
+      btn.setAttribute("aria-label", t.label);
+      btn.onclick = function () { selectTopping(t, btn); };
+      row.appendChild(btn);
+    });
+    selectTopping(pizzaState.selectedTopping, document.getElementById("topping-" + pizzaState.selectedTopping.id));
+  }
+
+  function selectTopping(topping, btnEl) {
+    pizzaState.selectedTopping = topping;
+    var btns = document.querySelectorAll(".topping-btn");
+    btns.forEach(function (b) { b.classList.remove("active"); });
+    if (btnEl) { btnEl.classList.add("active"); }
+  }
+
+  function wirePizzaBaseClick() {
+    var base = document.getElementById("pizza-base");
+    base.addEventListener("click", function (e) {
+      placeToppingAtEvent(e);
+    });
+    base.addEventListener("touchend", function (e) {
+      if (e.changedTouches && e.changedTouches.length) {
+        e.preventDefault();
+        placeToppingAtEvent(e.changedTouches[0]);
+      }
+    }, { passive: false });
+  }
+
+  function placeToppingAtEvent(e) {
+    var base = document.getElementById("pizza-base");
+    var rect = base.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    var cx = rect.width / 2;
+    var cy = rect.height / 2;
+    var dx = x - cx;
+    var dy = y - cy;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var maxR = rect.width / 2 - 14;
+    if (dist > maxR) {
+      var scale = maxR / dist;
+      x = cx + dx * scale;
+      y = cy + dy * scale;
+    }
+    var xPct = (x / rect.width) * 100;
+    var yPct = (y / rect.height) * 100;
+    addTopping(pizzaState.selectedTopping, xPct, yPct);
+  }
+
+  function addTopping(topping, xPct, yPct) {
+    var base = document.getElementById("pizza-base");
+    var el = document.createElement("span");
+    el.className = "topping-el";
+    el.textContent = topping.emoji;
+    el.style.left = xPct + "%";
+    el.style.top = yPct + "%";
+    var rot = (Math.random() * 40 - 20).toFixed(1);
+    el.style.transform = "translate(-50%, -50%) rotate(" + rot + "deg)";
+    el.addEventListener("click", function (e) {
+      e.stopPropagation();
+      el.remove();
+      pizzaState.toppings = pizzaState.toppings.filter(function (t) { return t.el !== el; });
+    });
+    base.appendChild(el);
+    pizzaState.toppings.push({ el: el, topping: topping, x: xPct, y: yPct });
+    playDing();
+  }
+
+  window.clearPizza = function () {
+    pizzaState.toppings.forEach(function (t) { t.el.remove(); });
+    pizzaState.toppings = [];
+  };
+
+  window.bakePizza = function () {
+    var overlay = document.getElementById("baking-overlay");
+    overlay.classList.add("active");
+    setTimeout(function () {
+      overlay.classList.remove("active");
+      showCelebrateMsg("냠냠! 맛있는 피자가 완성됐어요! 🍕😋", 2400);
+      speakText("맛있는 피자가 완성됐어요", { cancelFirst: true });
+    }, 1400);
   };
 })();
 </script>
