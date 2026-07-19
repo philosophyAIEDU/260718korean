@@ -1406,7 +1406,7 @@
     max-width: 90vw;
   }
 
-  /* ---------- 경찰과 도둑 (추격전) ---------- */
+  /* ---------- 경찰과 도둑 (레이싱 추격전) ---------- */
   .news-banner {
     width: min(92vw, 380px);
     background: linear-gradient(145deg, #2d3436, #1a1f26);
@@ -1419,65 +1419,79 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
 
-  .chase-road {
-    width: min(92vw, 380px);
+  .chase-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: min(92vw, 360px);
   }
-  .chase-stations {
+  .chase-hud-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
     font-size: 14px;
     font-weight: 900;
     color: #4a5568;
-    margin-bottom: 6px;
   }
-  .chase-track {
-    position: relative;
-    height: 64px;
-    background: #cbd3dc;
-    border-radius: 14px;
-    box-shadow: inset 0 3px 8px rgba(0,0,0,0.18);
-  }
-  .chase-track::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 6px;
-    right: 6px;
-    height: 4px;
-    background: repeating-linear-gradient(90deg, #ffffff 0, #ffffff 14px, transparent 14px, transparent 26px);
-    transform: translateY(-50%);
-    opacity: 0.7;
-  }
-  .chase-car {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 34px;
-    transition: left 0.3s ease;
-    z-index: 2;
-  }
-  .power-up-el {
-    position: absolute;
-    top: -42px;
-    transform: translateX(-50%);
-    font-size: 26px;
-    cursor: pointer;
+  .chase-speed-badge {
     background: #fff6d6;
-    border: 3px solid #ffca4d;
-    border-radius: 12px;
-    padding: 4px 8px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    animation: bob 0.6s ease-in-out infinite alternate;
-    z-index: 3;
+    border: 2px solid #ffca4d;
+    border-radius: 14px;
+    padding: 3px 12px;
+    font-weight: 900;
+    color: #b8860b;
   }
-  @keyframes bob {
-    from { transform: translateX(-50%) translateY(0); }
-    to { transform: translateX(-50%) translateY(-6px); }
+  .chase-canvas-wrap {
+    position: relative;
+    border-radius: 18px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+    overflow: hidden;
   }
+  #chase-canvas {
+    display: block;
+    background: #7fc97f;
+    touch-action: none;
+  }
+  .chase-countdown {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.28);
+    pointer-events: none;
+  }
+  .chase-controls-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .chase-lane-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .chase-lane-btn {
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    font-size: 22px;
+    background: linear-gradient(145deg, #ffffff, #e2e8f0);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.18);
+    cursor: pointer;
+  }
+  .chase-lane-btn:active { transform: translateY(3px); }
 
   .chase-accelerate-btn {
-    height: 64px;
-    padding: 0 40px;
+    height: 68px;
+    padding: 0 34px;
     border: none;
     border-radius: 24px;
     font-weight: 900;
@@ -2217,7 +2231,7 @@
     </div>
   </div>
 
-  <!-- ============ 경찰과 도둑 화면 ============ -->
+  <!-- ============ 경찰과 도둑 화면 (레이싱 추격전) ============ -->
   <div id="police-screen" class="screen">
     <div class="color-topbar">
       <button class="home-btn" onclick="goHome()">🏠</button>
@@ -2225,7 +2239,28 @@
       <div class="cart-badge" id="police-round-badge">🚨 0</div>
     </div>
 
-    <div class="construction-stage" id="police-stage"></div>
+    <div class="construction-stage">
+      <div class="chase-wrap">
+        <div class="news-banner">🚨 도둑을 뒤쫓아라!</div>
+        <div class="chase-hud-row">
+          <span>🚓 경찰서</span>
+          <span class="chase-speed-badge" id="chase-speed-badge">💨 속도 1</span>
+          <span>도둑 소굴 🏚️</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="chase-gap-fill"></div></div>
+        <div class="chase-canvas-wrap">
+          <canvas id="chase-canvas" width="320" height="230"></canvas>
+          <div class="chase-countdown" id="chase-countdown" style="display:none;"></div>
+        </div>
+        <div class="chase-controls-row">
+          <div class="chase-lane-col">
+            <button class="chase-lane-btn" onclick="chaseLaneUp()">⬆️</button>
+            <button class="chase-lane-btn" onclick="chaseLaneDown()">⬇️</button>
+          </div>
+          <button class="chase-accelerate-btn" onclick="chaseAccelerate()">가속! 💨</button>
+        </div>
+      </div>
+    </div>
 
     <div class="construction-controls">
       <button class="reset-btn" onclick="startPoliceChase()">처음부터 다시</button>
@@ -2772,9 +2807,9 @@
       if (topState.letterTimerId) { clearInterval(topState.letterTimerId); topState.letterTimerId = null; }
       topState.spinning = false;
     }
-    if (typeof policeChaseState !== "undefined" && policeChaseState.thiefTimerId) {
-      clearInterval(policeChaseState.thiefTimerId);
-      policeChaseState.thiefTimerId = null;
+    if (typeof policeChaseState !== "undefined") {
+      if (policeChaseState.rafId) { cancelAnimationFrame(policeChaseState.rafId); policeChaseState.rafId = null; }
+      if (policeChaseState.countdownTimerId) { clearInterval(policeChaseState.countdownTimerId); policeChaseState.countdownTimerId = null; }
       policeChaseState.active = false;
     }
     if (typeof spaceState !== "undefined" && spaceState.timerId) {
@@ -4529,6 +4564,26 @@
     } catch (e) { /* ignore */ }
   }
 
+  function playEngineRev() {
+    try {
+      var ctx = getAudioCtx();
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(90, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.32);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.36);
+    } catch (e) { /* ignore */ }
+  }
+
   function initCraneState() {
     var n = CONSTRUCTION_CONFIG.craneSlots;
     var slotType = [];
@@ -4830,129 +4885,358 @@
     }, duration * 1000);
   };
 
-  // ---------- 경찰과 도둑 (추격전) ----------
+  // ---------- 경찰과 도둑 (캔버스 레이싱 추격전) ----------
+  var CHASE_LANES = 3;
+  var CHASE_W = 320;
+  var CHASE_H = 230;
+  var CHASE_LANE_H = CHASE_H / CHASE_LANES;
+  var CHASE_POLICE_X = 54;
+  var CHASE_MAX_SPEED = 5.5;
+
+  function chaseLaneCenterY(lane) { return CHASE_LANE_H * (lane + 0.5); }
+
   var policeChaseState = {
-    policePos: 0,
-    thiefPos: 55,
     active: false,
-    thiefTimerId: null,
-    tapCount: 0,
-    powerUp: null,
+    rafId: null,
+    countdownTimerId: null,
+    lastTs: 0,
+    laneY: chaseLaneCenterY(1),
+    targetLane: 1,
+    thiefLane: 1,
+    thiefLaneTimer: 0,
+    gap: 70,
+    startGap: 70,
+    speed: 1,
+    roadOffset: 0,
+    obstacles: [],
+    coins: [],
+    spawnTimer: 1.2,
+    coinTimer: 1.8,
+    shakeTime: 0,
+    particles: [],
     caughtCount: 0
   };
 
   window.openPoliceScreen = function () {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
     showScreen("police-screen");
+    initChaseCanvas();
     startPoliceChase();
   };
 
+  function initChaseCanvas() {
+    var canvas = document.getElementById("chase-canvas");
+    if (!canvas || canvas.dataset.chaseInit) { return; }
+    canvas.dataset.chaseInit = "1";
+    canvas.addEventListener("pointerdown", function (e) {
+      if (!policeChaseState.active) { return; }
+      var rect = canvas.getBoundingClientRect();
+      var y = (e.clientY - rect.top) * (CHASE_H / rect.height);
+      var lane = Math.max(0, Math.min(CHASE_LANES - 1, Math.floor(y / CHASE_LANE_H)));
+      policeChaseState.targetLane = lane;
+      policeChaseState.speed = Math.min(CHASE_MAX_SPEED, policeChaseState.speed + 0.8);
+    });
+  }
+
   window.startPoliceChase = function () {
-    if (policeChaseState.thiefTimerId) { clearInterval(policeChaseState.thiefTimerId); }
+    if (policeChaseState.rafId) { cancelAnimationFrame(policeChaseState.rafId); }
+    if (policeChaseState.countdownTimerId) { clearInterval(policeChaseState.countdownTimerId); }
     var caughtSoFar = policeChaseState.caughtCount;
+    var startGap = 60 + Math.floor(Math.random() * 20);
     policeChaseState = {
-      policePos: 0,
-      thiefPos: 50 + Math.floor(Math.random() * 12),
-      active: true,
-      thiefTimerId: null,
-      tapCount: 0,
-      powerUp: null,
+      active: false,
+      rafId: null,
+      countdownTimerId: null,
+      lastTs: 0,
+      laneY: chaseLaneCenterY(1),
+      targetLane: 1,
+      thiefLane: 1,
+      thiefLaneTimer: 0,
+      gap: startGap,
+      startGap: startGap,
+      speed: 1,
+      roadOffset: 0,
+      obstacles: [],
+      coins: [],
+      spawnTimer: 1.2,
+      coinTimer: 1.8,
+      shakeTime: 0,
+      particles: [],
       caughtCount: caughtSoFar
     };
-    renderChase();
-    showBanner("🚨 뉴스 속보! 도둑이 도망갔어요! 경찰차야, 힘내서 잡아봐! 🚓", 2600);
+    updatePoliceBadge();
+    updateChaseGapBar();
+    showBanner("🚨 뉴스 속보! 도둑이 도망갔어요! 경찰차야, 힘내서 잡아봐! 🚓", 2200);
     speakText("도둑이 도망갔어요. 경찰차야 힘내서 잡아봐", { cancelFirst: true });
-    policeChaseState.thiefTimerId = setInterval(thiefAdvance, 450);
+    runChaseCountdown();
+    policeChaseState.lastTs = performance.now();
+    policeChaseState.rafId = requestAnimationFrame(chaseLoop);
   };
+
+  function runChaseCountdown() {
+    var el = document.getElementById("chase-countdown");
+    var steps = ["3", "2", "1", "출발! 🚦"];
+    var idx = 0;
+    el.style.display = "flex";
+    el.textContent = steps[0];
+    playDing();
+    policeChaseState.countdownTimerId = setInterval(function () {
+      idx++;
+      if (idx < steps.length) {
+        el.textContent = steps[idx];
+        playDing();
+      } else {
+        clearInterval(policeChaseState.countdownTimerId);
+        policeChaseState.countdownTimerId = null;
+        el.style.display = "none";
+        policeChaseState.active = true;
+        speakText("출발", { cancelFirst: true });
+      }
+    }, 550);
+  }
 
   function updatePoliceBadge() {
-    document.getElementById("police-round-badge").textContent = "🚨 " + policeChaseState.caughtCount;
+    var el = document.getElementById("police-round-badge");
+    if (el) { el.textContent = "🚨 " + policeChaseState.caughtCount; }
   }
 
-  function renderChase() {
-    updatePoliceBadge();
-    var stage = document.getElementById("police-stage");
-    stage.innerHTML =
-      '<div class="news-banner">🚨 도둑을 뒤쫓아라!</div>' +
-      '<div class="chase-road">' +
-      '<div class="chase-stations"><span>🚓 경찰서</span><span>도둑 소굴 🏚️</span></div>' +
-      '<div class="chase-track" id="chase-track">' +
-      '<div class="chase-car police" id="police-car" style="left:0%">🚓</div>' +
-      '<div class="chase-car thief" id="thief-car" style="left:' + policeChaseState.thiefPos + '%">🚗💨</div>' +
-      '</div></div>' +
-      '<button class="chase-accelerate-btn" onclick="accelerate()">가속! 💨</button>';
-  }
-
-  function updateTrackPositions() {
-    var policeEl = document.getElementById("police-car");
-    var thiefEl = document.getElementById("thief-car");
-    if (policeEl) { policeEl.style.left = Math.min(100, policeChaseState.policePos) + "%"; }
-    if (thiefEl) { thiefEl.style.left = Math.min(100, policeChaseState.thiefPos) + "%"; }
-  }
-
-  function thiefAdvance() {
-    if (!policeChaseState.active) { return; }
-    policeChaseState.thiefPos = Math.min(96, policeChaseState.thiefPos + 1);
-    updateTrackPositions();
-  }
-
-  window.accelerate = function () {
-    if (!policeChaseState.active) { return; }
-    policeChaseState.tapCount++;
-    policeChaseState.policePos += 4;
-    playDing();
-    updateTrackPositions();
-    if (checkCatch()) { return; }
-    if (policeChaseState.tapCount % 4 === 0 && !policeChaseState.powerUp) {
-      spawnPowerUp();
+  function updateChaseGapBar() {
+    var fill = document.getElementById("chase-gap-fill");
+    if (fill) {
+      var pct = Math.max(0, Math.min(100, (1 - policeChaseState.gap / policeChaseState.startGap) * 100));
+      fill.style.width = pct + "%";
     }
+    var speedEl = document.getElementById("chase-speed-badge");
+    if (speedEl) { speedEl.textContent = "💨 속도 " + Math.round(policeChaseState.speed * 10) / 10; }
+  }
+
+  window.chaseLaneUp = function () {
+    policeChaseState.targetLane = Math.max(0, policeChaseState.targetLane - 1);
+  };
+  window.chaseLaneDown = function () {
+    policeChaseState.targetLane = Math.min(CHASE_LANES - 1, policeChaseState.targetLane + 1);
   };
 
-  function spawnPowerUp() {
-    var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    var pos = Math.min(90, policeChaseState.policePos + 12 + Math.random() * 10);
-    policeChaseState.powerUp = { letter: letter, pos: pos };
-    var track = document.getElementById("chase-track");
-    if (!track) { return; }
-    var el = document.createElement("div");
-    el.className = "power-up-el";
-    el.id = "power-up-el";
-    el.style.left = pos + "%";
-    el.textContent = "⚡" + letter;
-    el.onclick = function () { grabPowerUp(); };
-    track.appendChild(el);
+  window.chaseAccelerate = function () {
+    if (!policeChaseState.active) { return; }
+    policeChaseState.speed = Math.min(CHASE_MAX_SPEED, policeChaseState.speed + 1.5);
+    playEngineRev();
+    spawnChaseSpeedLines();
+  };
+
+  function spawnChaseSpeedLines() {
+    for (var i = 0; i < 5; i++) {
+      policeChaseState.particles.push({
+        x: CHASE_POLICE_X - 10 - Math.random() * 20,
+        y: 10 + Math.random() * (CHASE_H - 20),
+        life: 0.4,
+        maxLife: 0.4,
+        len: 14 + Math.random() * 16
+      });
+    }
   }
 
-  function grabPowerUp() {
-    if (!policeChaseState.powerUp) { return; }
-    var letter = policeChaseState.powerUp.letter;
-    policeChaseState.policePos += 12;
-    updateTrackPositions();
+  function spawnChaseObstacle() {
+    var lane = Math.floor(Math.random() * CHASE_LANES);
+    policeChaseState.obstacles.push({ x: CHASE_W + 20, lane: lane, hit: false, emoji: Math.random() < 0.5 ? "🚧" : "🛢️" });
+  }
+
+  function spawnChaseCoin() {
+    var lane = Math.floor(Math.random() * CHASE_LANES);
+    var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+    policeChaseState.coins.push({ x: CHASE_W + 20, lane: lane, letter: letter, taken: false });
+  }
+
+  function chaseLoop(ts) {
+    var st = policeChaseState;
+    var dt = Math.min(0.05, (ts - st.lastTs) / 1000 || 0);
+    st.lastTs = ts;
+    updateChase(dt);
+    drawChase();
+    st.rafId = requestAnimationFrame(chaseLoop);
+  }
+
+  function updateChase(dt) {
+    var st = policeChaseState;
+
+    var targetY = chaseLaneCenterY(st.targetLane);
+    st.laneY += (targetY - st.laneY) * Math.min(1, dt * 10);
+
+    st.roadOffset += (30 + (st.speed - 1) * 60) * dt;
+
+    for (var pi = st.particles.length - 1; pi >= 0; pi--) {
+      st.particles[pi].life -= dt;
+      st.particles[pi].x -= 260 * dt;
+      if (st.particles[pi].life <= 0) { st.particles.splice(pi, 1); }
+    }
+
+    if (!st.active) { return; }
+
+    st.thiefLaneTimer -= dt;
+    if (st.thiefLaneTimer <= 0) {
+      st.thiefLaneTimer = 1.6 + Math.random() * 1.4;
+      st.thiefLane = Math.floor(Math.random() * CHASE_LANES);
+    }
+
+    st.speed += (1 - st.speed) * Math.min(1, dt * 1.2);
+
+    st.gap += 6 * dt;
+    st.gap -= st.speed * 9 * dt;
+    st.gap = Math.max(0, Math.min(st.startGap, st.gap));
+
+    var pxPerSec = 90 + (st.speed - 1) * 70;
+    var laneNow = Math.round(st.laneY / CHASE_LANE_H - 0.5);
+
+    st.spawnTimer -= dt;
+    if (st.spawnTimer <= 0) {
+      st.spawnTimer = 1.5 + Math.random() * 0.9;
+      spawnChaseObstacle();
+    }
+    for (var oi = st.obstacles.length - 1; oi >= 0; oi--) {
+      var ob = st.obstacles[oi];
+      ob.x -= pxPerSec * dt;
+      if (!ob.hit && ob.lane === laneNow && Math.abs(ob.x - CHASE_POLICE_X) < 22) {
+        ob.hit = true;
+        handleChaseCollision();
+        st.obstacles.splice(oi, 1);
+        continue;
+      }
+      if (ob.x < -30) { st.obstacles.splice(oi, 1); }
+    }
+
+    st.coinTimer -= dt;
+    if (st.coinTimer <= 0) {
+      st.coinTimer = 2.1 + Math.random() * 1.3;
+      spawnChaseCoin();
+    }
+    for (var ci = st.coins.length - 1; ci >= 0; ci--) {
+      var coin = st.coins[ci];
+      coin.x -= pxPerSec * dt;
+      if (!coin.taken && coin.lane === laneNow && Math.abs(coin.x - CHASE_POLICE_X) < 22) {
+        coin.taken = true;
+        handleChaseCoin(coin.letter);
+        st.coins.splice(ci, 1);
+        continue;
+      }
+      if (coin.x < -30) { st.coins.splice(ci, 1); }
+    }
+
+    if (st.shakeTime > 0) { st.shakeTime -= dt; }
+
+    updateChaseGapBar();
+
+    if (st.gap <= 0) {
+      catchThief();
+    }
+  }
+
+  function handleChaseCollision() {
+    var st = policeChaseState;
+    st.speed = Math.max(1, st.speed * 0.4);
+    st.gap = Math.min(st.startGap, st.gap + 4);
+    st.shakeTime = 0.3;
+    playThud();
+    showBanner("앗! 장애물에 부딪혔어요! 다시 힘내봐요 😊", 1300);
+  }
+
+  function handleChaseCoin(letter) {
+    var st = policeChaseState;
+    st.speed = Math.min(CHASE_MAX_SPEED, st.speed + 1.8);
+    st.gap = Math.max(0, st.gap - 6);
     playDing();
     speakText(letter, { cancelFirst: true });
-    var el = document.getElementById("power-up-el");
-    if (el) { el.remove(); }
-    policeChaseState.powerUp = null;
-    checkCatch();
+    for (var i = 0; i < 8; i++) {
+      st.particles.push({
+        x: CHASE_POLICE_X + Math.random() * 20 - 10,
+        y: st.laneY + Math.random() * 20 - 10,
+        life: 0.5, maxLife: 0.5, len: 6, star: true
+      });
+    }
   }
 
-  function checkCatch() {
-    if (policeChaseState.policePos >= policeChaseState.thiefPos) {
-      catchThief();
-      return true;
+  function drawChase() {
+    var canvas = document.getElementById("chase-canvas");
+    if (!canvas) { return; }
+    var ctx = canvas.getContext("2d");
+    var st = policeChaseState;
+    ctx.save();
+    if (st.shakeTime > 0) {
+      ctx.translate((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8);
     }
-    return false;
+
+    ctx.fillStyle = "#7fc97f";
+    ctx.fillRect(-10, -10, CHASE_W + 20, CHASE_H + 20);
+    ctx.fillStyle = "#94a0ab";
+    ctx.fillRect(0, 0, CHASE_W, CHASE_H);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.75)";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([16, 16]);
+    for (var l = 1; l < CHASE_LANES; l++) {
+      var y = CHASE_LANE_H * l;
+      ctx.beginPath();
+      ctx.lineDashOffset = -st.roadOffset;
+      ctx.moveTo(0, y);
+      ctx.lineTo(CHASE_W, y);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    st.coins.forEach(function (coin) {
+      var cy = chaseLaneCenterY(coin.lane);
+      ctx.beginPath();
+      ctx.fillStyle = "#fff6d6";
+      ctx.strokeStyle = "#ffca4d";
+      ctx.lineWidth = 3;
+      ctx.arc(coin.x, cy, 15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#b8860b";
+      ctx.font = "16px sans-serif";
+      ctx.fillText(coin.letter, coin.x, cy + 1);
+    });
+
+    ctx.font = "26px sans-serif";
+    st.obstacles.forEach(function (ob) {
+      ctx.fillText(ob.emoji, ob.x, chaseLaneCenterY(ob.lane));
+    });
+
+    st.particles.forEach(function (p) {
+      var alpha = Math.max(0, p.life / p.maxLife);
+      if (p.star) {
+        ctx.fillStyle = "rgba(255,214,102," + alpha + ")";
+        ctx.font = "14px sans-serif";
+        ctx.fillText("✨", p.x, p.y);
+      } else {
+        ctx.strokeStyle = "rgba(255,255,255," + alpha + ")";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.len, p.y);
+        ctx.stroke();
+      }
+    });
+
+    var thiefGapRatio = Math.max(0, Math.min(1, st.gap / st.startGap));
+    var thiefX = CHASE_W - 30 - thiefGapRatio * (CHASE_W - CHASE_POLICE_X - 70);
+    ctx.font = "30px sans-serif";
+    ctx.fillText("🚗💨", thiefX, chaseLaneCenterY(st.thiefLane));
+
+    ctx.font = "32px sans-serif";
+    ctx.fillText("🚓", CHASE_POLICE_X, st.laneY);
+
+    ctx.restore();
   }
 
   function catchThief() {
-    policeChaseState.active = false;
-    if (policeChaseState.thiefTimerId) { clearInterval(policeChaseState.thiefTimerId); policeChaseState.thiefTimerId = null; }
-    policeChaseState.policePos = policeChaseState.thiefPos;
-    updateTrackPositions();
-    policeChaseState.caughtCount++;
+    var st = policeChaseState;
+    st.active = false;
+    if (st.rafId) { cancelAnimationFrame(st.rafId); st.rafId = null; }
+    st.caughtCount++;
     updatePoliceBadge();
-    var el = document.getElementById("power-up-el");
-    if (el) { el.remove(); }
     playDing();
     showCelebrateMsg("도둑을 잡았어요! 🚓🎉", 2000);
     speakText("도둑을 잡았어요", { cancelFirst: true });
