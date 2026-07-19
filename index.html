@@ -3670,11 +3670,31 @@
     { id: "doctor", label: "의사 놀이", emoji: "🩺" }
   ];
 
-  var earnedStickers = {};
+  var STICKER_STORAGE_KEY = "malrang_hangul_stickers_v1";
+
+  function loadStickersFromStorage() {
+    try {
+      var raw = window.localStorage && window.localStorage.getItem(STICKER_STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") { return parsed; }
+      }
+    } catch (e) { /* ignore */ }
+    return {};
+  }
+
+  function saveStickersToStorage() {
+    try {
+      if (window.localStorage) { window.localStorage.setItem(STICKER_STORAGE_KEY, JSON.stringify(earnedStickers)); }
+    } catch (e) { /* ignore */ }
+  }
+
+  var earnedStickers = loadStickersFromStorage();
 
   function awardSticker(id) {
     if (earnedStickers[id]) { return; }
     earnedStickers[id] = true;
+    saveStickersToStorage();
     updateStickerCountBadges();
     var toast = document.getElementById("sticker-toast");
     if (toast) {
