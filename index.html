@@ -1522,6 +1522,8 @@
     display: block;
     background: #7fc97f;
     touch-action: none;
+    max-width: 100%;
+    height: auto;
   }
   .chase-countdown {
     position: absolute;
@@ -1541,9 +1543,8 @@
     gap: 16px;
     align-items: center;
   }
-  .chase-lane-col {
+  .chase-lane-row {
     display: flex;
-    flex-direction: column;
     gap: 8px;
   }
   .chase-lane-btn {
@@ -2326,13 +2327,13 @@
           <button class="chase-nitro-btn" id="chase-nitro-btn" onclick="chaseNitro()" disabled>NITRO 🔥</button>
         </div>
         <div class="chase-canvas-wrap">
-          <canvas id="chase-canvas" width="320" height="230"></canvas>
+          <canvas id="chase-canvas" width="300" height="380"></canvas>
           <div class="chase-countdown" id="chase-countdown" style="display:none;"></div>
         </div>
         <div class="chase-controls-row">
-          <div class="chase-lane-col">
-            <button class="chase-lane-btn" onclick="chaseLaneUp()">⬆️</button>
-            <button class="chase-lane-btn" onclick="chaseLaneDown()">⬇️</button>
+          <div class="chase-lane-row">
+            <button class="chase-lane-btn" onclick="chaseLaneLeft()">⬅️</button>
+            <button class="chase-lane-btn" onclick="chaseLaneRight()">➡️</button>
           </div>
           <button class="chase-accelerate-btn" onclick="chaseAccelerate()">가속! 💨</button>
         </div>
@@ -4990,26 +4991,32 @@
     }, duration * 1000);
   };
 
-  // ---------- 경찰과 도둑 (캔버스 레이싱 추격전) ----------
+  // ---------- 경찰과 도둑 (캔버스 레이싱 추격전 - 세로 추격 시점) ----------
   var CHASE_LANES = 3;
-  var CHASE_W = 320;
-  var CHASE_H = 230;
-  var CHASE_LANE_H = CHASE_H / CHASE_LANES;
-  var CHASE_POLICE_X = 54;
+  var CHASE_W = 300;
+  var CHASE_H = 380;
+  var CHASE_LANE_W = CHASE_W / CHASE_LANES;
+  var CHASE_POLICE_Y = CHASE_H - 66;
+  var CHASE_TOP_Y = 34;
+  var CHASE_CLOSE_Y = CHASE_POLICE_Y - 34;
   var CHASE_GANG_SIZE = 3;
 
   var CHASE_VEHICLES = {
-    car: { emoji: "🚓", label: "경찰차", maxSpeed: 5.5, laneLerp: 10, hitPenalty: 0.5 },
-    bike: { emoji: "🏍️", label: "오토바이", maxSpeed: 6.8, laneLerp: 17, hitPenalty: 0.28 }
+    car: { emoji: "🚓", label: "경찰차", maxSpeed: 6, laneLerp: 10, hitPenalty: 0.5 },
+    bike: { emoji: "🏍️", label: "오토바이", maxSpeed: 7.4, laneLerp: 17, hitPenalty: 0.28 }
   };
 
   var THIEF_KINDS = [
-    { emoji: "🚗💨", speedMul: 1 },
-    { emoji: "🏍️💨", speedMul: 1.25 },
-    { emoji: "🚐💨", speedMul: 0.85 }
+    { emoji: "🚗", speedMul: 1 },
+    { emoji: "🏍️", speedMul: 1.25 },
+    { emoji: "🚐", speedMul: 0.85 }
   ];
 
-  function chaseLaneCenterY(lane) { return CHASE_LANE_H * (lane + 0.5); }
+  function chaseLaneCenterX(lane) { return CHASE_LANE_W * (lane + 0.5); }
+
+  function chaseThiefY(ratio) {
+    return CHASE_TOP_Y + (1 - ratio) * (CHASE_CLOSE_Y - CHASE_TOP_Y);
+  }
 
   function freshChaseState(keepVehicle, keepCaughtCount) {
     return {
@@ -5019,7 +5026,7 @@
       countdownTimerId: null,
       roundTimerId: null,
       lastTs: 0,
-      laneY: chaseLaneCenterY(1),
+      laneX: chaseLaneCenterX(1),
       targetLane: 1,
       speed: 1,
       roadOffset: 0,
@@ -5052,11 +5059,11 @@
     canvas.addEventListener("pointerdown", function (e) {
       if (!policeChaseState.active) { return; }
       var rect = canvas.getBoundingClientRect();
-      var y = (e.clientY - rect.top) * (CHASE_H / rect.height);
-      var lane = Math.max(0, Math.min(CHASE_LANES - 1, Math.floor(y / CHASE_LANE_H)));
+      var x = (e.clientX - rect.left) * (CHASE_W / rect.width);
+      var lane = Math.max(0, Math.min(CHASE_LANES - 1, Math.floor(x / CHASE_LANE_W)));
       policeChaseState.targetLane = lane;
       var maxSpeed = CHASE_VEHICLES[policeChaseState.vehicle].maxSpeed;
-      policeChaseState.speed = Math.min(maxSpeed, policeChaseState.speed + 0.8);
+      policeChaseState.speed = Math.min(maxSpeed, policeChaseState.speed + 0.4);
     });
   }
 
@@ -5159,10 +5166,10 @@
     }
   }
 
-  window.chaseLaneUp = function () {
+  window.chaseLaneLeft = function () {
     policeChaseState.targetLane = Math.max(0, policeChaseState.targetLane - 1);
   };
-  window.chaseLaneDown = function () {
+  window.chaseLaneRight = function () {
     policeChaseState.targetLane = Math.min(CHASE_LANES - 1, policeChaseState.targetLane + 1);
   };
 
@@ -5170,7 +5177,7 @@
     var st = policeChaseState;
     if (!st.active) { return; }
     var maxSpeed = CHASE_VEHICLES[st.vehicle].maxSpeed;
-    st.speed = Math.min(maxSpeed, st.speed + 1.5);
+    st.speed = Math.min(maxSpeed, st.speed + 0.55);
     playEngineRev();
     spawnChaseSpeedLines();
   };
@@ -5187,10 +5194,11 @@
   };
 
   function spawnChaseSpeedLines() {
+    var st = policeChaseState;
     for (var i = 0; i < 5; i++) {
-      policeChaseState.particles.push({
-        x: CHASE_POLICE_X - 10 - Math.random() * 20,
-        y: 10 + Math.random() * (CHASE_H - 20),
+      st.particles.push({
+        x: st.laneX + (Math.random() * 30 - 15),
+        y: CHASE_POLICE_Y + 14 + Math.random() * 20,
         life: 0.4,
         maxLife: 0.4,
         len: 14 + Math.random() * 16
@@ -5202,8 +5210,8 @@
     var st = policeChaseState;
     for (var i = 0; i < 10; i++) {
       st.particles.push({
-        x: CHASE_POLICE_X - 6 - Math.random() * 22,
-        y: st.laneY + (Math.random() * 24 - 12),
+        x: st.laneX + (Math.random() * 24 - 12),
+        y: CHASE_POLICE_Y + 12 + Math.random() * 22,
         life: 0.5, maxLife: 0.5, len: 10 + Math.random() * 10, flame: true
       });
     }
@@ -5212,13 +5220,13 @@
   function spawnChaseObstacle() {
     var lane = Math.floor(Math.random() * CHASE_LANES);
     var kinds = ["🚧", "🛢️", "🚙"];
-    policeChaseState.obstacles.push({ x: CHASE_W + 20, lane: lane, hit: false, emoji: kinds[Math.floor(Math.random() * kinds.length)] });
+    policeChaseState.obstacles.push({ y: -20, lane: lane, hit: false, emoji: kinds[Math.floor(Math.random() * kinds.length)] });
   }
 
   function spawnChaseCoin() {
     var lane = Math.floor(Math.random() * CHASE_LANES);
     var letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-    policeChaseState.coins.push({ x: CHASE_W + 20, lane: lane, letter: letter, taken: false });
+    policeChaseState.coins.push({ y: -20, lane: lane, letter: letter, taken: false });
   }
 
   function chaseLoop(ts) {
@@ -5234,22 +5242,22 @@
     var st = policeChaseState;
     var veh = CHASE_VEHICLES[st.vehicle];
 
-    var targetY = chaseLaneCenterY(st.targetLane);
-    st.laneY += (targetY - st.laneY) * Math.min(1, dt * veh.laneLerp);
+    var targetX = chaseLaneCenterX(st.targetLane);
+    st.laneX += (targetX - st.laneX) * Math.min(1, dt * veh.laneLerp);
 
     st.roadOffset += (30 + (st.speed - 1) * 60) * dt;
 
     for (var pi = st.particles.length - 1; pi >= 0; pi--) {
       st.particles[pi].life -= dt;
-      st.particles[pi].x -= 260 * dt;
+      st.particles[pi].y += 220 * dt;
       if (st.particles[pi].life <= 0) { st.particles.splice(pi, 1); }
     }
 
     if (!st.active) { return; }
 
-    st.speed += (1 - st.speed) * Math.min(1, dt * 1.2);
+    st.speed += (1 - st.speed) * Math.min(1, dt * 0.6);
 
-    var laneNow = Math.round(st.laneY / CHASE_LANE_H - 0.5);
+    var laneNow = Math.round(st.laneX / CHASE_LANE_W - 0.5);
     var activeLanes = st.thieves.map(function (t) { return t.lane; });
     var caughtIdx = [];
     st.thieves.forEach(function (t, idx) {
@@ -5282,14 +5290,14 @@
     }
     for (var oi = st.obstacles.length - 1; oi >= 0; oi--) {
       var ob = st.obstacles[oi];
-      ob.x -= pxPerSec * dt;
-      if (!ob.hit && ob.lane === laneNow && Math.abs(ob.x - CHASE_POLICE_X) < 22) {
+      ob.y += pxPerSec * dt;
+      if (!ob.hit && ob.lane === laneNow && Math.abs(ob.y - CHASE_POLICE_Y) < 22) {
         ob.hit = true;
         handleChaseCollision();
         st.obstacles.splice(oi, 1);
         continue;
       }
-      if (ob.x < -30) { st.obstacles.splice(oi, 1); }
+      if (ob.y > CHASE_H + 30) { st.obstacles.splice(oi, 1); }
     }
 
     st.coinTimer -= dt;
@@ -5299,14 +5307,14 @@
     }
     for (var ci = st.coins.length - 1; ci >= 0; ci--) {
       var coin = st.coins[ci];
-      coin.x -= pxPerSec * dt;
-      if (!coin.taken && coin.lane === laneNow && Math.abs(coin.x - CHASE_POLICE_X) < 22) {
+      coin.y += pxPerSec * dt;
+      if (!coin.taken && coin.lane === laneNow && Math.abs(coin.y - CHASE_POLICE_Y) < 22) {
         coin.taken = true;
         handleChaseCoin(coin.letter);
         st.coins.splice(ci, 1);
         continue;
       }
-      if (coin.x < -30) { st.coins.splice(ci, 1); }
+      if (coin.y > CHASE_H + 30) { st.coins.splice(ci, 1); }
     }
 
     if (st.shakeTime > 0) { st.shakeTime -= dt; }
@@ -5326,7 +5334,7 @@
     st.caughtCount++;
     playDing();
     var kind = THIEF_KINDS[t.kindIdx];
-    showCelebrateMsg("도둑을 잡았어요! " + kind.emoji.replace("💨", "") + "🎉", 1200);
+    showCelebrateMsg("도둑을 잡았어요! " + kind.emoji + "🎉", 1200);
     speakText("도둑을 잡았어요", { cancelFirst: true });
     awardSticker("police");
   }
@@ -5371,15 +5379,15 @@
   function handleChaseCoin(letter) {
     var st = policeChaseState;
     var veh = CHASE_VEHICLES[st.vehicle];
-    st.speed = Math.min(veh.maxSpeed, st.speed + 1.8);
+    st.speed = Math.min(veh.maxSpeed, st.speed + 0.9);
     st.nitro = Math.min(100, st.nitro + 20);
     st.thieves.forEach(function (t) { t.gap = Math.max(0, t.gap - 4); });
     playDing();
     speakText(letter, { cancelFirst: true });
     for (var i = 0; i < 8; i++) {
       st.particles.push({
-        x: CHASE_POLICE_X + Math.random() * 20 - 10,
-        y: st.laneY + Math.random() * 20 - 10,
+        x: st.laneX + Math.random() * 20 - 10,
+        y: CHASE_POLICE_Y + Math.random() * 20 - 10,
         life: 0.5, maxLife: 0.5, len: 6, star: true
       });
     }
@@ -5403,13 +5411,13 @@
 
     ctx.strokeStyle = "rgba(255,255,255,0.75)";
     ctx.lineWidth = 3;
-    ctx.setLineDash([16, 16]);
+    ctx.setLineDash([18, 18]);
     for (var l = 1; l < CHASE_LANES; l++) {
-      var y = CHASE_LANE_H * l;
+      var x = CHASE_LANE_W * l;
       ctx.beginPath();
       ctx.lineDashOffset = -st.roadOffset;
-      ctx.moveTo(0, y);
-      ctx.lineTo(CHASE_W, y);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, CHASE_H);
       ctx.stroke();
     }
     ctx.setLineDash([]);
@@ -5418,22 +5426,22 @@
     ctx.textBaseline = "middle";
 
     st.coins.forEach(function (coin) {
-      var cy = chaseLaneCenterY(coin.lane);
+      var cx = chaseLaneCenterX(coin.lane);
       ctx.beginPath();
       ctx.fillStyle = "#fff6d6";
       ctx.strokeStyle = "#ffca4d";
       ctx.lineWidth = 3;
-      ctx.arc(coin.x, cy, 15, 0, Math.PI * 2);
+      ctx.arc(cx, coin.y, 15, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = "#b8860b";
       ctx.font = "16px sans-serif";
-      ctx.fillText(coin.letter, coin.x, cy + 1);
+      ctx.fillText(coin.letter, cx, coin.y + 1);
     });
 
     ctx.font = "26px sans-serif";
     st.obstacles.forEach(function (ob) {
-      ctx.fillText(ob.emoji, ob.x, chaseLaneCenterY(ob.lane));
+      ctx.fillText(ob.emoji, chaseLaneCenterX(ob.lane), ob.y);
     });
 
     st.particles.forEach(function (p) {
@@ -5451,7 +5459,7 @@
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - p.len, p.y);
+        ctx.lineTo(p.x, p.y - p.len);
         ctx.stroke();
       }
     });
@@ -5459,13 +5467,13 @@
     ctx.font = "28px sans-serif";
     st.thieves.forEach(function (t) {
       var ratio = Math.max(0, Math.min(1, t.gap / t.startGap));
-      var x = CHASE_W - 30 - ratio * (CHASE_W - CHASE_POLICE_X - 70);
+      var y = chaseThiefY(ratio);
       var kind = THIEF_KINDS[t.kindIdx];
-      ctx.fillText(kind.emoji, x, chaseLaneCenterY(t.lane));
+      ctx.fillText(kind.emoji, chaseLaneCenterX(t.lane), y);
     });
 
     ctx.font = "32px sans-serif";
-    ctx.fillText(veh.emoji, CHASE_POLICE_X, st.laneY);
+    ctx.fillText(veh.emoji, st.laneX, CHASE_POLICE_Y);
 
     ctx.restore();
   }
