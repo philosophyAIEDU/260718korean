@@ -230,6 +230,7 @@
   .speak-btn:active { transform: scale(0.94); }
 
   .prompt-letter {
+    position: relative;
     font-size: clamp(64px, 16vw, 110px);
     font-weight: 900;
     color: #ffffff;
@@ -242,6 +243,21 @@
     justify-content: center;
     box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 10px 18px rgba(0,0,0,0.18);
   }
+
+  .prompt-speak-mini {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #ffd97a, #ffb84d);
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.2);
+  }
+  .prompt-speak-mini:active { transform: scale(0.92); }
 
   .prompt-emoji {
     font-size: clamp(70px, 18vw, 120px);
@@ -288,6 +304,37 @@
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-top: 14px solid currentColor;
+  }
+
+  .balloon-face {
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 22px;
+    pointer-events: none;
+  }
+  .balloon-face .eye {
+    width: 10px;
+    height: 10px;
+    background: #2d2d2d;
+    border-radius: 50%;
+    position: relative;
+  }
+  .balloon-face .eye::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 3px;
+    height: 3px;
+    background: #ffffff;
+    border-radius: 50%;
+  }
+  .balloon-label {
+    position: relative;
+    margin-top: 14px;
   }
 
   @keyframes floatUp {
@@ -2679,7 +2726,21 @@
     currentIndex: 0,
     stars: 0,
     questions: [],
-    answered: false
+    answered: false,
+    streak: 0
+  };
+
+  var GAME_THEMES = [
+    { bg: "linear-gradient(to bottom, #7fc8f8 0%, #bfe8ff 45%, #eaf9ff 100%)" },
+    { bg: "linear-gradient(to bottom, #ff9a76 0%, #ffd3a5 45%, #fff3e0 100%)" },
+    { bg: "linear-gradient(to bottom, #4a5a9e 0%, #7b8fd4 45%, #cdd8f5 100%)" },
+    { bg: "linear-gradient(to bottom, #6fcf97 0%, #b8e6c8 45%, #eafff0 100%)" }
+  ];
+
+  var COMBO_MESSAGES = {
+    3: "3연속 정답! 🔥",
+    5: "5연속 정답! 완전 대단해요! 🌟",
+    8: "8연속 정답! 최고예요! 👑"
   };
 
   function shuffle(arr) {
@@ -2866,6 +2927,7 @@
     state.mode = mode;
     state.currentIndex = 0;
     state.stars = 0;
+    state.streak = 0;
     state.questions = generateQuestions(mode);
     updateStarBadge();
     showScreen("game-screen");
@@ -2912,6 +2974,10 @@
     var q = state.questions[state.currentIndex];
     document.getElementById("progress-badge").textContent = (state.currentIndex + 1) + " / " + TOTAL_QUESTIONS;
 
+    var themeIdx = Math.floor(state.currentIndex / 3) % GAME_THEMES.length;
+    var gameScreen = document.getElementById("game-screen");
+    if (gameScreen) { gameScreen.style.background = GAME_THEMES[themeIdx].bg; }
+
     var promptArea = document.getElementById("prompt-area");
     promptArea.innerHTML = "";
 
@@ -2927,6 +2993,12 @@
       var letterBox = document.createElement("div");
       letterBox.className = "prompt-letter";
       letterBox.textContent = q.correctAnswer;
+      var miniSpeak = document.createElement("button");
+      miniSpeak.className = "prompt-speak-mini";
+      miniSpeak.textContent = "🔊";
+      miniSpeak.setAttribute("aria-label", "소리 듣기");
+      miniSpeak.onclick = function (e) { e.stopPropagation(); speakText(q.correctAnswer, { cancelFirst: true }); };
+      letterBox.appendChild(miniSpeak);
       promptArea.appendChild(letterBox);
     } else {
       var emojiBox = document.createElement("div");
@@ -2947,7 +3019,7 @@
     q.options.forEach(function (opt, idx) {
       var balloon = document.createElement("div");
       balloon.className = "balloon";
-      balloon.textContent = opt;
+      balloon.innerHTML = '<div class="balloon-face"><span class="eye"></span><span class="eye"></span></div><span class="balloon-label">' + opt + '</span>';
       balloon.style.color = colors[idx];
       balloon.style.background = "linear-gradient(145deg, " + lightenColor(colors[idx]) + ", " + colors[idx] + ")";
       balloon.style.left = lefts[idx] + "%";
@@ -2977,11 +3049,17 @@
       popBalloon(balloon);
       playDing();
       gainStar();
+      state.streak++;
+      if (COMBO_MESSAGES[state.streak]) {
+        gainStar();
+        showCelebrateMsg(COMBO_MESSAGES[state.streak], 1400);
+      }
       disableAllBalloons();
       setTimeout(function () { speakText(correctAnswer, { cancelFirst: false }); }, 350);
       var nextDelay = ("speechSynthesis" in window) ? (350 + estimateSpeechMs(correctAnswer) + 350) : 900;
       setTimeout(nextQuestion, nextDelay);
     } else {
+      state.streak = 0;
       shakeBalloon(balloon);
       showEncourage();
     }
