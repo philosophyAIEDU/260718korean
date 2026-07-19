@@ -4147,7 +4147,8 @@
     recipe: [],       // [{id, emoji, label, need, have}]
     timeLeft: PIZZA_ROUND_SECONDS,
     timerId: null,
-    active: false
+    active: false,
+    baked: false
   };
 
   window.openPizzaScreen = function () {
@@ -4171,6 +4172,7 @@
     });
     pizzaState.timeLeft = PIZZA_ROUND_SECONDS;
     pizzaState.active = true;
+    pizzaState.baked = false;
     pizzaState.selectedTopping = picks[0];
 
     renderRecipeList();
@@ -4317,13 +4319,14 @@
   }
 
   window.bakePizza = function () {
-    if (pizzaState.active) {
-      var incomplete = pizzaState.recipe.some(function (r) { return r.have < r.need; });
-      if (incomplete) {
-        showBanner("재료가 아직 부족해요! 레시피를 확인해볼까요? 😊", 1600);
-        return;
-      }
+    if (pizzaState.baked) { return; }
+    var incomplete = pizzaState.recipe.some(function (r) { return r.have < r.need; });
+    if (incomplete) {
+      showBanner("재료가 아직 부족해요! 레시피를 확인해볼까요? 😊", 1600);
+      return;
     }
+    pizzaState.baked = true;
+    pizzaState.active = false;
     var overlay = document.getElementById("baking-overlay");
     overlay.classList.add("active");
     setTimeout(function () {
@@ -5925,6 +5928,7 @@
 
   window.driveToHospital = function () {
     if (ambulanceState.step !== 3) { return; }
+    if (ambulanceState.hospitalProgress >= AMBULANCE_CONFIG.hospitalTarget) { return; }
     ambulanceState.hospitalProgress++;
     updateHospitalProgress();
     playDing();
@@ -6218,6 +6222,7 @@
 
   window.landPlane = function () {
     if (airplaneState.step !== 3) { return; }
+    if (airplaneState.landingProgress >= AIRPLANE_CONFIG.landingTarget) { return; }
     airplaneState.landingProgress++;
     updateLandingProgress();
     playDing();
@@ -6666,6 +6671,7 @@
 
   window.prescribeMedicine = function () {
     if (doctorState.step !== 2) { return; }
+    if (doctorState.prescribeProgress >= DOCTOR_CONFIG.prescribeTarget) { return; }
     doctorState.prescribeProgress++;
     updatePrescribeProgress();
     playDing();
@@ -6902,6 +6908,7 @@
   function onCareerMiniFinishTap(cfg) {
     var st = cfg.state;
     if (st.step !== 2) { return; }
+    if (st.progress >= cfg.finishTarget) { return; }
     st.progress++;
     updateCareerMiniProgress(cfg);
     playDing();
