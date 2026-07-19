@@ -1849,6 +1849,7 @@
   .treatment-btn .emoji { font-size: 36px; }
   .treatment-btn .label { font-size: 15px; font-weight: 700; color: #4a5568; }
   .treatment-btn.correct-flash { border: 4px solid #4ecba0; background: #eafff6; }
+  .treatment-btn.used-item { opacity: 0.35; pointer-events: none; }
 
   /* ---------- 보물찾기 ---------- */
   .treasure-grid {
@@ -2257,8 +2258,11 @@
 
     <div class="cart-row-wrap">
       <div class="cart-row" id="cart-row"><span class="cart-empty-hint">목록에 있는 물건을 시간 안에 찾아 담아보세요! 🕐</span></div>
+      <button class="reset-btn" id="mart-cook-btn" onclick="startMartCooking()" style="display:none;">요리하기 🍳</button>
       <button class="reset-btn" id="mart-reset-btn" onclick="startMartRound()">새 목록 🔄</button>
     </div>
+
+    <div class="construction-stage" id="mart-cook-stage" style="display:none;"></div>
   </div>
 
   <!-- ============ 피자 요리사 화면 ============ -->
@@ -3650,6 +3654,7 @@
     { id: "stage3", label: "그림 보고 단어 찾기", emoji: "🖼️" },
     { id: "color", label: "색칠 놀이", emoji: "🎨" },
     { id: "mart", label: "마트 놀이", emoji: "🛒" },
+    { id: "mart_share", label: "요리 나눔", emoji: "🍽️" },
     { id: "pizza", label: "피자 요리사", emoji: "🍕" },
     { id: "unicorn", label: "유니콘 만들기", emoji: "🦄" },
     { id: "construction", label: "공사장 놀이", emoji: "🚧" },
@@ -3993,6 +3998,7 @@
   function switchMartMode(mode) {
     martState.mode = mode;
     highlightMartModeTab(mode);
+    exitMartCookStage(false);
     var listPanel = document.getElementById("mart-list-panel");
     var timerBadge = document.getElementById("mart-timer-badge");
     var resetBtn = document.getElementById("mart-reset-btn");
@@ -4002,6 +4008,7 @@
       timerBadge.style.display = "";
       resetBtn.textContent = "새 목록 🔄";
       resetBtn.onclick = function () { startMartRound(); };
+      document.getElementById("mart-cook-btn").style.display = "none";
       startMartRound();
     } else {
       if (martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; }
@@ -4121,8 +4128,10 @@
 
   function renderFreeCart() {
     var row = document.getElementById("cart-row");
+    var cookBtn = document.getElementById("mart-cook-btn");
     if (!martState.freeCart.length) {
       row.innerHTML = '<span class="cart-empty-hint">마음에 드는 물건을 눌러서 장바구니에 담아보세요! 🛍️</span>';
+      if (cookBtn) { cookBtn.style.display = "none"; }
       return;
     }
     row.innerHTML = "";
@@ -4132,6 +4141,7 @@
       chip.textContent = item.emoji;
       row.appendChild(chip);
     });
+    if (cookBtn) { cookBtn.style.display = ""; }
   }
 
   function clearFreeCart() {
@@ -4172,10 +4182,9 @@
     setTimeout(function () { el.classList.remove("shake-wrong"); }, 400);
   }
 
-  function flyToBadge(emoji, sourceEl, badgeId) {
+  function flyBetween(emoji, sourceEl, destEl) {
     var srcRect = sourceEl.getBoundingClientRect();
-    var badge = document.getElementById(badgeId);
-    var dstRect = badge.getBoundingClientRect();
+    var dstRect = destEl.getBoundingClientRect();
     var fly = document.createElement("div");
     fly.className = "fly-item";
     fly.textContent = emoji;
@@ -4190,14 +4199,177 @@
     setTimeout(function () { fly.remove(); }, 600);
   }
 
+  function flyToBadge(emoji, sourceEl, badgeId) {
+    var badge = document.getElementById(badgeId);
+    if (badge) { flyBetween(emoji, sourceEl, badge); }
+  }
+
   function endMartRound(success) {
     martState.active = false;
     if (martState.timerId) { clearInterval(martState.timerId); martState.timerId = null; }
     if (success) {
       celebrateGameFinish(randomCheer() + " 장보기 성공! 🛒🎉", "mart");
       speakText("장보기 성공했어요", { cancelFirst: true });
+      setTimeout(function () { startMartCookStage(martState.shoppingList); }, 2200);
     } else {
       showBanner("시간이 다 됐어요! 다음엔 더 빨리 찾아볼까요? 😊<br>\"새 목록\" 버튼을 눌러 다시 도전해봐요!", 3200);
+    }
+  }
+
+  // ---------- 마트 요리 & 나눔 ----------
+  var MART_DISHES = [
+    { emoji: "🍚", word: "볶음밥" },
+    { emoji: "🍜", word: "잔치국수" },
+    { emoji: "🥘", word: "된장찌개" },
+    { emoji: "🍲", word: "야채수프" },
+    { emoji: "🥗", word: "샐러드" }
+  ];
+
+  var MART_SHARE_RECIPIENTS = [
+    { emoji: "👩", word: "엄마" },
+    { emoji: "👨", word: "아빠" },
+    { emoji: "🧒", word: "동생" },
+    { emoji: "👦", word: "친구" }
+  ];
+
+  var martCookState = {
+    active: false,
+    items: [],
+    addedCount: 0,
+    dish: null,
+    sharedCount: 0
+  };
+
+  window.startMartCooking = function () {
+    var items = martState.mode === "mission" ? martState.shoppingList : martState.freeCart;
+    startMartCookStage(items);
+  };
+
+  function startMartCookStage(items) {
+    if (!items || !items.length) { return; }
+    martCookState.active = true;
+    martCookState.items = items.map(function (it) { return { emoji: it.emoji, word: it.word, added: false }; });
+    martCookState.addedCount = 0;
+    martCookState.dish = null;
+    martCookState.sharedCount = 0;
+
+    document.getElementById("mart-list-panel").style.display = "none";
+    document.getElementById("mart-tabs").style.display = "none";
+    document.querySelector(".mart-grid-wrap").style.display = "none";
+    document.querySelector(".cart-row-wrap").style.display = "none";
+    document.getElementById("mart-cook-stage").style.display = "";
+    renderMartCookIngredients();
+    showBanner("장 봐온 재료로 요리를 해볼까요? 재료를 눌러 냄비에 넣어보세요! 🍳", 2400);
+    speakText("장 봐온 재료로 요리를 해볼까요", { cancelFirst: true });
+  }
+
+  function renderMartCookIngredients() {
+    var stage = document.getElementById("mart-cook-stage");
+    stage.innerHTML =
+      '<div class="construction-instruction">재료를 냄비에 넣어요! (<span id="mart-cook-count">0</span>/' + martCookState.items.length + ')</div>' +
+      '<div class="patient-symptom" id="mart-pot">🍲</div>' +
+      '<div class="treatment-grid" id="mart-cook-row"></div>';
+    var row = document.getElementById("mart-cook-row");
+    martCookState.items.forEach(function (it, idx) {
+      var btn = document.createElement("button");
+      btn.className = "treatment-btn";
+      btn.innerHTML = '<span class="emoji">' + it.emoji + '</span><span class="label">' + it.word + '</span>';
+      btn.onclick = function () { onMartCookItemClick(idx, btn); };
+      row.appendChild(btn);
+    });
+  }
+
+  function onMartCookItemClick(idx, btnEl) {
+    var it = martCookState.items[idx];
+    if (!it || it.added) { return; }
+    it.added = true;
+    martCookState.addedCount++;
+    btnEl.classList.add("used-item");
+    playDing();
+    speakText(it.word, { cancelFirst: true });
+    var pot = document.getElementById("mart-pot");
+    if (pot) { flyBetween(it.emoji, btnEl, pot); }
+    var countEl = document.getElementById("mart-cook-count");
+    if (countEl) { countEl.textContent = martCookState.addedCount; }
+    if (martCookState.addedCount >= martCookState.items.length) {
+      setTimeout(finishMartCooking, 900);
+    }
+  }
+
+  function finishMartCooking() {
+    var dish = MART_DISHES[Math.floor(Math.random() * MART_DISHES.length)];
+    martCookState.dish = dish;
+    playDing();
+    showCelebrateMsg(randomCheer() + " " + dish.emoji + " " + dish.word + "이(가) 완성됐어요!", 2200);
+    speakText(dish.word + "이 완성됐어요", { cancelFirst: true });
+    setTimeout(startMartShareStage, 2200);
+  }
+
+  function startMartShareStage() {
+    var stage = document.getElementById("mart-cook-stage");
+    var dish = martCookState.dish;
+    stage.innerHTML =
+      '<div class="construction-instruction">' + dish.emoji + ' ' + dish.word + '을(를) 가족과 친구에게 나눠줘요! (<span id="mart-share-count">0</span>/' + MART_SHARE_RECIPIENTS.length + ')</div>' +
+      '<div class="patient-symptom" id="mart-dish">' + dish.emoji + '</div>' +
+      '<div class="treatment-grid" id="mart-share-row"></div>';
+    var row = document.getElementById("mart-share-row");
+    MART_SHARE_RECIPIENTS.forEach(function (r, idx) {
+      var btn = document.createElement("button");
+      btn.className = "treatment-btn";
+      btn.innerHTML = '<span class="emoji">' + r.emoji + '</span><span class="label">' + r.word + '</span>';
+      btn.onclick = function () { onMartShareClick(idx, btn); };
+      row.appendChild(btn);
+    });
+    speakText("누구에게 나눠줄까요", { cancelFirst: true });
+  }
+
+  function onMartShareClick(idx, btnEl) {
+    if (btnEl.classList.contains("used-item")) { return; }
+    var r = MART_SHARE_RECIPIENTS[idx];
+    btnEl.classList.add("used-item");
+    martCookState.sharedCount++;
+    playDing();
+    speakText(r.word, { cancelFirst: true });
+    var dishEl = document.getElementById("mart-dish");
+    if (dishEl) { flyBetween(martCookState.dish.emoji, dishEl, btnEl); }
+    var countEl = document.getElementById("mart-share-count");
+    if (countEl) { countEl.textContent = martCookState.sharedCount; }
+    if (martCookState.sharedCount >= MART_SHARE_RECIPIENTS.length) {
+      setTimeout(finishMartSharing, 700);
+    }
+  }
+
+  function finishMartSharing() {
+    martCookState.active = false;
+    celebrateGameFinish(randomCheer() + " 가족과 친구들에게 맛있는 " + martCookState.dish.word + "을(를) 나눠줬어요! 😊🍽️", "mart_share");
+    speakText("가족과 친구들에게 맛있는 음식을 나눠줬어요", { cancelFirst: true });
+    var stage = document.getElementById("mart-cook-stage");
+    var btn = document.createElement("button");
+    btn.className = "reset-btn";
+    btn.textContent = "다시 장보기 🛒";
+    btn.style.marginTop = "10px";
+    btn.onclick = function () { exitMartCookStage(true); };
+    stage.appendChild(btn);
+  }
+
+  function exitMartCookStage(restart) {
+    martCookState.active = false;
+    var stage = document.getElementById("mart-cook-stage");
+    if (stage) { stage.style.display = "none"; }
+    var gridWrap = document.querySelector(".mart-grid-wrap");
+    var cartWrap = document.querySelector(".cart-row-wrap");
+    if (gridWrap) { gridWrap.style.display = ""; }
+    if (cartWrap) { cartWrap.style.display = ""; }
+    document.getElementById("mart-tabs").style.display = "";
+    if (martState.mode === "mission") {
+      document.getElementById("mart-list-panel").style.display = "";
+    }
+    if (restart) {
+      if (martState.mode === "mission") {
+        startMartRound();
+      } else {
+        clearFreeCart();
+      }
     }
   }
 
