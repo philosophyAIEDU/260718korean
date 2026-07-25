@@ -152,6 +152,7 @@
   .mode-btn.m16 { background: linear-gradient(145deg, #b39ddb, #7e57c2); }
   .mode-btn.m17 { background: linear-gradient(145deg, #81c784, #43a047); }
   .mode-btn.m18 { background: linear-gradient(145deg, #ffb74d, #f57c00); }
+  .mode-btn.m19 { background: linear-gradient(145deg, #a1887f, #6d4c41); }
 
   .mode-desc {
     margin-top: 8px;
@@ -2080,6 +2081,91 @@
   }
   .career-card .emoji { font-size: 46px; }
   .career-card .label { font-size: 18px; font-weight: 900; color: #4a5568; }
+
+  /* ---------- 한글 블록 쌓기 ---------- */
+  .hblock-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: min(92vw, 340px);
+  }
+  .hblock-target-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffffcc;
+    border-radius: 18px;
+    padding: 6px 16px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  }
+  .hblock-target-emoji { font-size: 30px; }
+  .hblock-target-word {
+    font-size: 26px;
+    font-weight: 900;
+    color: #4a5568;
+    letter-spacing: 2px;
+  }
+  .hblock-target-word .done { color: #4ecba0; }
+  .hblock-target-word .next { color: #ff6b81; text-decoration: underline; }
+
+  .hblock-balance-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    font-size: 16px;
+  }
+  .hblock-balance-bar {
+    position: relative;
+    flex: 1;
+    height: 16px;
+    background: linear-gradient(90deg, #ff8a8a 0%, #ffe08a 28%, #8fe0b8 50%, #ffe08a 72%, #ff8a8a 100%);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .hblock-balance-needle {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 6px;
+    height: 24px;
+    border-radius: 3px;
+    background: #33404f;
+    transform: translateX(-50%);
+    transition: left 0.12s ease;
+  }
+  .hblock-canvas-wrap {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  }
+  #hblock-canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    touch-action: none;
+  }
+  .hblock-letter-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hblock-letter-btn {
+    width: 62px;
+    height: 62px;
+    border: 4px solid #ffffff;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #fff3c4, #ffd97a);
+    font-size: 30px;
+    font-weight: 900;
+    color: #6b4b12;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.18);
+  }
+  .hblock-letter-btn:active { transform: translateY(3px); }
+  .hblock-letter-btn.picked { border-color: #4a6cf7; background: linear-gradient(145deg, #dce6ff, #a9c0ff); }
 </style>
 </head>
 <body>
@@ -2166,6 +2252,10 @@
       <div class="menu-item">
         <button class="mode-btn m18" onclick="openCareerScreen()">직업체험 🎭</button>
         <div class="mode-desc">경찰, 소방관, 구급대원, 공사장 인부, 의사가 되어봐요</div>
+      </div>
+      <div class="menu-item">
+        <button class="mode-btn m19" onclick="openHangeulBlockScreen()">한글 블록 쌓기 🧱</button>
+        <div class="mode-desc">글자 블록을 균형 맞춰 쌓으며 단어를 만들어요</div>
       </div>
     </div>
   </div>
@@ -2528,6 +2618,36 @@
     <div class="construction-stage">
       <div class="construction-instruction">오늘은 어떤 직업이 되어볼까요?</div>
       <div class="career-grid" id="career-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ 한글 블록 쌓기 화면 ============ -->
+  <div id="hangeul-block-screen" class="screen">
+    <div class="color-topbar">
+      <button class="home-btn" onclick="goHome()">🏠</button>
+      <div class="color-title">한글 블록 쌓기 🧱</div>
+      <div class="cart-badge" id="hblock-word-badge">🏆 0</div>
+    </div>
+    <div class="construction-stage">
+      <div class="hblock-wrap">
+        <div class="hblock-target-row">
+          <span class="speak-mini" id="hblock-speak">🔊</span>
+          <span class="hblock-target-emoji" id="hblock-emoji">🦋</span>
+          <span class="hblock-target-word" id="hblock-word"></span>
+        </div>
+        <div class="hblock-balance-row">
+          <span>⚖️</span>
+          <div class="hblock-balance-bar"><div class="hblock-balance-needle" id="hblock-needle"></div></div>
+        </div>
+        <div class="hblock-canvas-wrap">
+          <canvas id="hblock-canvas" width="300" height="400"></canvas>
+        </div>
+        <div class="hblock-letter-row" id="hblock-letters"></div>
+        <button class="chase-accelerate-btn" id="hblock-drop-btn" onclick="dropHangeulBlock()" disabled>놓기! ⬇️</button>
+      </div>
+    </div>
+    <div class="construction-controls">
+      <button class="reset-btn" onclick="startHangeulBlockGame()">처음부터 다시</button>
     </div>
   </div>
 
@@ -2950,6 +3070,10 @@
       if (topState.spinTimerId) { clearTimeout(topState.spinTimerId); topState.spinTimerId = null; }
       if (topState.letterTimerId) { clearInterval(topState.letterTimerId); topState.letterTimerId = null; }
       topState.spinning = false;
+    }
+    if (typeof hblockState !== "undefined" && hblockState.rafId) {
+      cancelAnimationFrame(hblockState.rafId);
+      hblockState.rafId = null;
     }
     if (typeof policeChaseState !== "undefined") {
       if (policeChaseState.rafId) { cancelAnimationFrame(policeChaseState.rafId); policeChaseState.rafId = null; }
@@ -3808,7 +3932,8 @@
     { id: "airplane", label: "비행기 놀이", emoji: "✈️" },
     { id: "english", label: "영어 학습", emoji: "🔤" },
     { id: "math", label: "숫자 놀이", emoji: "➕" },
-    { id: "doctor", label: "의사 놀이", emoji: "🩺" }
+    { id: "doctor", label: "의사 놀이", emoji: "🩺" },
+    { id: "hblock", label: "한글 블록 쌓기", emoji: "🧱" }
   ];
 
   var STICKER_STORAGE_KEY = "malrang_hangul_stickers_v1";
@@ -7352,6 +7477,398 @@
   window.openCjobTeacherScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-teacher-screen"); startCareerMiniGame("cteacher"); };
   window.openCjobMailmanScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-mailman-screen"); startCareerMiniGame("cmailman"); };
   window.openCjobHairScreen = function () { if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); } showScreen("cjob-hair-screen"); startCareerMiniGame("chair"); };
+
+  // ---------- 한글 블록 쌓기 ----------
+  var HB_W = 300;
+  var HB_H = 400;
+  var HB_BLOCK_W = 60;
+  var HB_BLOCK_H = 50;
+  var HB_GROUND_Y = HB_H - 46;
+  var HB_BASE_W = 118;
+  var HB_CENTER_X = 150;
+  var HB_MAX_OFFSET = 30;      // 이보다 무게중심이 치우치면 무너져요
+  var HB_MIN_OVERLAP = 0.42;   // 아래 블록과 겹쳐야 하는 최소 비율
+  var HB_TOP_MARGIN = 96;      // 탑이 높아지면 화면을 내려서 보여줘요
+  var HB_WORDS_FOR_STICKER = 3;
+
+  var HB_BLOCK_COLORS = ["#ffb4a2", "#ffd97a", "#a8e6a3", "#9fd3ff", "#c7b3ff", "#ffc0e0"];
+
+  var HB_WORDS = WORD_PAIRS.filter(function (p) {
+    var n = Array.from(p.word).length;
+    return n >= 2 && n <= 3;
+  });
+
+  var HB_SYLLABLES = (function () {
+    var seen = {};
+    var out = [];
+    HB_WORDS.forEach(function (p) {
+      Array.from(p.word).forEach(function (ch) {
+        if (!seen[ch]) { seen[ch] = true; out.push(ch); }
+      });
+    });
+    return out;
+  })();
+
+  function freshHblockState() {
+    return {
+      active: false,
+      rafId: null,
+      lastTs: 0,
+      blocks: [],
+      moving: null,
+      tilt: 0,
+      tiltTarget: 0,
+      wobble: 0,
+      camY: 0,
+      word: null,
+      letterIdx: 0,
+      wordsDone: 0,
+      collapsing: false,
+      fallers: [],
+      awaitingPick: true
+    };
+  }
+
+  var hblockState = freshHblockState();
+
+  window.openHangeulBlockScreen = function () {
+    if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); }
+    showScreen("hangeul-block-screen");
+    var speak = document.getElementById("hblock-speak");
+    if (speak && !speak.dataset.wired) {
+      speak.onclick = function () {
+        if (hblockState.word) { speakText(hblockState.word.word, { cancelFirst: true }); }
+      };
+      speak.dataset.wired = "1";
+    }
+    startHangeulBlockGame();
+  };
+
+  window.startHangeulBlockGame = function () {
+    stopHblockLoop();
+    hblockState = freshHblockState();
+    pickHblockWord();
+    updateHblockBadges();
+    renderHblockLetterChoices();
+    showBanner("글자 블록을 균형 맞춰 쌓아서 단어를 만들어요! 🧱", 2400);
+    hblockState.lastTs = performance.now();
+    hblockState.rafId = requestAnimationFrame(hblockLoop);
+  };
+
+  function stopHblockLoop() {
+    if (hblockState.rafId) { cancelAnimationFrame(hblockState.rafId); hblockState.rafId = null; }
+  }
+
+  function pickHblockWord() {
+    var st = hblockState;
+    var pool = HB_WORDS.filter(function (p) { return !st.word || p.word !== st.word.word; });
+    st.word = pool[Math.floor(Math.random() * pool.length)];
+    st.letterIdx = 0;
+    renderHblockWordLabel();
+    speakText(st.word.word, { cancelFirst: true });
+  }
+
+  function renderHblockWordLabel() {
+    var st = hblockState;
+    var emojiEl = document.getElementById("hblock-emoji");
+    var wordEl = document.getElementById("hblock-word");
+    if (!st.word || !wordEl) { return; }
+    if (emojiEl) { emojiEl.textContent = st.word.emoji; }
+    var chars = Array.from(st.word.word);
+    wordEl.innerHTML = chars.map(function (ch, i) {
+      if (i < st.letterIdx) { return '<span class="done">' + ch + '</span>'; }
+      if (i === st.letterIdx) { return '<span class="next">' + ch + '</span>'; }
+      return '<span>' + ch + '</span>';
+    }).join("");
+  }
+
+  function updateHblockBadges() {
+    var badge = document.getElementById("hblock-word-badge");
+    if (badge) { badge.textContent = "🏆 " + hblockState.wordsDone; }
+    var needle = document.getElementById("hblock-needle");
+    if (needle) {
+      var ratio = Math.max(-1, Math.min(1, hblockOffset() / HB_MAX_OFFSET));
+      needle.style.left = (50 + ratio * 50) + "%";
+    }
+  }
+
+  function hblockOffset() {
+    var st = hblockState;
+    if (!st.blocks.length) { return 0; }
+    var sum = 0;
+    st.blocks.forEach(function (b) { sum += b.x; });
+    return (sum / st.blocks.length) - HB_CENTER_X;
+  }
+
+  function renderHblockLetterChoices() {
+    var st = hblockState;
+    var row = document.getElementById("hblock-letters");
+    if (!row || !st.word) { return; }
+    row.innerHTML = "";
+    st.awaitingPick = true;
+    var dropBtn = document.getElementById("hblock-drop-btn");
+    if (dropBtn) { dropBtn.disabled = true; }
+
+    var correct = Array.from(st.word.word)[st.letterIdx];
+    var pool = HB_SYLLABLES.filter(function (ch) { return ch !== correct; });
+    var options = shuffle([correct].concat(shuffle(pool).slice(0, 2)));
+
+    options.forEach(function (ch) {
+      var btn = document.createElement("button");
+      btn.className = "hblock-letter-btn";
+      btn.textContent = ch;
+      btn.onclick = function () { onHblockLetterPick(ch, btn, correct); };
+      row.appendChild(btn);
+    });
+  }
+
+  function onHblockLetterPick(ch, btnEl, correct) {
+    var st = hblockState;
+    if (!st.awaitingPick || st.collapsing) { return; }
+    if (ch !== correct) {
+      btnEl.classList.remove("shake-wrong");
+      void btnEl.offsetWidth;
+      btnEl.classList.add("shake-wrong");
+      speakText(ch, { cancelFirst: true });
+      showBanner("그 글자가 아니에요! 다시 골라볼까요? 😊", 1500);
+      return;
+    }
+    st.awaitingPick = false;
+    btnEl.classList.add("picked");
+    document.querySelectorAll("#hblock-letters .hblock-letter-btn").forEach(function (b) { b.style.pointerEvents = "none"; });
+    playDing();
+    speakText(ch, { cancelFirst: true });
+    var speed = 62 + st.blocks.length * 5 + st.wordsDone * 8;
+    st.moving = { letter: ch, x: HB_CENTER_X, dir: Math.random() < 0.5 ? -1 : 1, speed: Math.min(150, speed) };
+    var dropBtn = document.getElementById("hblock-drop-btn");
+    if (dropBtn) { dropBtn.disabled = false; }
+  }
+
+  function hblockTowerTopY() {
+    return HB_GROUND_Y - hblockState.blocks.length * HB_BLOCK_H;
+  }
+
+  function hblockMovingY() {
+    return hblockTowerTopY() - HB_BLOCK_H - 22;
+  }
+
+  window.dropHangeulBlock = function () {
+    var st = hblockState;
+    if (!st.moving || st.collapsing) { return; }
+    var dropBtn = document.getElementById("hblock-drop-btn");
+    if (dropBtn) { dropBtn.disabled = true; }
+
+    var x = st.moving.x;
+    var letter = st.moving.letter;
+    st.moving = null;
+
+    // 아래 블록과 충분히 겹쳤는지 확인해요
+    var belowX = st.blocks.length ? st.blocks[st.blocks.length - 1].x : HB_CENTER_X;
+    var belowW = st.blocks.length ? HB_BLOCK_W : HB_BASE_W;
+    var overlap = (HB_BLOCK_W + belowW) / 2 - Math.abs(x - belowX);
+    if (overlap < HB_BLOCK_W * HB_MIN_OVERLAP) {
+      playThud();
+      st.fallers.push({ x: x, y: hblockTowerTopY(), letter: letter, vx: (x - belowX) > 0 ? 90 : -90, vy: -40, rot: 0, vr: (x - belowX) > 0 ? 5 : -5, color: HB_BLOCK_COLORS[st.blocks.length % HB_BLOCK_COLORS.length] });
+      showBanner("블록이 미끄러졌어요! 조금 더 가운데에 놓아볼까요? 😊", 1800);
+      renderHblockLetterChoices();
+      return;
+    }
+
+    st.blocks.push({ x: x, letter: letter, color: HB_BLOCK_COLORS[st.blocks.length % HB_BLOCK_COLORS.length] });
+    playDing();
+    st.wobble = 1;
+    st.tiltTarget = Math.max(-14, Math.min(14, hblockOffset() * 0.42));
+    updateHblockBadges();
+
+    if (Math.abs(hblockOffset()) > HB_MAX_OFFSET) {
+      startHblockCollapse();
+      return;
+    }
+
+    st.letterIdx++;
+    renderHblockWordLabel();
+
+    if (st.letterIdx >= Array.from(st.word.word).length) {
+      onHblockWordComplete();
+    } else {
+      renderHblockLetterChoices();
+    }
+  };
+
+  function onHblockWordComplete() {
+    var st = hblockState;
+    st.wordsDone++;
+    updateHblockBadges();
+    var finished = st.word.word;
+    showCelebrateMsg('"' + finished + '" 완성! ' + st.word.emoji + " 🎉", 1800);
+    speakText(finished + " 완성", { cancelFirst: true });
+    if (st.wordsDone === HB_WORDS_FOR_STICKER) {
+      celebrateGameFinish(randomCheer() + " 한글 블록 탑을 멋지게 쌓았어요! 🧱🎉", "hblock");
+    }
+    setTimeout(function () {
+      if (!hblockState.rafId) { return; }
+      pickHblockWord();
+      renderHblockLetterChoices();
+      showBanner("다음 단어를 탑 위에 계속 쌓아볼까요? 🧱", 1800);
+    }, 1900);
+  }
+
+  function startHblockCollapse() {
+    var st = hblockState;
+    st.collapsing = true;
+    playThud();
+    var dir = hblockOffset() > 0 ? 1 : -1;
+    st.blocks.forEach(function (b, i) {
+      st.fallers.push({
+        x: b.x, y: HB_GROUND_Y - (i + 1) * HB_BLOCK_H, letter: b.letter, color: b.color,
+        vx: dir * (40 + i * 18 + Math.random() * 30),
+        vy: -60 - i * 12,
+        rot: 0, vr: dir * (3 + Math.random() * 4)
+      });
+    });
+    st.blocks = [];
+    st.tilt = 0;
+    st.tiltTarget = 0;
+    st.letterIdx = 0;
+    renderHblockWordLabel();
+    updateHblockBadges();
+    showBanner("탑이 기우뚱! 다시 가운데부터 차근차근 쌓아볼까요? 😊", 2600);
+    setTimeout(function () {
+      hblockState.collapsing = false;
+      if (hblockState.rafId) { renderHblockLetterChoices(); }
+    }, 1500);
+  }
+
+  function hblockLoop(ts) {
+    var st = hblockState;
+    var dt = Math.min(0.05, (ts - st.lastTs) / 1000 || 0);
+    st.lastTs = ts;
+    updateHblock(dt);
+    drawHblock();
+    st.rafId = requestAnimationFrame(hblockLoop);
+  }
+
+  function updateHblock(dt) {
+    var st = hblockState;
+
+    if (st.moving) {
+      st.moving.x += st.moving.dir * st.moving.speed * dt;
+      var half = HB_BLOCK_W / 2;
+      if (st.moving.x < half + 6) { st.moving.x = half + 6; st.moving.dir = 1; }
+      if (st.moving.x > HB_W - half - 6) { st.moving.x = HB_W - half - 6; st.moving.dir = -1; }
+    }
+
+    st.tilt += (st.tiltTarget - st.tilt) * Math.min(1, dt * 7);
+    if (st.wobble > 0) {
+      st.wobble = Math.max(0, st.wobble - dt * 2.2);
+    }
+
+    for (var i = st.fallers.length - 1; i >= 0; i--) {
+      var f = st.fallers[i];
+      f.vy += 520 * dt;
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      f.rot += f.vr * dt;
+      if (f.y > HB_H + 90) { st.fallers.splice(i, 1); }
+    }
+
+    var topY = hblockTowerTopY();
+    var wantCam = Math.max(0, HB_TOP_MARGIN - (topY - HB_BLOCK_H - 30));
+    st.camY += (wantCam - st.camY) * Math.min(1, dt * 4);
+  }
+
+  function hblockRoundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function drawHblockBlock(ctx, cx, topY, letter, color) {
+    var x = cx - HB_BLOCK_W / 2;
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#33404f";
+    ctx.lineWidth = 3;
+    hblockRoundRect(ctx, x, topY, HB_BLOCK_W, HB_BLOCK_H, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#33404f";
+    ctx.font = "900 30px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(letter, cx, topY + HB_BLOCK_H / 2 + 1);
+    ctx.restore();
+  }
+
+  function drawHblock() {
+    var canvas = document.getElementById("hblock-canvas");
+    if (!canvas) { return; }
+    var ctx = canvas.getContext("2d");
+    var st = hblockState;
+
+    var grad = ctx.createLinearGradient(0, 0, 0, HB_H);
+    grad.addColorStop(0, "#bfe8ff");
+    grad.addColorStop(1, "#eaf9ff");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, HB_W, HB_H);
+
+    ctx.save();
+    ctx.translate(0, st.camY);
+
+    ctx.fillStyle = "#8bc98b";
+    ctx.fillRect(0, HB_GROUND_Y, HB_W, HB_H + 260);
+
+    ctx.fillStyle = "#b07a4a";
+    ctx.strokeStyle = "#33404f";
+    ctx.lineWidth = 3;
+    hblockRoundRect(ctx, HB_CENTER_X - HB_BASE_W / 2, HB_GROUND_Y - 16, HB_BASE_W, 16, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.save();
+    var wobbleDeg = st.wobble > 0 ? Math.sin(performance.now() / 55) * st.wobble * 1.6 : 0;
+    ctx.translate(HB_CENTER_X, HB_GROUND_Y - 16);
+    ctx.rotate((st.tilt + wobbleDeg) * Math.PI / 180);
+    ctx.translate(-HB_CENTER_X, -(HB_GROUND_Y - 16));
+    st.blocks.forEach(function (b, i) {
+      drawHblockBlock(ctx, b.x, HB_GROUND_Y - 16 - (i + 1) * HB_BLOCK_H, b.letter, b.color);
+    });
+    ctx.restore();
+
+    if (st.moving) {
+      var my = hblockMovingY();
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.strokeStyle = "#33404f";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.beginPath();
+      ctx.moveTo(st.moving.x, my + HB_BLOCK_H);
+      ctx.lineTo(st.moving.x, hblockTowerTopY() - 16);
+      ctx.stroke();
+      ctx.restore();
+      drawHblockBlock(ctx, st.moving.x, my, st.moving.letter, "#ffffff");
+    }
+
+    st.fallers.forEach(function (f) {
+      ctx.save();
+      ctx.translate(f.x, f.y + HB_BLOCK_H / 2);
+      ctx.rotate(f.rot);
+      ctx.translate(-f.x, -(f.y + HB_BLOCK_H / 2));
+      drawHblockBlock(ctx, f.x, f.y, f.letter, f.color);
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
 })();
 </script>
 </body>
