@@ -3344,30 +3344,171 @@
       id: "sunflower",
       label: "해바라기",
       category: "flower",
-      svg: '<svg viewBox="0 0 300 300">' +
-        '<path class="fill-region" data-region="leafL" d="M140,230 C110,225 95,245 100,265 C120,262 138,248 140,230 Z"/>' +
-        '<path class="fill-region" data-region="leafR" d="M160,250 C190,245 205,265 200,285 C180,282 162,268 160,250 Z"/>' +
-        '<rect class="fill-region" data-region="stem" x="143" y="182" width="14" height="115" rx="6"/>' +
-        '<ellipse class="fill-region" data-region="petal0" cx="150" cy="72" rx="17" ry="44" transform="rotate(0 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal1" cx="150" cy="72" rx="17" ry="44" transform="rotate(45 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal2" cx="150" cy="72" rx="17" ry="44" transform="rotate(90 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal3" cx="150" cy="72" rx="17" ry="44" transform="rotate(135 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal4" cx="150" cy="72" rx="17" ry="44" transform="rotate(180 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal5" cx="150" cy="72" rx="17" ry="44" transform="rotate(225 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal6" cx="150" cy="72" rx="17" ry="44" transform="rotate(270 150 140)"/>' +
-        '<ellipse class="fill-region" data-region="petal7" cx="150" cy="72" rx="17" ry="44" transform="rotate(315 150 140)"/>' +
-        '<circle class="fill-region" data-region="center" cx="150" cy="140" r="42"/>' +
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M144,180 C141,215 145,255 148,304 L162,304 C159,255 156,215 158,180 Z"/>' +
+        '<path class="fill-region" data-region="leafL" d="M146,232 C120,210 86,216 76,244 C90,270 126,272 146,246 Z"/>' +
+        '<path class="deco" d="M142,239 C124,236 104,238 88,250"/>' +
+        '<path class="fill-region" data-region="leafR" d="M158,264 C184,242 218,248 228,276 C214,302 178,304 158,278 Z"/>' +
+        '<path class="deco" d="M162,271 C180,268 200,270 216,282"/>' +
+        '<g>' +
+        '<path class="fill-region" data-region="bp0" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(22.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp1" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(67.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp2" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(112.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp3" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(157.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp4" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(202.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp5" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(247.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp6" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(292.5 150 150)"/>' +
+        '<path class="fill-region" data-region="bp7" d="M150,148 C130,124 122,96 150,64 C178,96 170,124 150,148 Z" transform="rotate(337.5 150 150)"/>' +
+        '</g>' +
+        '<g>' +
+        '<path class="fill-region" data-region="p0" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(0 150 150)"/>' +
+        '<path class="fill-region" data-region="p1" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(45 150 150)"/>' +
+        '<path class="fill-region" data-region="p2" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(90 150 150)"/>' +
+        '<path class="fill-region" data-region="p3" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(135 150 150)"/>' +
+        '<path class="fill-region" data-region="p4" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(180 150 150)"/>' +
+        '<path class="fill-region" data-region="p5" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(225 150 150)"/>' +
+        '<path class="fill-region" data-region="p6" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(270 150 150)"/>' +
+        '<path class="fill-region" data-region="p7" d="M150,148 C132,120 126,84 150,44 C174,84 168,120 150,148 Z" transform="rotate(315 150 150)"/>' +
+        '</g>' +
+        '<circle class="fill-region" data-region="center" cx="150" cy="150" r="42"/>' +
+        '<circle class="fixed-dark" cx="150" cy="132" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="134" cy="144" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="166" cy="144" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="140" cy="163" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="160" cy="163" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="150" cy="150" r="3.5"/>' +
         '</svg>'
     },
     {
       id: "tulip",
       label: "튤립",
       category: "flower",
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M144,168 C142,210 146,258 148,306 L162,306 C160,258 156,210 158,168 Z"/>' +
+        '<path class="fill-region" data-region="leafL" d="M146,226 C116,196 88,212 80,252 C98,284 132,274 146,246 Z"/>' +
+        '<path class="deco" d="M140,236 C120,238 100,250 90,266"/>' +
+        '<path class="fill-region" data-region="leafR" d="M158,262 C188,234 218,250 226,290 C208,318 174,306 158,282 Z"/>' +
+        '<path class="deco" d="M164,272 C184,274 204,286 214,302"/>' +
+        '<path class="fill-region" data-region="petalL" d="M150,180 C124,174 104,150 102,118 C101,96 116,82 130,96 C138,104 142,124 144,148 C145,164 147,174 150,180 Z"/>' +
+        '<path class="fill-region" data-region="petalR" d="M150,180 C176,174 196,150 198,118 C199,96 184,82 170,96 C162,104 158,124 156,148 C155,164 153,174 150,180 Z"/>' +
+        '<path class="fill-region" data-region="petalC" d="M150,182 C136,170 129,142 130,112 C131,86 140,66 150,56 C160,66 169,86 170,112 C171,142 164,170 150,182 Z"/>' +
+        '</svg>'
+    },
+    {
+      id: "rose",
+      label: "장미",
+      category: "flower",
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M144,178 C142,216 146,260 148,306 L162,306 C160,260 156,216 158,178 Z"/>' +
+        '<path class="fill-region" data-region="leafL" d="M146,230 C122,208 90,214 80,242 C94,268 128,270 146,244 Z"/>' +
+        '<path class="deco" d="M142,237 C124,234 104,238 88,248"/>' +
+        '<path class="fill-region" data-region="leafR" d="M158,262 C182,240 214,246 224,274 C210,300 176,302 158,276 Z"/>' +
+        '<path class="deco" d="M162,269 C180,266 200,270 216,280"/>' +
+        '<g>' +
+        '<path class="fill-region" data-region="op0" d="M150,142 C122,138 100,116 104,90 C107,68 132,62 150,82 C168,62 193,68 196,90 C200,116 178,138 150,142 Z" transform="rotate(0 150 142)"/>' +
+        '<path class="fill-region" data-region="op1" d="M150,142 C122,138 100,116 104,90 C107,68 132,62 150,82 C168,62 193,68 196,90 C200,116 178,138 150,142 Z" transform="rotate(72 150 142)"/>' +
+        '<path class="fill-region" data-region="op2" d="M150,142 C122,138 100,116 104,90 C107,68 132,62 150,82 C168,62 193,68 196,90 C200,116 178,138 150,142 Z" transform="rotate(144 150 142)"/>' +
+        '<path class="fill-region" data-region="op3" d="M150,142 C122,138 100,116 104,90 C107,68 132,62 150,82 C168,62 193,68 196,90 C200,116 178,138 150,142 Z" transform="rotate(216 150 142)"/>' +
+        '<path class="fill-region" data-region="op4" d="M150,142 C122,138 100,116 104,90 C107,68 132,62 150,82 C168,62 193,68 196,90 C200,116 178,138 150,142 Z" transform="rotate(288 150 142)"/>' +
+        '</g>' +
+        '<circle class="fill-region" data-region="core" cx="150" cy="142" r="38"/>' +
+        '<path class="deco" d="M150,124 C161,124 168,133 165,143 C162,154 148,157 140,149 C131,140 136,125 149,121 C165,116 179,131 176,148"/>' +
+        '</svg>'
+    },
+    {
+      id: "cherryblossom",
+      label: "벚꽃",
+      category: "flower",
       svg: '<svg viewBox="0 0 300 300">' +
-        '<path class="fill-region" data-region="leafL" d="M140,230 C110,225 95,245 100,265 C120,262 138,248 140,230 Z"/>' +
-        '<path class="fill-region" data-region="leafR" d="M160,250 C190,245 205,265 200,285 C180,282 162,268 160,250 Z"/>' +
-        '<rect class="fill-region" data-region="stem" x="143" y="175" width="14" height="122" rx="6"/>' +
-        '<path class="fill-region" data-region="flower" d="M150,60 C132,60 122,78 127,98 C112,93 97,103 97,120 C97,138 115,148 130,145 C121,158 120,170 130,176 L170,176 C180,170 179,158 170,145 C185,148 203,138 203,120 C203,103 188,93 173,98 C178,78 168,60 150,60 Z"/>' +
+        '<g>' +
+        '<path class="fill-region" data-region="cp0" d="M150,150 C122,144 100,120 104,94 C107,74 128,64 141,78 C146,83 149,90 150,98 C151,90 154,83 159,78 C172,64 193,74 196,94 C200,120 178,144 150,150 Z" transform="rotate(0 150 150)"/>' +
+        '<path class="fill-region" data-region="cp1" d="M150,150 C122,144 100,120 104,94 C107,74 128,64 141,78 C146,83 149,90 150,98 C151,90 154,83 159,78 C172,64 193,74 196,94 C200,120 178,144 150,150 Z" transform="rotate(72 150 150)"/>' +
+        '<path class="fill-region" data-region="cp2" d="M150,150 C122,144 100,120 104,94 C107,74 128,64 141,78 C146,83 149,90 150,98 C151,90 154,83 159,78 C172,64 193,74 196,94 C200,120 178,144 150,150 Z" transform="rotate(144 150 150)"/>' +
+        '<path class="fill-region" data-region="cp3" d="M150,150 C122,144 100,120 104,94 C107,74 128,64 141,78 C146,83 149,90 150,98 C151,90 154,83 159,78 C172,64 193,74 196,94 C200,120 178,144 150,150 Z" transform="rotate(216 150 150)"/>' +
+        '<path class="fill-region" data-region="cp4" d="M150,150 C122,144 100,120 104,94 C107,74 128,64 141,78 C146,83 149,90 150,98 C151,90 154,83 159,78 C172,64 193,74 196,94 C200,120 178,144 150,150 Z" transform="rotate(288 150 150)"/>' +
+        '</g>' +
+        '<line class="deco" x1="150" y1="150" x2="150" y2="118"/>' +
+        '<line class="deco" x1="150" y1="150" x2="176" y2="132"/>' +
+        '<line class="deco" x1="150" y1="150" x2="168" y2="176"/>' +
+        '<line class="deco" x1="150" y1="150" x2="132" y2="176"/>' +
+        '<line class="deco" x1="150" y1="150" x2="124" y2="132"/>' +
+        '<circle class="fixed-dark" cx="150" cy="116" r="4"/>' +
+        '<circle class="fixed-dark" cx="178" cy="130" r="4"/>' +
+        '<circle class="fixed-dark" cx="169" cy="178" r="4"/>' +
+        '<circle class="fixed-dark" cx="131" cy="178" r="4"/>' +
+        '<circle class="fixed-dark" cx="122" cy="130" r="4"/>' +
+        '<circle class="fill-region" data-region="ccenter" cx="150" cy="150" r="14"/>' +
+        '</svg>'
+    },
+    {
+      id: "daisy",
+      label: "데이지",
+      category: "flower",
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M144,168 C142,208 146,256 148,306 L162,306 C160,256 156,208 158,168 Z"/>' +
+        '<path class="fill-region" data-region="leafL" d="M146,228 C122,208 92,214 82,240 C96,266 128,268 146,242 Z"/>' +
+        '<path class="deco" d="M142,235 C124,232 106,236 90,246"/>' +
+        '<path class="fill-region" data-region="leafR" d="M158,264 C182,244 212,250 222,276 C208,302 176,304 158,278 Z"/>' +
+        '<path class="deco" d="M162,271 C180,268 198,272 214,282"/>' +
+        '<g>' +
+        '<path class="fill-region" data-region="d0" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(0 150 142)"/>' +
+        '<path class="fill-region" data-region="d1" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(30 150 142)"/>' +
+        '<path class="fill-region" data-region="d2" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(60 150 142)"/>' +
+        '<path class="fill-region" data-region="d3" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(90 150 142)"/>' +
+        '<path class="fill-region" data-region="d4" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(120 150 142)"/>' +
+        '<path class="fill-region" data-region="d5" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(150 150 142)"/>' +
+        '<path class="fill-region" data-region="d6" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(180 150 142)"/>' +
+        '<path class="fill-region" data-region="d7" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(210 150 142)"/>' +
+        '<path class="fill-region" data-region="d8" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(240 150 142)"/>' +
+        '<path class="fill-region" data-region="d9" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(270 150 142)"/>' +
+        '<path class="fill-region" data-region="d10" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(300 150 142)"/>' +
+        '<path class="fill-region" data-region="d11" d="M150,142 C142,120 140,94 150,68 C160,94 158,120 150,142 Z" transform="rotate(330 150 142)"/>' +
+        '</g>' +
+        '<circle class="fill-region" data-region="dcenter" cx="150" cy="142" r="30"/>' +
+        '</svg>'
+    },
+    {
+      id: "morningglory",
+      label: "나팔꽃",
+      category: "flower",
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M146,196 C140,232 148,268 150,308 L164,308 C160,268 154,234 160,198 Z"/>' +
+        '<path class="deco" d="M160,250 C186,244 196,258 190,272 C185,284 168,282 168,270 C168,260 182,258 186,268"/>' +
+        '<path class="fill-region" data-region="leafL" d="M148,240 C124,214 92,222 84,250 C100,276 132,276 148,250 Z"/>' +
+        '<path class="deco" d="M142,247 C124,244 106,248 92,258"/>' +
+        '<path class="fill-region" data-region="bloom" d="M105.3,68.5 Q150,10 194.7,68.5 Q255,99 222.3,153.5 Q210,220 150,206 Q90,220 77.7,153.5 Q45,99 105.3,68.5 Z"/>' +
+        '<line class="deco" x1="163.5" y1="111.4" x2="194.7" y2="68.5"/>' +
+        '<line class="deco" x1="171.9" y1="137.1" x2="222.3" y2="153.5"/>' +
+        '<line class="deco" x1="150" y1="153" x2="150" y2="206"/>' +
+        '<line class="deco" x1="128.1" y1="137.1" x2="77.7" y2="153.5"/>' +
+        '<line class="deco" x1="136.5" y1="111.4" x2="105.3" y2="68.5"/>' +
+        '<circle class="fill-region" data-region="throat" cx="150" cy="130" r="23"/>' +
+        '</svg>'
+    },
+    {
+      id: "roseofsharon",
+      label: "무궁화",
+      category: "flower",
+      svg: '<svg viewBox="0 0 300 320">' +
+        '<path class="fill-region" data-region="stem" d="M144,182 C142,220 146,262 148,306 L162,306 C160,262 156,220 158,182 Z"/>' +
+        '<path class="fill-region" data-region="leafL" d="M146,232 C122,210 90,216 80,244 C94,270 128,272 146,246 Z"/>' +
+        '<path class="deco" d="M142,239 C124,236 104,240 88,250"/>' +
+        '<path class="fill-region" data-region="leafR" d="M158,264 C182,242 214,248 224,276 C210,302 176,304 158,278 Z"/>' +
+        '<path class="deco" d="M162,271 C180,268 200,272 216,282"/>' +
+        '<g>' +
+        '<path class="fill-region" data-region="mp0" d="M150,150 C140,146 131,138 127,124 C120,102 128,76 150,68 C172,76 180,102 173,124 C169,138 160,146 150,150 Z" transform="rotate(0 150 150)"/>' +
+        '<path class="fill-region" data-region="mp1" d="M150,150 C140,146 131,138 127,124 C120,102 128,76 150,68 C172,76 180,102 173,124 C169,138 160,146 150,150 Z" transform="rotate(72 150 150)"/>' +
+        '<path class="fill-region" data-region="mp2" d="M150,150 C140,146 131,138 127,124 C120,102 128,76 150,68 C172,76 180,102 173,124 C169,138 160,146 150,150 Z" transform="rotate(144 150 150)"/>' +
+        '<path class="fill-region" data-region="mp3" d="M150,150 C140,146 131,138 127,124 C120,102 128,76 150,68 C172,76 180,102 173,124 C169,138 160,146 150,150 Z" transform="rotate(216 150 150)"/>' +
+        '<path class="fill-region" data-region="mp4" d="M150,150 C140,146 131,138 127,124 C120,102 128,76 150,68 C172,76 180,102 173,124 C169,138 160,146 150,150 Z" transform="rotate(288 150 150)"/>' +
+        '</g>' +
+        '<circle class="fill-region" data-region="mcenter" cx="150" cy="150" r="17"/>' +
+        '<line class="deco" x1="150" y1="140" x2="150" y2="86"/>' +
+        '<circle class="fixed-dark" cx="150" cy="82" r="5"/>' +
+        '<circle class="fixed-dark" cx="139" cy="90" r="4"/>' +
+        '<circle class="fixed-dark" cx="161" cy="90" r="4"/>' +
+        '<circle class="fixed-dark" cx="144" cy="101" r="3.5"/>' +
+        '<circle class="fixed-dark" cx="156" cy="101" r="3.5"/>' +
         '</svg>'
     },
     {
