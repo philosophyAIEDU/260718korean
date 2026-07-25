@@ -4713,6 +4713,7 @@
   ];
 
   var MART_SHARE_RECIPIENTS = [
+    { emoji: "🙋", word: "나" },
     { emoji: "👩", word: "엄마" },
     { emoji: "👨", word: "아빠" },
     { emoji: "🧒", word: "동생" },
@@ -4796,7 +4797,7 @@
     var stage = document.getElementById("mart-cook-stage");
     var dish = martCookState.dish;
     stage.innerHTML =
-      '<div class="construction-instruction">' + dish.emoji + ' ' + dish.word + '을(를) 가족과 친구에게 나눠줘요! (<span id="mart-share-count">0</span>/' + MART_SHARE_RECIPIENTS.length + ')</div>' +
+      '<div class="construction-instruction">' + dish.emoji + ' ' + dish.word + '을(를) 나와 가족, 친구에게 나눠줘요! (<span id="mart-share-count">0</span>/' + MART_SHARE_RECIPIENTS.length + ')</div>' +
       '<div class="patient-symptom" id="mart-dish">' + dish.emoji + '</div>' +
       '<div class="treatment-grid" id="mart-share-row"></div>';
     var row = document.getElementById("mart-share-row");
@@ -4828,8 +4829,8 @@
 
   function finishMartSharing() {
     martCookState.active = false;
-    celebrateGameFinish(randomCheer() + " 가족과 친구들에게 맛있는 " + martCookState.dish.word + "을(를) 나눠줬어요! 😊🍽️", "mart_share");
-    speakText("가족과 친구들에게 맛있는 음식을 나눠줬어요", { cancelFirst: true });
+    celebrateGameFinish(randomCheer() + " 나와 가족, 친구들에게 맛있는 " + martCookState.dish.word + "을(를) 나눠줬어요! 😊🍽️", "mart_share");
+    speakText("나와 가족과 친구들에게 맛있는 음식을 나눠줬어요", { cancelFirst: true });
     var stage = document.getElementById("mart-cook-stage");
     var btn = document.createElement("button");
     btn.className = "reset-btn";
@@ -7689,8 +7690,24 @@
   var TRACE_SETS = [
     { id: "consonant", label: "자음 ㄱㄴㄷ", chars: ["ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"] },
     { id: "vowel", label: "모음 ㅏㅑㅓ", chars: ["ㅏ", "ㅑ", "ㅓ", "ㅕ", "ㅗ", "ㅛ", "ㅜ", "ㅠ", "ㅡ", "ㅣ"] },
-    { id: "syllable", label: "글자 가나다", chars: LETTERS }
+    { id: "syllable", label: "글자 가나다", chars: LETTERS },
+    { id: "word", label: "낱말 사과", chars: ["사과", "바나나", "딸기", "포도", "수박", "당근", "토끼", "나비", "강아지", "고양이", "우유", "김밥"] }
   ];
+
+  var TRACE_BASE_FONT = Math.round(TRACE_SIZE * 0.72);
+  var traceFontMeasureCtx = null;
+  function traceFontSizeFor(text) {
+    if (text.length <= 1) { return TRACE_BASE_FONT; }
+    if (!traceFontMeasureCtx) { traceFontMeasureCtx = document.createElement("canvas").getContext("2d"); }
+    var maxWidth = TRACE_SIZE - 40;
+    var size = TRACE_BASE_FONT;
+    while (size > 40) {
+      traceFontMeasureCtx.font = "900 " + size + "px sans-serif";
+      if (traceFontMeasureCtx.measureText(text).width <= maxWidth) { break; }
+      size -= 4;
+    }
+    return size;
+  }
 
   var traceInkCanvas = null;
 
@@ -7700,6 +7717,8 @@
     char: "ㄱ",
     targets: [],
     mask: null,
+    fontSize: TRACE_BASE_FONT,
+    brush: TRACE_BRUSH,
     covered: 0,
     done: false,
     drawing: false,
@@ -7798,12 +7817,15 @@
   }
 
   function buildTraceTargets(ch) {
+    var fontSize = traceFontSizeFor(ch);
+    traceState.fontSize = fontSize;
+    traceState.brush = Math.max(14, Math.round(TRACE_BRUSH * (fontSize / TRACE_BASE_FONT)));
     var off = document.createElement("canvas");
     off.width = TRACE_SIZE;
     off.height = TRACE_SIZE;
     var octx = off.getContext("2d");
     octx.fillStyle = "#000000";
-    octx.font = "900 " + Math.round(TRACE_SIZE * 0.72) + "px sans-serif";
+    octx.font = "900 " + fontSize + "px sans-serif";
     octx.textAlign = "center";
     octx.textBaseline = "middle";
     octx.fillText(ch, TRACE_SIZE / 2, TRACE_SIZE / 2 + 4);
@@ -7860,7 +7882,7 @@
     if (!traceInkCanvas) { return; }
     var ictx = traceInkCanvas.getContext("2d");
     ictx.strokeStyle = "#ff6b81";
-    ictx.lineWidth = TRACE_BRUSH;
+    ictx.lineWidth = traceState.brush;
     ictx.lineCap = "round";
     ictx.lineJoin = "round";
     ictx.beginPath();
@@ -7968,7 +7990,7 @@
     // 따라 쓸 글자 (연한 회색)
     ctx.save();
     ctx.fillStyle = traceState.done ? "#cdeedd" : "#e2e8f0";
-    ctx.font = "900 " + Math.round(TRACE_SIZE * 0.72) + "px sans-serif";
+    ctx.font = "900 " + traceState.fontSize + "px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(traceState.char, TRACE_SIZE / 2, TRACE_SIZE / 2 + 4);
