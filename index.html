@@ -487,6 +487,40 @@
   .result-btn.retry { background: linear-gradient(145deg, #8fd9c4, #4ecba0); }
   .result-btn.home { background: linear-gradient(145deg, #8ecdf7, #5aa9e6); }
 
+  .result-medal-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(145deg, #fffdf3, #ffeec2);
+    border: 4px solid #ffca4d;
+    border-radius: 26px;
+    padding: 14px 30px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
+  .result-medal-emoji { font-size: clamp(46px, 11vw, 64px); line-height: 1; }
+  .result-medal-label { font-size: clamp(17px, 4vw, 21px); font-weight: 900; color: #4a5568; }
+  .result-medal-state { font-size: clamp(14px, 3.4vw, 17px); font-weight: 800; color: #d1770a; }
+  @keyframes medalPop {
+    0%   { transform: scale(0.3) rotate(-14deg); opacity: 0; }
+    60%  { transform: scale(1.14) rotate(6deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .result-medal-card.is-new { animation: medalPop 0.7s ease; }
+
+  .result-sticker-btn {
+    border: none;
+    border-radius: 20px;
+    padding: 12px 24px;
+    font-size: clamp(15px, 3.6vw, 18px);
+    font-weight: 900;
+    color: #7a4a00;
+    background: linear-gradient(145deg, #ffe9a8, #ffd166);
+    box-shadow: 0 5px 0 rgba(0,0,0,0.14), 0 7px 12px rgba(0,0,0,0.16);
+    cursor: pointer;
+  }
+  .result-sticker-btn:active { transform: translateY(3px); }
+
   /* ---------- 색칠 놀이 화면 ---------- */
   #color-screen {
     justify-content: flex-start;
@@ -2345,7 +2379,9 @@
   <div id="result-screen" class="screen">
     <div class="result-title">참 잘했어요! 🎉😄</div>
     <div class="result-sub" id="result-sub">오늘도 한 걸음 성장했어요!</div>
+    <div id="result-medal"></div>
     <div class="star-row" id="star-row"></div>
+    <button class="result-sticker-btn" onclick="openStickerScreen()">내 스티커판 보기 🎖️ <span class="sticker-count-badge">0 / 29</span></button>
     <div class="result-buttons">
       <button class="result-btn retry" onclick="retrySame()">다시 하기</button>
       <button class="result-btn home" onclick="goHome()">다른 단계 하기</button>
@@ -3386,7 +3422,22 @@
 
     celebrateWin();
     playFanfare();
-    awardSticker("stage" + state.mode);
+    renderResultMedal("stage" + state.mode);
+  }
+
+  function renderResultMedal(stickerId) {
+    var isNew = awardSticker(stickerId);
+    var wrap = document.getElementById("result-medal");
+    if (!wrap) { return; }
+    var item = STICKER_LIST.filter(function (s) { return s.id === stickerId; })[0];
+    if (!item) { wrap.innerHTML = ""; return; }
+    wrap.innerHTML =
+      '<div class="result-medal-card' + (isNew ? " is-new" : "") + '">' +
+      '<span class="result-medal-emoji">' + item.emoji + '</span>' +
+      '<span class="result-medal-label">' + item.label + '</span>' +
+      '<span class="result-medal-state">' + (isNew ? "🎖️ 새 메달을 받았어요!" : "🎖️ 이미 모은 메달이에요") + '</span>' +
+      '</div>';
+    updateStickerCountBadges();
   }
 
   function celebrateWin() {
@@ -4107,7 +4158,7 @@
   var earnedStickers = loadStickersFromStorage();
 
   function awardSticker(id) {
-    if (earnedStickers[id]) { return; }
+    if (earnedStickers[id]) { return false; }
     earnedStickers[id] = true;
     saveStickersToStorage();
     updateStickerCountBadges();
@@ -4118,6 +4169,7 @@
       toast.classList.add("show");
       setTimeout(function () { toast.classList.remove("show"); }, 1800);
     }
+    return true;
   }
 
   function updateStickerCountBadges() {
